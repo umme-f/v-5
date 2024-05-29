@@ -3,10 +3,6 @@ import { Link } from 'react-router-dom';
 
 const VehicleManagerTableView = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [data, setData] = useState([
-    { ID: 1, name: 'toyota',  year:'2012', role: 'VM' },
-    { ID: 2, name: 'daihatsu', year: '2019', role: 'User' },
-  ]);
   const [editIdx, setEditIdx] = useState(-1);
 
   const loggedInUser = {
@@ -27,22 +23,10 @@ const VehicleManagerTableView = () => {
   };
 
   const handleEditChange = (event, index, field) => {
-    const newData = data.map((row, i) => {
-      if (i === index) {
-        return { ...row, [field]: event.target.value };
-      }
-      return row;
-    });
-    setData(newData);
+    // edit change logic here
   };
 
-  const filteredData = data.filter(
-    row =>
-      row.ID.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
-      row.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      row.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      row.role.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredData = []; // empty array
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4 md:p-10">
@@ -67,12 +51,12 @@ const VehicleManagerTableView = () => {
           />
           <button
             onClick={handleSearch}
-            className="p-2 bg-blue-500 text-white mb-2 md:mb-0 md:ml-2 pr-2"
+            className="p-2 bg-blue-500 text-white mb-2 md:mb-0 md:ml-2 mr-2 pr-2"
           >
             Search
           </button>
           <button
-            className="p-2 bg-orange-500 text-white rounded ml-auto"
+            className="p-2 bg-orange-500 text-white rounded-r"
           >
             Add People
           </button>
@@ -91,7 +75,7 @@ const VehicleManagerTableView = () => {
           </thead>
           <tbody>
             {filteredData.map((row, index) => (
-              <tr key={row.ID} className="border-b border-gray-300">
+              <tr key={index} className="border-b border-gray-300">
                 <td className="py-2 px-4 border-r border-gray-300 text-center">
                   {editIdx === index ? (
                     <input
@@ -121,7 +105,7 @@ const VehicleManagerTableView = () => {
                     <input
                       type="text"
                       value={row.year}
-                      onChange={(e) => handleEditChange(e, index, 'role')}
+                      onChange={(e) => handleEditChange(e, index, 'year')}
                       className="p-2 border border-gray-300 rounded"
                     />
                   ) : (

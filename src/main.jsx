@@ -7,6 +7,7 @@ import AfterLogin from './components/AfterLogin';
 import VehicleManagerTableView from './components/VehicleManagerTableView';
 import UserTableView from './components/UserTableView';
 import Footer from './components/Footer';
+import Error from './components/Error';
 import './index.css';
 
 
@@ -32,8 +33,12 @@ const router = createBrowserRouter([
     element: <UserTableView />,
   },
   {
-    path: "/Footer",
+    path: "/footer",
     element: <Footer />,
+  },
+  {
+    path: "*",
+    element: <Error />,
   },
 ]);
 

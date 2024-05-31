@@ -4,7 +4,7 @@ import logo from '../assets/images/company-logo.png'; // Adjust the path to your
 const Footer = () => {
   return (
    <>
-    <div className="bg-gray-100 py-6">
+    {/* <div className="bg-gray-100 py-6">
       <div className="max-w-screen-lg px-4 sm:px-6 text-gray-800 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mx-auto">
         <div className="flex flex-col items-center justify-center p-5">
           <img src={logo} alt="Ariake Logo" className="h-10 mb-3" />
@@ -25,7 +25,7 @@ const Footer = () => {
           </p>
         </div>
       </div>
-    </div>
+    </div> */}
     <div className="flex flex-col justify-center items-center text-center p-5 bg-gray-800">
     <h1 className="text-zinc-300 font-semibold">@ 2024 All rights reserved | <span className='hover: font-semibold curser-pointer'> Ariake co.,ltd</span></h1>
     </div>

@@ -9,6 +9,7 @@ import UserTableView from './components/UserTableView';
 import Footer from './components/Footer';
 import Error from './components/Error';
 import './index.css';
+import AddPeople from './AddPeople';
 
 
 const router = createBrowserRouter([
@@ -41,6 +42,10 @@ const router = createBrowserRouter([
   {
     path: "/footer",
     element: <Footer />,
+  },
+  {
+    path: "/add-people",
+    element: <AddPeople />,
   },
   {
     path: "*",

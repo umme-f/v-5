@@ -6,6 +6,7 @@ import data from './data.json';
 
 const VehicleManagerTableView = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [showData, setShowData] = useState(10);
 
   const loggedInUser = {
     name: 'A- san' // user name
@@ -15,9 +16,15 @@ const VehicleManagerTableView = () => {
     setSearchTerm(event.target.value);
   };
 
-  const filteredData = data.filter(row => 
-    row.carName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Handle show more data
+  const handleShowData=()=>{
+    setShowData(data.length);
+  }
+
+  const filteredData = 
+    data
+    .filter(row => row.carName.toLowerCase().includes(searchTerm.toLowerCase()))
+    .slice(0, showData);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4 md:p-10">
@@ -43,10 +50,12 @@ const VehicleManagerTableView = () => {
             <FontAwesomeIcon icon={faMagnifyingGlass} className="pr-2" />
             Search
           </button>
+          <Link to='/add-people'>
           <button className="p-2 bg-orange-500 text-white rounded-r">
             <FontAwesomeIcon icon={faUserPlus} className="pr-2" />
             Add People
           </button>
+          </Link>
         </div>
       </div>
 
@@ -81,6 +90,11 @@ const VehicleManagerTableView = () => {
           </tbody>
         </table>
       </div>
+      {showData< data.length && (
+        <button onClick= {handleShowData}
+        className={'mt-4 p-2 bg-green-500 text-white rounded'}>
+          Show More
+        </button>)}
     </div>
   );
 };

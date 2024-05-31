@@ -9,7 +9,7 @@ import UserTableView from './components/UserTableView';
 import Footer from './components/Footer';
 import Error from './components/Error';
 import './index.css';
-import AddPeople from './AddPeople';
+import AddPeople from './components/AddPeople';
 
 
 const router = createBrowserRouter([

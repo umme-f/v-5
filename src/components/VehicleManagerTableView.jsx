@@ -49,6 +49,8 @@ const VehicleManagerTableView = () => {
           </button>
         </div>
       </div>
+
+      {/* Table view */}
       <div className="overflow-x-auto w-full md:max-w-4xl mt-4">
         <table className="min-w-full bg-white border border-gray-300">
           <thead>

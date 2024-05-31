@@ -15,6 +15,12 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <Login />,
+    children:[
+      {
+        path:'/footer',
+        element:<Footer />,
+      }
+    ]
   },
   {
     path: "/forgot-password",

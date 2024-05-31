@@ -1,42 +1,29 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMagnifyingGlass, faUserPlus, faCircleUser } from '@fortawesome/free-solid-svg-icons';
+import data from './data.json';
 
 const VehicleManagerTableView = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [editIdx, setEditIdx] = useState(-1);
 
   const loggedInUser = {
-    name: 'VM',
-    avatar: 'https://via.placeholder.com/40',
+    name: 'A- san' // user name
   };
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
   };
 
-  const startEditing = (index) => {
-    setEditIdx(index);
-  };
-
-  const stopEditing = () => {
-    setEditIdx(-1);
-  };
-
-  const handleEditChange = (event, index, field) => {
-    // edit change logic here
-  };
-
-  const filteredData = []; // empty array
+  const filteredData = data.filter(row => 
+    row.carName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4 md:p-10">
       <div className="absolute top-0 right-0 p-4 flex items-center">
         <Link to="#">
-          <img
-            src={loggedInUser.avatar}
-            alt={loggedInUser.name}
-            className="w-10 h-10 rounded-full"
-          />
+          <FontAwesomeIcon icon={faCircleUser} className="text-4xl text-gray-700" />
         </Link>
         <span className="ml-2 mt-2">{loggedInUser.name}</span>
       </div>
@@ -53,11 +40,11 @@ const VehicleManagerTableView = () => {
             onClick={handleSearch}
             className="p-2 bg-blue-500 text-white mb-2 md:mb-0 md:ml-2 mr-2 pr-2"
           >
+            <FontAwesomeIcon icon={faMagnifyingGlass} className="pr-2" />
             Search
           </button>
-          <button
-            className="p-2 bg-orange-500 text-white rounded-r"
-          >
+          <button className="p-2 bg-orange-500 text-white rounded-r">
+            <FontAwesomeIcon icon={faUserPlus} className="pr-2" />
             Add People
           </button>
         </div>
@@ -70,76 +57,22 @@ const VehicleManagerTableView = () => {
               <th className="py-2 px-4 border border-gray-300 text-center">Car name</th>
               <th className="py-2 px-4 border border-gray-300 text-center">Year</th>
               <th className="py-2 px-4 border border-gray-300 text-center">Role</th>
-              <th className="py-2 px-4 border border-gray-300 text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredData.map((row, index) => (
               <tr key={index} className="border-b border-gray-300">
                 <td className="py-2 px-4 border-r border-gray-300 text-center">
-                  {editIdx === index ? (
-                    <input
-                      type="text"
-                      value={row.ID}
-                      onChange={(e) => handleEditChange(e, index, 'ID')}
-                      className="p-2 border border-gray-300 rounded"
-                    />
-                  ) : (
-                    row.ID
-                  )}
+                  {row.carID}
                 </td>
                 <td className="py-2 px-4 border-r border-gray-300 text-center">
-                  {editIdx === index ? (
-                    <input
-                      type="text"
-                      value={row.name}
-                      onChange={(e) => handleEditChange(e, index, 'name')}
-                      className="p-2 border border-gray-300 rounded"
-                    />
-                  ) : (
-                    row.name
-                  )}
+                  {row.carName}
                 </td>
                 <td className="py-2 px-4 border-r border-gray-300 text-center">
-                  {editIdx === index ? (
-                    <input
-                      type="text"
-                      value={row.year}
-                      onChange={(e) => handleEditChange(e, index, 'year')}
-                      className="p-2 border border-gray-300 rounded"
-                    />
-                  ) : (
-                    row.year
-                  )}
+                  {row.year}
                 </td>
                 <td className="py-2 px-4 border-r border-gray-300 text-center">
-                  {editIdx === index ? (
-                    <input
-                      type="text"
-                      value={row.role}
-                      onChange={(e) => handleEditChange(e, index, 'role')}
-                      className="p-2 border border-gray-300 rounded"
-                    />
-                  ) : (
-                    row.role
-                  )}
-                </td>
-                <td className="py-2 px-4 border-r border-gray-300 text-center">
-                  {editIdx === index ? (
-                    <button
-                      onClick={stopEditing}
-                      className="p-2 bg-blue-500 text-white rounded"
-                    >
-                      Save
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => startEditing(index)}
-                      className="p-2 bg-yellow-500 text-white rounded"
-                    >
-                      Edit
-                    </button>
-                  )}
+                  {row.role}
                 </td>
               </tr>
             ))}

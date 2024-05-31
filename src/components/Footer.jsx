@@ -27,7 +27,7 @@ const Footer = () => {
       </div>
     </div>
     <div className="flex flex-col justify-center items-center text-center p-5 bg-gray-800">
-    <h1 className="text-zinc-300 font-semibold">@ 2023 All rights reserved | <span className='hover: font-semibold curser-pointer'> Ariake co.,ltd</span></h1>
+    <h1 className="text-zinc-300 font-semibold">@ 2024 All rights reserved | <span className='hover: font-semibold curser-pointer'> Ariake co.,ltd</span></h1>
     </div>
    </>
     

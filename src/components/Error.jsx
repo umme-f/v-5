@@ -1,12 +1,13 @@
 import React from 'react';
-import error_icon from '../assets/images/error-icon-fa.png'
-const Error = () => {
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
+
+const Error = ({ errorType }) => {
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-            <img src={error_icon}alt="Error Icon" className="mb-4 w-16 h-16" />
-            <h1 className="text-4xl font-bold mb-4">404</h1>
-            <p className="text-lg mb-4">Page Not Found</p>
-            
+            <FontAwesomeIcon icon={faCircleExclamation} className="mb-4 text-red-500 text-6xl" />
+            <h1 className="text-4xl font-bold mb-4">Error</h1>
+            <p className="text-lg mb-4">{errorType ? errorType : "An error occurred"}</p>
         </div>
     );
 };

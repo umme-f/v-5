@@ -1,4 +1,8 @@
 import React, { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleUser } from '@fortawesome/free-solid-svg-icons';
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { Link } from 'react-router-dom';
 
 const UserTableView = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -9,9 +13,9 @@ const UserTableView = () => {
   const [editIdx, setEditIdx] = useState(-1);
 
   const loggedInUser = {
-    name: 'Non VM',
-    avatar: 'https://via.placeholder.com/40',
+    
   };
+
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
   };
@@ -44,15 +48,10 @@ const UserTableView = () => {
   return (
     <div className="p-10">
       <div className="absolute top-0 right-0 p-4 flex items-center">
-
-{/* Make it link later */}
-<img
-  src={loggedInUser.avatar}
-  alt={loggedInUser.name}
-  className="w-10 h-10 rounded-full mt-5"
-/>
-<span className="ml-2 mr-8 mt-5">{loggedInUser.name}</span>
-</div>
+        <Link to='#'><FontAwesomeIcon icon={faCircleUser} className="text-4xl text-gray-700 mt-5" />
+</Link>
+        <span className="ml-2 mr-8 mt-5">{loggedInUser.name}</span>
+      </div>
       <input
         type="text"
         placeholder="Search..."
@@ -61,12 +60,13 @@ const UserTableView = () => {
         className="mb-4 p-2 border border-gray-300 rounded"
       />
       <button
-          onClick={handleSearch}
-          className="p-2 bg-blue-500 text-white rounded-r"
-        >
-          Search
-        </button>
-      <table className="min-w-full bg-white border border-gray-300">
+        onClick={handleSearch}
+        className="p-2 bg-blue-500 text-white rounded-r"
+      >
+        <FontAwesomeIcon icon={faMagnifyingGlass}  className='pr-2'/>
+        Search
+      </button>
+      <table className="min-w-full bg-white border border-gray-300 mt-4">
         <thead>
           <tr>
             <th className="py-2 px-4 border border-gray-300">Name</th>
@@ -113,7 +113,6 @@ const UserTableView = () => {
                   row.role
                 )}
               </td>
-             
             </tr>
           ))}
         </tbody>

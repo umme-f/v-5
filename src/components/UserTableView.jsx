@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleUser, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
-import data from './data.json'; // Ensure this path is correct
+import data from './data.json'; 
 import { Link } from 'react-router-dom';
 
 const UserTableView = () => {

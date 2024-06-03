@@ -3,11 +3,13 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass, faUserPlus, faCircleUser } from '@fortawesome/free-solid-svg-icons';
 import data from './data.json';
+import UpdateWarning from './UpdateWarning';
+
 
 const VehicleManagerTableView = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showData, setShowData] = useState(10);
-
+  
   const loggedInUser = {
     name: 'A- san' // user name
   };
@@ -95,6 +97,7 @@ const VehicleManagerTableView = () => {
         className={'mt-4 p-2 bg-green-500 text-white rounded'}>
           Show More
         </button>)}
+        <UpdateWarning/>
     </div>
   );
 };

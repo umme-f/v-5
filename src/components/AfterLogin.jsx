@@ -1,35 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import imageSurvey from '../assets/images/survey.jpg';
 import imageVehicle from '../assets/images/car.jpg';
 
 function AfterLogin() {
-  const [showSuccessfulLoginMessage, setShowSuccessfulLoginMessage] = useState(false);
 
-  useEffect(() =>{
-    const timer = setTimeout(() => {
-      setShowSuccessfulLoginMessage(false);
-    }, 3000);
-
-    return () =>{
-      clearTimeout(timer);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!showSuccessfulLoginMessage) {
-      toast.success('Login successful!', {
-        position: "bottom-right",
-        autoClose: 4500,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined
-      });
-    }
-  }, [showSuccessfulLoginMessage]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-10 space-y-10">
@@ -53,7 +28,6 @@ function AfterLogin() {
           </div>
         </div>
       </div>
-      <ToastContainer />
     </div>
   );
 }

@@ -18,7 +18,7 @@ const UpdateWarning = () => {
 
         useEffect(() => {
             if (!showUpdatePending) {
-            toast.error('Update information', {
+            toast.error('Update information (更新が保留中です。)', {
                 position: "bottom-right",
                 autoClose: false,
                 hideProgressBar: false,

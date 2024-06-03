@@ -1,32 +1,39 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMagnifyingGlass, faUserPlus, faCircleUser } from '@fortawesome/free-solid-svg-icons';
+import { faMagnifyingGlass, faUserPlus, faCircleUser, faChevronLeft, faChevronRight} from '@fortawesome/free-solid-svg-icons';
 import data from './data.json';
 import UpdateWarning from './UpdateWarning';
 
-
 const VehicleManagerTableView = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [showData, setShowData] = useState(10);
-  
+  const [currentPage, setCurrentPage] = useState(0);
+  const itemsPerPage = 10;
+
   const loggedInUser = {
-    name: 'A- san' // user name
+    name: 'A- san' 
   };
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
+    setCurrentPage(0); 
   };
 
-  // Handle show more data
-  const handleShowData=()=>{
-    setShowData(data.length);
-  }
+  const filteredData = data.filter(row => row.carName.toLowerCase().includes(searchTerm.toLowerCase()));
+  const pageCount = Math.ceil(filteredData.length / itemsPerPage);
+  const currentPageData = filteredData.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
 
-  const filteredData = 
-    data
-    .filter(row => row.carName.toLowerCase().includes(searchTerm.toLowerCase()))
-    .slice(0, showData);
+  const handleNextPage = () => {
+    if (currentPage < pageCount - 1) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 0) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4 md:p-10">
@@ -53,10 +60,10 @@ const VehicleManagerTableView = () => {
             Search
           </button>
           <Link to='/add-people'>
-          <button className="p-2 bg-orange-500 text-white rounded-r">
-            <FontAwesomeIcon icon={faUserPlus} className="pr-2" />
-            Add People
-          </button>
+            <button className="p-2 bg-orange-500 text-white rounded-r">
+              <FontAwesomeIcon icon={faUserPlus} className="pr-2" />
+              Add People
+            </button>
           </Link>
         </div>
       </div>
@@ -73,7 +80,7 @@ const VehicleManagerTableView = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredData.map((row, index) => (
+            {currentPageData.map((row, index) => (
               <tr key={index} className="border-b border-gray-300">
                 <td className="py-2 px-4 border-r border-gray-300 text-center">
                   {row.carID}
@@ -92,12 +99,15 @@ const VehicleManagerTableView = () => {
           </tbody>
         </table>
       </div>
-      {showData< data.length && (
-        <button onClick= {handleShowData}
-        className={'mt-4 p-2 bg-green-500 text-white rounded'}>
-          Show More
-        </button>)}
-        <UpdateWarning/>
+      <div className="flex justify-center w-full md:max-w-4xl mt-4 space-x-4">
+        <button onClick={handlePreviousPage} disabled={currentPage === 0} className="p-4 bg-green-500 text-white rounded disabled:opacity-50">
+          <FontAwesomeIcon icon={faChevronLeft} />
+        </button>
+        <button onClick={handleNextPage} disabled={currentPage >= pageCount - 1} className="p-4 bg-green-500 text-white rounded disabled:opacity-50">
+          <FontAwesomeIcon icon={faChevronRight} />
+        </button>
+      </div>
+      <UpdateWarning />
     </div>
   );
 };

@@ -1,41 +1,32 @@
-import React, {useEffect, useState} from 'react';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useEffect, useState } from 'react';
 
-// Show warning about pending update
 const UpdateWarning = () => {
-    const [showUpdatePending, setShowUpdatePending] = useState(false);
+  const [showUpdatePending, setShowUpdatePending] = useState(false);
 
-        useEffect(() =>{
-            const timer = setTimeout(() => {
-            setShowUpdatePending(false);
-            }, 3000);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowUpdatePending(true);
+    }, 3000); 
 
-            return () =>{
-            clearTimeout(timer);
-            };
-        }, []);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, []);
 
-        useEffect(() => {
-            if (!showUpdatePending) {
-            toast.error('Update information (更新が保留中です。)', {
-                position: "bottom-right",
-                autoClose: false,
-                hideProgressBar: false,
-                closeOnClick: false,
-                pauseOnHover: false,
-                draggable: false,
-                progress: undefined
-            });
-            }
-        }, [showUpdatePending]);
+  useEffect(() => {
+    if (showUpdatePending && 'Notification' in window) {
+      Notification.requestPermission().then((permission) => {
+        if (permission === 'granted') {
+          new Notification('Update Information', {
+            body: '更新が保留中です。',
+            requireInteraction: true
+          });
+        }
+      });
+    }
+  }, [showUpdatePending]);
 
-    return (
-        <div>                   
-            <ToastContainer />
-        </div>
-        
-    );
+  return null; 
 };
 
 export default UpdateWarning;

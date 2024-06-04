@@ -72,7 +72,7 @@ const VehicleManagerTableView = () => {
         <span className="ml-2 mt-2">{loggedInUser.name}</span>
       </div>
       <div className="w-full md:max-w-4xl">
-        <div className="flex items-center">
+        <div className="flex flex-col md:flex-row items-center">
           <input
             type="text"
             placeholder="Search..."
@@ -167,13 +167,20 @@ const VehicleManagerTableView = () => {
                       {row.role}
                     </td>
                     <td className="py-2 px-4 border-r border-gray-300 text-center">
-                      <button onClick={() => handleEdit(row.carID)} className="p-2 bg-yellow-500 text-white rounded mr-2">
+                      <button 
+                        onClick={() => handleEdit(row.carID)} 
+                        className="p-1 sm:p-2 bg-yellow-500 text-white rounded mr-1 sm:mr-2 text-xs sm:text-base"
+                      >
                         <FontAwesomeIcon icon={faEdit} />
                       </button>
-                      <button onClick={() => handleDelete(row.carID)} className="p-2 bg-red-500 text-white rounded">
+                      <button 
+                        onClick={() => handleDelete(row.carID)} 
+                        className="p-1 sm:p-2 bg-red-500 text-white rounded text-xs sm:text-base"
+                      >
                         <FontAwesomeIcon icon={faTrash} />
                       </button>
                     </td>
+
                   </>
                 )}
               </tr>

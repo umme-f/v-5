@@ -1,19 +1,18 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMagnifyingGlass, faUserPlus, faCircleUser, faChevronLeft, faChevronRight, faEdit, faTrash, faSave, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faMagnifyingGlass, faCircleUser, faChevronLeft, faChevronRight, faPlus, faEdit, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons';
 import data from './data.json';
 import UpdateWarning from './UpdateWarning';
+import { Link } from 'react-router-dom';
 
 const VehicleManagerTableView = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(0);
-  const [editingRow, setEditingRow] = useState(null);
-  const [editableData, setEditableData] = useState({});
+  const [selectedRow, setSelectedRow] = useState(null);
   const itemsPerPage = 10;
 
   const loggedInUser = {
-    name: 'A- san'
+    name: 'A-san'
   };
 
   const handleSearch = (event) => {
@@ -21,30 +20,8 @@ const VehicleManagerTableView = () => {
     setCurrentPage(0);
   };
 
-  const handleEdit = (id) => {
-    setEditingRow(id);
-    const rowData = data.find(row => row.carID === id);
-    setEditableData({ ...rowData });
-  };
-
-  const handleDelete = (id) => {
-    // Add your delete handling logic here
-    console.log(`Delete car with ID: ${id}`);
-  };
-
-  const handleSave = () => {
-    // save handling logic, for example, updating the data array
-    console.log(`Save car with ID: ${editableData.carID}`, editableData);
-    setEditingRow(null);
-  };
-
-  const handleCancel = () => {
-    setEditingRow(null);
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setEditableData({ ...editableData, [name]: value });
+  const handleRowClick = (index) => {
+    setSelectedRow(index);
   };
 
   const filteredData = data.filter(row => row.carName.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -65,7 +42,7 @@ const VehicleManagerTableView = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4 md:p-10">
-      <div className="absolute top-0 right-0 p-4 flex items-center">
+      <div className="absolute top-0 left-0 p-4 flex items-center">
         <Link to="#">
           <FontAwesomeIcon icon={faCircleUser} className="text-4xl text-gray-700" />
         </Link>
@@ -82,17 +59,11 @@ const VehicleManagerTableView = () => {
           />
           <button
             onClick={handleSearch}
-            className="p-2 bg-blue-500 text-white mb-2 md:mb-0 md:ml-2 mr-2 pr-2"
+            className="p-2 bg-blue-500 text-white mb-2 md:mb-0 md:ml-2 mr-2 pr-2  rounded-r"
           >
             <FontAwesomeIcon icon={faMagnifyingGlass} className="pr-2" />
             Search
           </button>
-          <Link to='/add-people'>
-            <button className="p-2 bg-orange-500 text-white rounded-r">
-              <FontAwesomeIcon icon={faUserPlus} className="pr-2" />
-              Add People
-            </button>
-          </Link>
         </div>
       </div>
 
@@ -105,89 +76,30 @@ const VehicleManagerTableView = () => {
               <th className="py-2 px-4 border border-gray-300 text-center">Car name</th>
               <th className="py-2 px-4 border border-gray-300 text-center">Year</th>
               <th className="py-2 px-4 border border-gray-300 text-center">Role</th>
-              <th className="py-2 px-4 border border-gray-300 text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
             {currentPageData.map((row, index) => (
-              <tr key={index} className="border-b border-gray-300">
-                {editingRow === row.carID ? (
-                  <>
-                    <td className="py-2 px-4 border-r border-gray-300 text-center">
-                      {row.carID}
-                    </td>
-                    <td className="py-2 px-4 border-r border-gray-300 text-center">
-                      <input
-                        type="text"
-                        name="carName"
-                        value={editableData.carName}
-                        onChange={handleInputChange}
-                        className="p-2 border border-gray-300 rounded"
-                      />
-                    </td>
-                    <td className="py-2 px-4 border-r border-gray-300 text-center">
-                      <input
-                        type="text"
-                        name="year"
-                        value={editableData.year}
-                        onChange={handleInputChange}
-                        className="p-2 border border-gray-300 rounded"
-                      />
-                    </td>
-                    <td className="py-2 px-4 border-r border-gray-300 text-center">
-                      <input
-                        type="text"
-                        name="role"
-                        value={editableData.role}
-                        onChange={handleInputChange}
-                        className="p-2 border border-gray-300 rounded"
-                      />
-                    </td>
-                    <td className="py-2 px-4 border-r border-gray-300 text-center">
-                      <button onClick={handleSave} className="p-2 bg-green-500 text-white rounded mr-2">
-                        <FontAwesomeIcon icon={faSave} />
-                      </button>
-                      <button onClick={handleCancel} className="p-2 bg-red-500 text-white rounded">
-                        <FontAwesomeIcon icon={faTimes} />
-                      </button>
-                    </td>
-                  </>
-                ) : (
-                  <>
-                    <td className="py-2 px-4 border-r border-gray-300 text-center">
-                      {row.carID}
-                    </td>
-                    <td className="py-2 px-4 border-r border-gray-300 text-center">
-                      {row.carName}
-                    </td>
-                    <td className="py-2 px-4 border-r border-gray-300 text-center">
-                      {row.year}
-                    </td>
-                    <td className="py-2 px-4 border-r border-gray-300 text-center">
-                      {row.role}
-                    </td>
-                    <td className="py-2 px-4 border-r border-gray-300 text-center">
-                      <button 
-                        onClick={() => handleEdit(row.carID)} 
-                        className="p-1 sm:p-2 bg-yellow-500 text-white rounded mr-1 sm:mr-2 text-xs sm:text-base"
-                      >
-                        <FontAwesomeIcon icon={faEdit} />
-                      </button>
-                      <button 
-                        onClick={() => handleDelete(row.carID)} 
-                        className="p-1 sm:p-2 bg-red-500 text-white rounded text-xs sm:text-base"
-                      >
-                        <FontAwesomeIcon icon={faTrash} />
-                      </button>
-                    </td>
-
-                  </>
-                )}
+              <tr key={index} className={`${index % 2 === 0 ? 'bg-gray-100' : 'bg-gray-200'} ${selectedRow === index ? 'bg-blue-200' : ''}`} onClick={() => handleRowClick(index)}>
+                <td className="py-2 px-4 border-r border-gray-300 text-center">
+                  {row.carID}
+                </td>
+                <td className="py-2 px-4 border-r border-gray-300 text-center">
+                  {row.carName}
+                </td>
+                <td className="py-2 px-4 border-r border-gray-300 text-center">
+                  {row.year}
+                </td>
+                <td className="py-2 px-4 border-r border-gray-300 text-center">
+                  {row.role}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {/* Pagination */}
       <div className="flex justify-center w-full md:max-w-4xl mt-4 space-x-4">
         <button onClick={handlePreviousPage} disabled={currentPage === 0} className="p-4 bg-green-500 text-white rounded disabled:opacity-50">
           <FontAwesomeIcon icon={faChevronLeft} />
@@ -196,6 +108,27 @@ const VehicleManagerTableView = () => {
           <FontAwesomeIcon icon={faChevronRight} />
         </button>
       </div>
+
+      {/* Add, Edit, Delete, Close buttons */}
+      <div className="flex justify-center w-full md:max-w-4xl mt-4 space-x-4">
+        <button className="p-4 bg-blue-500 text-white rounded">
+          <FontAwesomeIcon icon={faPlus} />
+          Add
+        </button>
+        <button className="p-4 bg-yellow-500 text-white rounded">
+          <FontAwesomeIcon icon={faEdit} />
+          Edit
+        </button>
+        <button className="p-4 bg-red-500 text-white rounded">
+          <FontAwesomeIcon icon={faTrash} />
+          Delete
+        </button>
+        <button className="p-4 bg-gray-500 text-white rounded">
+          <FontAwesomeIcon icon={faTimes} />
+          Close
+        </button>
+      </div>
+      
       <UpdateWarning />
     </div>
   );

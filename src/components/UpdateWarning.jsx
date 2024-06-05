@@ -26,7 +26,7 @@ const UpdateWarning = () => {
     }
   }, [showUpdatePending]);
 
-  return null; 
+  // return null; 
 };
 
 export default UpdateWarning;

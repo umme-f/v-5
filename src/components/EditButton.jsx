@@ -1,6 +1,6 @@
 import React from 'react';
 
-const PageCount = () => {
+const EditButton = () => {
     return (
         <div>
             
@@ -8,4 +8,4 @@ const PageCount = () => {
     );
 };
 
-export default PageCount;
+export default EditButton;

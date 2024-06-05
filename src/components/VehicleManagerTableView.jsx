@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass, faCircleUser, faChevronLeft, faChevronRight, faPlus, faEdit, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { Link } from 'react-router-dom';
 import data from './data.json';
 import UpdateWarning from './UpdateWarning';
-import { Link } from 'react-router-dom';
 
 const VehicleManagerTableView = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -59,7 +59,7 @@ const VehicleManagerTableView = () => {
           />
           <button
             onClick={handleSearch}
-            className="p-2 bg-blue-500 text-white mb-2 md:mb-0 md:ml-2 mr-2 pr-2  rounded-r"
+            className="p-2 bg-blue-500 text-white mb-2 md:mb-0 md:ml-2 mr-2 pr-2 rounded-r"
           >
             <FontAwesomeIcon icon={faMagnifyingGlass} className="pr-2" />
             Search
@@ -99,36 +99,38 @@ const VehicleManagerTableView = () => {
         </table>
       </div>
 
-      {/* Pagination */}
-      <div className="flex justify-center w-full md:max-w-4xl mt-4 space-x-4">
-        <button onClick={handlePreviousPage} disabled={currentPage === 0} className="p-4 bg-green-500 text-white rounded disabled:opacity-50">
-          <FontAwesomeIcon icon={faChevronLeft} />
-        </button>
-        <button onClick={handleNextPage} disabled={currentPage >= pageCount - 1} className="p-4 bg-green-500 text-white rounded disabled:opacity-50">
-          <FontAwesomeIcon icon={faChevronRight} />
-        </button>
+      <div className="flex justify-between w-full md:max-w-4xl mt-4 space-x-4">
+        {/* Pagination */}
+        <div className="flex space-x-4">
+          <button onClick={handlePreviousPage} disabled={currentPage === 0} className="p-4 bg-green-500 text-white rounded disabled:opacity-50">
+            <FontAwesomeIcon icon={faChevronLeft} />
+          </button>
+          <button onClick={handleNextPage} disabled={currentPage >= pageCount - 1} className="p-4 bg-green-500 text-white rounded disabled:opacity-50">
+            <FontAwesomeIcon icon={faChevronRight} />
+          </button>
+        </div>
+
+        {/* Add, Edit, Delete, Close buttons */}
+        <div className="flex space-x-4">
+          <Link to="/add-button" className="p-4 bg-blue-500 text-white rounded">
+            <FontAwesomeIcon icon={faPlus} />
+            Add
+          </Link>
+          <button className="p-4 bg-yellow-500 text-white rounded">
+            <FontAwesomeIcon icon={faEdit} />
+            Edit
+          </button>
+          <button className="p-4 bg-red-500 text-white rounded">
+            <FontAwesomeIcon icon={faTrash} />
+            Delete
+          </button>
+          <button className="p-4 bg-gray-500 text-white rounded">
+            <FontAwesomeIcon icon={faTimes} />
+            Close
+          </button>
+        </div>
       </div>
 
-      {/* Add, Edit, Delete, Close buttons */}
-      <div className="flex justify-center w-full md:max-w-4xl mt-4 space-x-4">
-        <button className="p-4 bg-blue-500 text-white rounded">
-          <FontAwesomeIcon icon={faPlus} />
-          Add
-        </button>
-        <button className="p-4 bg-yellow-500 text-white rounded">
-          <FontAwesomeIcon icon={faEdit} />
-          Edit
-        </button>
-        <button className="p-4 bg-red-500 text-white rounded">
-          <FontAwesomeIcon icon={faTrash} />
-          Delete
-        </button>
-        <button className="p-4 bg-gray-500 text-white rounded">
-          <FontAwesomeIcon icon={faTimes} />
-          Close
-        </button>
-      </div>
-      
       <UpdateWarning />
     </div>
   );

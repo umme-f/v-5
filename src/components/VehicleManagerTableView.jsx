@@ -20,8 +20,8 @@ const VehicleManagerTableView = () => {
     setCurrentPage(0);
   };
 
-  const handleRowClick = (index) => {
-    setSelectedRow(index);
+  const handleRowClick = (carID) => {
+    setSelectedRow(carID);
   };
 
   const filteredData = data.filter(row => row.carName.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -62,7 +62,7 @@ const VehicleManagerTableView = () => {
             className="p-2 bg-blue-500 text-white mb-2 md:mb-0 md:ml-2 mr-2 pr-2 rounded-r"
           >
             <FontAwesomeIcon icon={faMagnifyingGlass} className="pr-2" />
-            Search
+            検索
           </button>
         </div>
       </div>
@@ -79,8 +79,12 @@ const VehicleManagerTableView = () => {
             </tr>
           </thead>
           <tbody>
-            {currentPageData.map((row, index) => (
-              <tr key={index} className={`${index % 2 === 0 ? 'bg-gray-100' : 'bg-gray-200'} ${selectedRow === index ? 'bg-blue-200' : ''}`} onClick={() => handleRowClick(index)}>
+            {currentPageData.map((row) => (
+              <tr
+                key={row.carID}
+                className={`cursor-pointer ${row.carID === selectedRow ? 'bg-blue-200' : currentPageData.indexOf(row) % 2 === 0 ? 'bg-gray-100' : 'bg-gray-200'}`}
+                onClick={() => handleRowClick(row.carID)}
+              >
                 <td className="py-2 px-4 border-r border-gray-300 text-center">
                   {row.carID}
                 </td>

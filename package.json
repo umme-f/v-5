@@ -2,7 +2,7 @@
   "name": "vehicle1",
   "private": true,
   "version": "0.0.0",
-  "proxy": "http://localhost:5173",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "dev": "vite",

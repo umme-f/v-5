@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import {useNavigate} from 'react-router-dom';
 import { faCarSide } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -7,6 +8,7 @@ const AddButton = () => {
   const [carName, setCarName] = useState('');
   const [year, setYear] = useState('');
   const [role, setRole] = useState('');
+  const navigate = useNavigate();
 
   const handleAdd = (e) => {
     e.preventDefault();
@@ -20,6 +22,7 @@ const AddButton = () => {
     setCarName('');
     setYear('');
     setRole('');
+    navigate('/vehicle-manager');
   };
 
   return (

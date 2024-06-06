@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass, faCircleUser, faChevronLeft, faChevronRight, faPlus, faEdit, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import data from './data.json';
 import UpdateWarning from './UpdateWarning';
 
@@ -10,6 +10,7 @@ const VehicleManagerTableView = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedRow, setSelectedRow] = useState(null);
   const itemsPerPage = 10;
+  const navigate = useNavigate();
 
   const loggedInUser = {
     name: 'A-san'
@@ -22,6 +23,15 @@ const VehicleManagerTableView = () => {
 
   const handleRowClick = (carID) => {
     setSelectedRow(carID);
+  };
+
+  const editButtonClick = () => {
+    if (selectedRow !== null) {
+      const selectedData = data.find(row => row.carID === selectedRow);
+      navigate('/edit-button', { state: { selectedData } });
+    } else {
+      alert('Please select a row');
+    }
   };
 
   const filteredData = data.filter(row => row.carName.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -59,8 +69,7 @@ const VehicleManagerTableView = () => {
           />
           <button
             onClick={handleSearch}
-            className="p-2 bg-blue-500 text-white mb-2 md:mb-0 md:ml-2 mr-2 pr-2 rounded-r"
-          >
+            className="p-2 bg-blue-500 text-white mb-2 md:mb-0 md:ml-2 mr-2 pr-2 rounded-r">
             <FontAwesomeIcon icon={faMagnifyingGlass} className="pr-2" />
             検索
           </button>
@@ -120,7 +129,7 @@ const VehicleManagerTableView = () => {
             <FontAwesomeIcon icon={faPlus} />
             Add
           </Link>
-          <button className="p-4 bg-yellow-500 text-white rounded">
+          <button onClick={editButtonClick} className="p-4 bg-yellow-500 text-white rounded">
             <FontAwesomeIcon icon={faEdit} />
             Edit
           </button>

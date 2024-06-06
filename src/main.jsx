@@ -10,6 +10,7 @@ import Footer from './components/Footer';
 import Error from './components/Error';
 import './index.css';
 import AddButton from './components/AddButton';
+import EditButton from './components/EditButton';
 
 
 const router = createBrowserRouter([
@@ -46,6 +47,10 @@ const router = createBrowserRouter([
   {
     path: "/add-button",
     element: <AddButton />,
+  },
+  {
+    path: "/edit-button",
+    element: <EditButton />,
   },
   {
     path: "*",

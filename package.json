@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@faker-js/faker": "^8.4.1",
     "@fortawesome/fontawesome-svg-core": "^6.5.2",
     "@fortawesome/free-brands-svg-icons": "^6.5.2",
     "@fortawesome/free-regular-svg-icons": "^6.5.2",
@@ -20,6 +21,7 @@
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "express-session": "^1.18.0",
+    "faker": "^6.6.6",
     "msnodesqlv8": "^4.2.1",
     "mssql": "^10.0.2",
     "passport": "^0.7.0",

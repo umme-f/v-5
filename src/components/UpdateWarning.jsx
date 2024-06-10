@@ -5,18 +5,25 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import faker from 'faker';
 
 const UpdateWarning = () => {
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState(() => {
+    const storedNotifications = JSON.parse(localStorage.getItem('notifications')) || [];
+    return storedNotifications;
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      // Generate a fake notification after 3 seconds
+      // Generate a fake notification after 1 second
       const newNotification = {
         id: Date.now(),
         message: faker.lorem.sentence(),
       };
-      setNotifications((prevNotifications) => [...prevNotifications, newNotification]);
-    }, 3000);
+      setNotifications((prevNotifications) => {
+        const updatedNotifications = [...prevNotifications, newNotification];
+        localStorage.setItem('notifications', JSON.stringify(updatedNotifications));
+        return updatedNotifications;
+      });
+    }, 1000);
 
     return () => {
       clearTimeout(timer);
@@ -30,19 +37,21 @@ const UpdateWarning = () => {
     navigate(link);
   };
 
-  const handleNotificationClose = (id) => {
-    // Close the notification list
+  const handleNotificationClose = () => {
+    // Remove the notification from the list and clear storage
     setNotifications([]);
+    localStorage.removeItem('notifications');
   };
 
   return (
     <div>
       {notifications.length > 0 && (
-        <div className="fixed bottom-4 right-4 bg-white shadow-lg p-4 rounded">
+        <div className="fixed bottom-4 right-4 bg-white shadow-lg p-4 rounded ">
           <div className="flex justify-between items-center mb-2">
-            <h2 className="text-xl font-bold">Notifications (お知らせ)</h2>
+            <FontAwesomeIcon icon={faBell} className='animate-ping text-red-500 p-2'/>
+            <h2 className="text-xl font-bold p-1">Notifications (お知らせ)</h2>
             <button
-              onClick={() => handleNotificationClose(notifications[0].id)} // Close the notification
+              onClick={handleNotificationClose}
               className="text-red-600 hover:text-red-800"
             >
               <FontAwesomeIcon icon={faTimes} />
@@ -55,7 +64,7 @@ const UpdateWarning = () => {
                   <span>{index + 1}. </span>
                   <a
                     href="#"
-                    onClick={() => handleNotificationClick(notif.id, `/vehicle-manager/${index + 1}`)}
+                    onClick={() => handleNotificationClick(notif.id, `/vehicle-manager/`)}
                     className="underline text-blue-600 hover:text-blue-800 flex-grow"
                   >
                     {notif.message}

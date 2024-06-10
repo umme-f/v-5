@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFloppyDisk} from '@fortawesome/free-solid-svg-icons';
+import UpdateWarning from './UpdateWarning';
+
 
 const EditButton = () => {
   const location = useLocation();
@@ -110,6 +112,7 @@ const EditButton = () => {
           </button>
         </div>
       </form>
+      <UpdateWarning />
     </div>
   );
 };

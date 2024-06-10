@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import {useNavigate} from 'react-router-dom';
 import { faCarSide } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import UpdateWarning from './UpdateWarning';
+
 
 const AddButton = () => {
   const [carId, setCarId] = useState('');
@@ -93,6 +95,7 @@ const AddButton = () => {
           </button>
         </div>
       </form>
+      <UpdateWarning />
     </div>
   );
 };

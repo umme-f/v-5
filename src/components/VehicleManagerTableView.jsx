@@ -103,7 +103,7 @@ const VehicleManagerTableView = () => {
           />
           <button
             onClick={handleSearch}
-            className="p-2 bg-blue-500 text-white mb-2 md:mb-0 md:ml-2 mr-2 pr-2 rounded">
+            className="p-2 bg-blue-500 text-white mb-2 md:mb-0 md:ml-2 mr-2 pr-2 rounded-r">
             <FontAwesomeIcon icon={faMagnifyingGlass} className="pr-2" />
             検索
           </button>
@@ -118,6 +118,7 @@ const VehicleManagerTableView = () => {
               <th className="py-2 px-4 border border-gray-300 text-center">Car name</th>
               <th className="py-2 px-4 border border-gray-300 text-center">Year</th>
               <th className="py-2 px-4 border border-gray-300 text-center">Role</th>
+              <th className="py-2 px-4 border border-gray-300 text-center">Date</th>
             </tr>
           </thead>
           <tbody>
@@ -138,6 +139,9 @@ const VehicleManagerTableView = () => {
                 </td>
                 <td className="py-2 px-4 border-r border-gray-300 text-center">
                   {row.role}
+                </td>
+                <td className="py-2 px-4 border-r border-gray-300 text-center">
+                  {row.date}
                 </td>
               </tr>
             ))}

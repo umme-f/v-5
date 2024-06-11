@@ -103,7 +103,7 @@ const VehicleManagerTableView = () => {
           />
           <button
             onClick={handleSearch}
-            className="p-2 bg-blue-500 text-white mb-2 md:mb-0 md:ml-2 mr-2 pr-2 rounded-r">
+            className="p-2 bg-blue-500 text-white mb-2 md:mb-0 md:ml-2 mr-2 pr-2 rounded">
             <FontAwesomeIcon icon={faMagnifyingGlass} className="pr-2" />
             検索
           </button>

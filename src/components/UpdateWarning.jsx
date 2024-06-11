@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { faBell, faTimes } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import faker from 'faker';
 
 const UpdateWarning = () => {
@@ -10,8 +8,14 @@ const UpdateWarning = () => {
     return storedNotifications;
   });
   const navigate = useNavigate();
+  let notificationInstance = null;
 
   useEffect(() => {
+    // Request permission for notifications
+    if (Notification.permission !== 'granted') {
+      Notification.requestPermission();
+    }
+
     const timer = setTimeout(() => {
       // Generate a fake notification after 1 second
       const newNotification = {
@@ -21,6 +25,12 @@ const UpdateWarning = () => {
       setNotifications((prevNotifications) => {
         const updatedNotifications = [...prevNotifications, newNotification];
         localStorage.setItem('notifications', JSON.stringify(updatedNotifications));
+
+        // Show the notification
+        if (Notification.permission === 'granted') {
+          showDesktopNotification(updatedNotifications);
+        }
+
         return updatedNotifications;
       });
     }, 1000);
@@ -30,53 +40,32 @@ const UpdateWarning = () => {
     };
   }, []);
 
-  const handleNotificationClick = (id, link) => {
-    // Remove the notification from the list
-    setNotifications(notifications.filter((notif) => notif.id !== id));
-    // Navigate to the VehicleManagerTableView page
-    navigate(link);
+  const showDesktopNotification = (notificationsList) => {
+    const notificationBody = notificationsList.map((notif, index) => `${index + 1}. ${notif.message}`).join('\n');
+
+    if (notificationInstance) {
+      notificationInstance.close();
+    }
+
+    notificationInstance = new Notification('New Notifications (お知らせ)', {
+      body: notificationBody,
+    });
+
+    notificationInstance.onclick = () => {
+      handleNotificationClick(notificationsList);
+      notificationInstance.close();
+    };
   };
 
-  const handleNotificationClose = () => {
-    // Remove the notification from the list and clear storage
+  const handleNotificationClick = (notificationsList) => {
+    // Navigate to the VehicleManagerTableView page
+    navigate('/vehicle-manager/');
+    // Clear all notifications
     setNotifications([]);
     localStorage.removeItem('notifications');
   };
 
-  return (
-    <div>
-      {notifications.length > 0 && (
-        <div className="fixed bottom-4 right-4 bg-white shadow-lg p-4 rounded ">
-          <div className="flex justify-between items-center mb-2">
-            <FontAwesomeIcon icon={faBell} className='animate-ping text-red-500 p-2'/>
-            <h2 className="text-xl font-bold p-1">Notifications (お知らせ)</h2>
-            <button
-              onClick={handleNotificationClose}
-              className="text-red-600 hover:text-red-800"
-            >
-              <FontAwesomeIcon icon={faTimes} />
-            </button>
-          </div>
-          <ul>
-            {notifications.map((notif, index) => (
-              <li key={notif.id} className="mb-2">
-                <div className="flex justify-between items-center">
-                  <span>{index + 1}. </span>
-                  <a
-                    href="#"
-                    onClick={() => handleNotificationClick(notif.id, `/vehicle-manager/`)}
-                    className="underline text-blue-600 hover:text-blue-800 flex-grow"
-                  >
-                    {notif.message}
-                  </a>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </div>
-  );
+  return null; // No need to render anything
 };
 
 export default UpdateWarning;

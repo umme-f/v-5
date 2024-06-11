@@ -1,21 +1,23 @@
 import React, { useState } from 'react';
-import {useNavigate} from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { faCarSide } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import UpdateWarning from './UpdateWarning';
-
 
 const AddButton = () => {
   const [carId, setCarId] = useState('');
   const [carName, setCarName] = useState('');
   const [year, setYear] = useState('');
   const [role, setRole] = useState('');
+  const [date, setDate] = useState(new Date()); // Initialize date with current date
   const navigate = useNavigate();
 
   const handleAdd = (e) => {
     e.preventDefault();
     // Handle add logic here
-    console.log({ carId, carName, year, role });
+    console.log({ carId, carName, year, role, date });
   };
 
   const handleCancel = () => {
@@ -24,6 +26,7 @@ const AddButton = () => {
     setCarName('');
     setYear('');
     setRole('');
+    setDate(new Date());
     navigate('/vehicle-manager');
   };
 
@@ -32,7 +35,7 @@ const AddButton = () => {
       <form className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg" onSubmit={handleAdd}>
         <h2 className="text-2xl font-bold mb-6 text-center">Car Form</h2>
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2 after:content-['*'] after:ml-0.5 after:text-red-500 block " htmlFor="carId">
+          <label className=" after:content-['*'] after:ml-0.5 after:text-red-500 block block text-gray-700 text-sm font-bold mb-2" htmlFor="carId">
             Car ID
           </label>
           <input
@@ -44,7 +47,7 @@ const AddButton = () => {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2 after:content-['*'] after:ml-0.5 after:text-red-500 block " htmlFor="carName">
+          <label className=" after:content-['*'] after:ml-0.5 after:text-red-500 block block text-gray-700 text-sm font-bold mb-2" htmlFor="carName">
             Car Name
           </label>
           <input
@@ -56,7 +59,7 @@ const AddButton = () => {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2 after:content-['*'] after:ml-0.5 after:text-red-500 block " htmlFor="year">
+          <label className=" after:content-['*'] after:ml-0.5 after:text-red-500 block block text-gray-700 text-sm font-bold mb-2" htmlFor="year">
             Year
           </label>
           <input
@@ -67,8 +70,8 @@ const AddButton = () => {
             className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500"
           />
         </div>
-        <div className="mb-6">
-          <label className="block text-gray-700 text-sm font-bold mb-2 after:content-['*'] after:ml-0.5 after:text-red-500 block " htmlFor="role">
+        <div className="mb-4">
+          <label className=" after:content-['*'] after:ml-0.5 after:text-red-500 block block text-gray-700 text-sm font-bold mb-2" htmlFor="role">
             Role
           </label>
           <input
@@ -79,11 +82,23 @@ const AddButton = () => {
             className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500"
           />
         </div>
+        <div className="mb-6">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="date">
+            Date
+          </label>
+          <DatePicker
+            id="date"
+            selected={date}
+            onChange={(date) => setDate(date)}
+            className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500"
+          />
+        </div>
         <div className="flex justify-between">
           <button
             type="submit"
             className="px-5 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:bg-blue-700"
-          ><FontAwesomeIcon icon={faCarSide} className='pr-2'/>
+          >
+            <FontAwesomeIcon icon={faCarSide} className="pr-2" />
             登録
           </button>
           <button

@@ -18,6 +18,8 @@ const AddButton = () => {
     e.preventDefault();
     // Handle add logic here
     console.log({ carId, carName, year, role, date });
+    // Navigate to the VehicleManager page after form submission
+    navigate('/vehicle-manager');
   };
 
   const handleCancel = () => {
@@ -35,7 +37,7 @@ const AddButton = () => {
       <form className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg" onSubmit={handleAdd}>
         <h2 className="text-2xl font-bold mb-6 text-center">Car Form</h2>
         <div className="mb-4">
-          <label className=" after:content-['*'] after:ml-0.5 after:text-red-500 block block text-gray-700 text-sm font-bold mb-2" htmlFor="carId">
+          <label className="block text-gray-700 text-sm font-bold mb-2 after:content-['*'] after:ml-0.5 after:text-red-500 block " htmlFor="carId">
             Car ID
           </label>
           <input
@@ -47,7 +49,7 @@ const AddButton = () => {
           />
         </div>
         <div className="mb-4">
-          <label className=" after:content-['*'] after:ml-0.5 after:text-red-500 block block text-gray-700 text-sm font-bold mb-2" htmlFor="carName">
+          <label className="block text-gray-700 text-sm font-bold mb-2 after:content-['*'] after:ml-0.5 after:text-red-500 block " htmlFor="carName">
             Car Name
           </label>
           <input
@@ -59,7 +61,7 @@ const AddButton = () => {
           />
         </div>
         <div className="mb-4">
-          <label className=" after:content-['*'] after:ml-0.5 after:text-red-500 block block text-gray-700 text-sm font-bold mb-2" htmlFor="year">
+          <label className="block text-gray-700 text-sm font-bold mb-2 after:content-['*'] after:ml-0.5 after:text-red-500 block " htmlFor="year">
             Year
           </label>
           <input
@@ -71,7 +73,7 @@ const AddButton = () => {
           />
         </div>
         <div className="mb-4">
-          <label className=" after:content-['*'] after:ml-0.5 after:text-red-500 block block text-gray-700 text-sm font-bold mb-2" htmlFor="role">
+          <label className="block text-gray-700 text-sm font-bold mb-2 after:content-['*'] after:ml-0.5 after:text-red-500 block " htmlFor="role">
             Role
           </label>
           <input
@@ -83,7 +85,7 @@ const AddButton = () => {
           />
         </div>
         <div className="mb-6">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="date">
+          <label className="after:content-['*'] after:ml-0.5 after:text-red-500 block  block text-gray-700 text-sm font-bold mb-2" htmlFor="date">
             Date
           </label>
           <DatePicker
@@ -98,7 +100,7 @@ const AddButton = () => {
             type="submit"
             className="px-5 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:bg-blue-700"
           >
-            <FontAwesomeIcon icon={faCarSide} className="pr-2" />
+            <FontAwesomeIcon icon={faCarSide} className='pr-2'/>
             登録
           </button>
           <button

@@ -59,7 +59,7 @@ const UpdateWarning = () => {
 
   const handleNotificationClick = (notificationsList) => {
     // Navigate to the VehicleManagerTableView page
-    navigate('/vehicle-manager/');
+    navigate('/vehicle-manager');
     // Clear all notifications
     setNotifications([]);
     localStorage.removeItem('notifications');

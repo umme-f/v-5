@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faChevronRight, faPlus, faEdit, faTrashCan, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
+import { faChevronLeft, faChevronRight, faPlus, faEdit, faTrashCan, faCircleXmark, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import data from './data.json';
 import CarNotification from './CarNotification';
@@ -118,19 +118,19 @@ const VehicleManagerTableView = () => {
             placeholder="Search..."
             value={searchTerm}
             onChange={handleSearch}
-            className="border border-r-4 border-b-4 border-black rounded  p-2 border border-gray-300 rounded-l flex-grow mb-2 md:mb-0"
+            className="border border-r-4 border-b-4 border-black rounded p-2 flex-grow mb-2 md:mb-0"
           />
           <button
             onClick={handleSearch}
-            className="border border-r-4 border-b-4 border-black rounded  p-2 bg-blue-500 text-white mb-2 md:mb-0 md:ml-2 mr-2 pr-2 rounded-r">
-            <FontAwesomeIcon icon={faChevronLeft} />
+            className="border border-r-4 border-b-4 border-black rounded  p-2 bg-blue-500 text-white mb-2 md:mb-0 md:ml-2 mr-2 pr-2">
+            <FontAwesomeIcon icon={faMagnifyingGlass} className='pr-2' />
             検索
           </button>
         </div>
       </div>
 
       <div className="overflow-x-auto w-full md:max-w-4xl mt-4">
-        <table className="min-w-full bg-white border-4 border-black rounded">
+        <table className="min-w-full bg-white rounded shadow-inner">
           <thead>
             <tr>
               <th className="py-2 px-4 border border-gray-300 text-center">ID</th>
@@ -144,7 +144,7 @@ const VehicleManagerTableView = () => {
             {currentPageData.map((row) => (
               <tr
                 key={row.carID}
-                className={`cursor-pointer ${row.carID === selectedRow ? 'bg-blue-200' : currentPageData.indexOf(row) % 2 === 0 ? 'bg-gray-100' : 'bg-gray-200'}`}
+                className={`cursor-pointer ${row.carID === selectedRow ? 'border-4 border-black rounded bg-sky-200' : currentPageData.indexOf(row) % 2 === 0 ? 'bg-gray-100' : 'bg-gray-200'}`}
                 onClick={() => handleRowClick(row.carID)}
               >
                 <td className="py-2 px-4 border-r border-gray-300 text-center">

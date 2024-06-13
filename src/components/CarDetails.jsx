@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMagnifyingGlass, faCircleUser, faChevronLeft, faChevronRight, faPlus, faEdit, faTrashCan, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
+import { faChevronLeft, faChevronRight, faPlus, faEdit, faTrashCan, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import data from './data.json';
-import UpdateWarning from './UpdateWarning';
 
 const VehicleManagerTableView = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -12,11 +11,52 @@ const VehicleManagerTableView = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isSelectRowWarningOpen, setIsSelectRowWarningOpen] = useState(false);
   const [rows, setRows] = useState(data);
+  const [notifications, setNotifications] = useState([]);
   const itemsPerPage = 10;
   const navigate = useNavigate();
 
-  const loggedInUser = {
-    name: 'A-san'
+  useEffect(() => {
+    // Check dates for notifications when the component mounts
+    checkDatesForNotifications();
+  }, [rows]);
+
+  const checkDatesForNotifications = () => {
+    const today = new Date();
+    const upcomingNotifications = rows
+      .filter(row => {
+        const rowDate = new Date(row.date);
+        const diffDays = (rowDate - today) / (1000 * 60 * 60 * 24);
+        return diffDays <= 7 && diffDays >= 0; // Dates within the next 7 days
+      })
+      .map(row => ({
+        message: `Car ${row.carID} date is near (${row.date})`,
+        carID: row.carID
+      }));
+
+    setNotifications(upcomingNotifications);
+    showBrowserNotifications(upcomingNotifications);
+  };
+
+  const showBrowserNotifications = (notifications) => {
+    notifications.forEach(notification => {
+      if (Notification.permission === 'granted') {
+        const notificationInstance = new Notification('Upcoming Deadline', {
+          body: notification.message,
+          tag: notification.carID // Ensure only one notification per carID is shown
+        });
+
+        notificationInstance.onclick = () => {
+          handleNotificationClick(notification.carID);
+          window.focus();
+        };
+      }
+    });
+  };
+
+  const handleNotificationClick = (carID) => {
+    const selectedData = rows.find(row => row.carID === carID);
+    setSelectedRow(selectedData.carID);
+    alert(JSON.stringify(selectedData, null, 2)); // Display the related row data
   };
 
   const handleSearch = (event) => {
@@ -81,31 +121,6 @@ const VehicleManagerTableView = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4 md:p-10">
-      <UpdateWarning />
-      <div className="absolute top-0 left-0 p-4 flex items-center">
-        <button to="#">
-          <FontAwesomeIcon icon={faCircleUser} className="text-4xl text-gray-700" />
-        </button>
-        <span className="ml-2 mt-2">{loggedInUser.name}</span>
-      </div>
-      <div className="w-full md:max-w-4xl">
-        <div className="flex flex-col md:flex-row items-center">
-          <input
-            type="text"
-            placeholder="Search..."
-            value={searchTerm}
-            onChange={handleSearch}
-            className="p-2 border border-gray-300 rounded-l flex-grow mb-2 md:mb-0"
-          />
-          <button
-            onClick={handleSearch}
-            className="p-2 bg-blue-500 text-white mb-2 md:mb-0 md:ml-2 mr-2 pr-2 rounded-r">
-            <FontAwesomeIcon icon={faMagnifyingGlass} className="pr-2" />
-            検索
-          </button>
-        </div>
-      </div>
-
       <div className="overflow-x-auto w-full md:max-w-4xl mt-4">
         <table className="min-w-full bg-white border border-gray-300">
           <thead>
@@ -205,6 +220,8 @@ const VehicleManagerTableView = () => {
           </div>
         </div>
       )}
+
+      <UpdateWarning />
     </div>
   );
 };

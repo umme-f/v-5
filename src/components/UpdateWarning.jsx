@@ -1,14 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import faker from 'faker';
+import data from './data.json'; // Import your JSON data
 
 const UpdateWarning = () => {
-  const [notifications, setNotifications] = useState(() => {
-    const storedNotifications = JSON.parse(localStorage.getItem('notifications')) || [];
-    return storedNotifications;
-  });
+  const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
-  let notificationInstance = null;
 
   useEffect(() => {
     // Request permission for notifications
@@ -16,53 +12,37 @@ const UpdateWarning = () => {
       Notification.requestPermission();
     }
 
-    const timer = setTimeout(() => {
-      // Generate a fake notification after 1 second
-      const newNotification = {
-        id: Date.now(),
-        message: faker.lorem.sentence(),
-      };
-      setNotifications((prevNotifications) => {
-        const updatedNotifications = [...prevNotifications, newNotification];
-        localStorage.setItem('notifications', JSON.stringify(updatedNotifications));
-
-        // Show the notification
-        if (Notification.permission === 'granted') {
-          showDesktopNotification(updatedNotifications);
-        }
-
-        return updatedNotifications;
-      });
-    }, 1000);
-
-    return () => {
-      clearTimeout(timer);
-    };
+    // Check for upcoming dates
+    checkUpcomingDates();
   }, []);
 
-  const showDesktopNotification = (notificationsList) => {
-    const notificationBody = notificationsList.map((notif, index) => `${index + 1}. ${notif.message}`).join('\n');
+  const checkUpcomingDates = () => {
+    const today = new Date();
+    const nextMonth = new Date(today);
+    nextMonth.setMonth(today.getMonth() + 1);
 
-    if (notificationInstance) {
-      notificationInstance.close();
-    }
-
-    notificationInstance = new Notification('New Notifications (お知らせ)', {
-      body: notificationBody,
+    const upcomingNotifications = data.filter(row => {
+      const rowDate = new Date(row.date);
+      return rowDate > today && rowDate < nextMonth;
     });
 
-    notificationInstance.onclick = () => {
-      handleNotificationClick(notificationsList);
-      notificationInstance.close();
-    };
+    setNotifications(upcomingNotifications);
+    if (upcomingNotifications.length > 0) {
+      showDesktopNotification(upcomingNotifications.length);
+    }
   };
 
-  const handleNotificationClick = (notificationsList) => {
-    // Navigate to the VehicleManagerTableView page
-    navigate('/vehicle-manager');
-    // Clear all notifications
-    // setNotifications([]);
-    localStorage.removeItem('notifications');
+  const showDesktopNotification = (count) => {
+    if (Notification.permission === 'granted') {
+      const notificationInstance = new Notification('Upcoming Updates', {
+        body: `There are ${count} updates coming in the next month. Click to view details.`,
+      });
+
+      notificationInstance.onclick = () => {
+        navigate('/vehicle-manager');
+        notificationInstance.close();
+      };
+    }
   };
 
   return null; // No need to render anything

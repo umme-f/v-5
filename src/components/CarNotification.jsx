@@ -30,7 +30,7 @@ const CarNotification = ({ notifications, rows }) => {
         <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
           <div className="bg-white border-4 border-red-500 p-6 rounded shadow-md max-w-md w-full">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl">Upcoming Updates  <FontAwesomeIcon icon={faBell} className='pl-2 shadow-2xl animate-ping'/></h2>
+              <h2 className="text-xl font-bold">Upcoming Updates  <FontAwesomeIcon icon={faBell} className='pl-2 shadow-2xl animate-ping'/></h2>
               <button onClick={closeModal}>
                 <FontAwesomeIcon icon={faTimes} className='font-bold' />
               </button>

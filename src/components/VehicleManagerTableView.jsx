@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faChevronRight, faPlus, faEdit, faTrashCan, faCircleXmark, faCircleUser } from '@fortawesome/free-solid-svg-icons';
+import { faChevronLeft, faChevronRight, faPlus, faEdit, faTrashCan, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import data from './data.json';
 import CarNotification from './CarNotification';
@@ -104,10 +104,10 @@ const VehicleManagerTableView = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4 md:p-10">
-      <CarNotification notifications={notifications} />
+      <CarNotification notifications={notifications} rows={rows} />
       <div className="absolute top-0 left-0 p-4 flex items-center">
         <button to="#">
-          <FontAwesomeIcon icon={faCircleUser} className="text-4xl text-gray-700" />
+          <FontAwesomeIcon icon={faCircleXmark} className="text-4xl text-gray-700" />
         </button>
         <span className="ml-2 mt-2">{loggedInUser.name}</span>
       </div>

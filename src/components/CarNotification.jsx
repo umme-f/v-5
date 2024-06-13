@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell, faTimes } from '@fortawesome/free-solid-svg-icons';
 
-const CarNotification = ({ notifications }) => {
+const CarNotification = ({ notifications, rows }) => {
   const [isVisible, setIsVisible] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -15,6 +17,11 @@ const CarNotification = ({ notifications }) => {
 
   const closeModal = () => {
     setIsVisible(false);
+  };
+
+  const handleNotificationClick = (carID) => {
+    const selectedData = rows.find(row => row.carID === carID);
+    navigate('/car-details', { state: { car: selectedData } });
   };
 
   return (
@@ -31,7 +38,12 @@ const CarNotification = ({ notifications }) => {
             <ul>
               {notifications.map((notification, index) => (
                 <li key={index} className="mb-2">
-                  Car {notification.carID}: {notification.date}
+                  <button
+                    onClick={() => handleNotificationClick(notification.carID)}
+                    className="text-blue-500 underline"
+                  >
+                    {index + 1}. Car {notification.carID}: {notification.date}
+                  </button>
                 </li>
               ))}
             </ul>

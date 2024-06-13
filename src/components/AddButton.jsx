@@ -4,7 +4,7 @@ import { faCarSide } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import UpdateWarning from './UpdateWarning';
+// import UpdateWarning from './UpdateWarning';
 
 const AddButton = () => {
   const [carId, setCarId] = useState('');
@@ -98,7 +98,7 @@ const AddButton = () => {
         <div className="flex justify-between">
           <button
             type="submit"
-            className="px-5 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:bg-blue-700"
+            className="border-b-4 border-r-4 border-black font-bold border-rounded px-5 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:bg-blue-700"
           >
             <FontAwesomeIcon icon={faCarSide} className='pr-2'/>
             登録
@@ -106,13 +106,13 @@ const AddButton = () => {
           <button
             type="button"
             onClick={handleCancel}
-            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-gray-700 focus:outline-none focus:bg-gray-700"
-          >
+            className="border-b-4 border-r-4 border-black font-bold border-rounded px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:bg-red-700"
+       >
             キャンセル
           </button>
         </div>
       </form>
-      <UpdateWarning />
+      {/* <UpdateWarning /> */}
     </div>
   );
 };

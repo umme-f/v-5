@@ -118,11 +118,11 @@ const VehicleManagerTableView = () => {
             placeholder="Search..."
             value={searchTerm}
             onChange={handleSearch}
-            className="p-2 border border-gray-300 rounded-l flex-grow mb-2 md:mb-0"
+            className="border border-r-4 border-b-4 border-black rounded  p-2 border border-gray-300 rounded-l flex-grow mb-2 md:mb-0"
           />
           <button
             onClick={handleSearch}
-            className="p-2 bg-blue-500 text-white mb-2 md:mb-0 md:ml-2 mr-2 pr-2 rounded-r">
+            className="border border-r-4 border-b-4 border-black rounded  p-2 bg-blue-500 text-white mb-2 md:mb-0 md:ml-2 mr-2 pr-2 rounded-r">
             <FontAwesomeIcon icon={faChevronLeft} />
             検索
           </button>
@@ -130,7 +130,7 @@ const VehicleManagerTableView = () => {
       </div>
 
       <div className="overflow-x-auto w-full md:max-w-4xl mt-4">
-        <table className="min-w-full bg-white border border-gray-300">
+        <table className="min-w-full bg-white border-4 border-black rounded">
           <thead>
             <tr>
               <th className="py-2 px-4 border border-gray-300 text-center">ID</th>
@@ -170,28 +170,28 @@ const VehicleManagerTableView = () => {
 
       <div className="flex justify-between w-full md:max-w-4xl mt-4 space-x-4">
         <div className="flex space-x-4">
-          <button onClick={handlePreviousPage} disabled={currentPage === 0} className="p-4 bg-green-500 text-white rounded disabled:opacity-50">
+          <button onClick={handlePreviousPage} disabled={currentPage === 0} className="border border-r-4 border-b-4 border-black rounded p-4 bg-green-500 text-white rounded disabled:opacity-50">
             <FontAwesomeIcon icon={faChevronLeft} />
           </button>
-          <button onClick={handleNextPage} disabled={currentPage >= pageCount - 1} className="p-4 bg-green-500 text-white rounded disabled:opacity-50">
+          <button onClick={handleNextPage} disabled={currentPage >= pageCount - 1} className="border border-r-4 border-b-4 border-black rounded p-4 bg-green-500 text-white rounded disabled:opacity-50">
             <FontAwesomeIcon icon={faChevronRight} />
           </button>
         </div>
 
         <div className="flex space-x-4">
-          <button onClick={addButtonClick} className="p-4 bg-blue-500 text-white rounded">
+          <button onClick={addButtonClick} className="border border-r-4 border-b-4 border-black rounded p-4 bg-blue-500 text-white rounded">
             <FontAwesomeIcon icon={faPlus} className='pr-2'/>
             Add
           </button>
-          <button onClick={editButtonClick} className="p-4 bg-yellow-500 text-white rounded">
+          <button onClick={editButtonClick} className="border border-r-4 border-b-4 border-black rounded p-4 bg-yellow-500 text-white rounded">
             <FontAwesomeIcon icon={faEdit} className='pr-2'/>
             Edit
           </button>
-          <button onClick={deleteButtonClick} className="p-4 bg-red-500 text-white rounded">
+          <button onClick={deleteButtonClick} className="border border-r-4 border-b-4 border-black rounded p-4 bg-red-500 text-white rounded">
             <FontAwesomeIcon icon={faTrashCan} className='pr-2'/>
             Delete
           </button>
-          <button className="p-4 bg-gray-500 text-white rounded">
+          <button className="border border-r-4 border-b-4 border-black rounded p-4 bg-gray-500 text-white rounded">
             <FontAwesomeIcon icon={faCircleXmark} className='pr-2' />
             Close
           </button>
@@ -204,10 +204,10 @@ const VehicleManagerTableView = () => {
             <h2 className="text-xl mb-4">Confirm Delete</h2>
             <p className="mb-4">Are you sure you want to delete this item?</p>
             <div className="flex justify-end space-x-4">
-              <button onClick={cancelDelete} className="px-4 py-2 bg-gray-500 text-white rounded">
+              <button onClick={cancelDelete} className="border border-r-4 border-b-4 border-black rounded px-4 py-2 bg-gray-500 text-white rounded">
                 Cancel
               </button>
-              <button onClick={confirmDelete} className="px-4 py-2 bg-red-500 text-white rounded">
+              <button onClick={confirmDelete} className="border border-r-4 border-b-4 border-black rounded px-4 py-2 bg-red-500 text-white rounded">
                 <FontAwesomeIcon icon={faTrashCan} className='pr-2'/>Delete
               </button>
             </div>

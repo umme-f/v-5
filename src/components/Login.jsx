@@ -33,7 +33,7 @@ function Login() {
                   </div>
                   <Link to="/forgot-password" className="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500">Forgot password?</Link>
                 </div>
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full">Log in</button>
+                <button className="border border-r-4 border-b-4 border-black rounded bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full">Log in</button>
               </form>
             </div>
           </div>

@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMagnifyingGlass, faCircleUser, faChevronLeft, faChevronRight, faPlus, faEdit, faTrashCan, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
+import { faChevronLeft, faChevronRight, faPlus, faEdit, faTrashCan, faCircleXmark, faCircleUser } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import data from './data.json';
-import UpdateWarning from './UpdateWarning';
+import CarNotification from './CarNotification';
 
 const VehicleManagerTableView = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -12,11 +12,34 @@ const VehicleManagerTableView = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isSelectRowWarningOpen, setIsSelectRowWarningOpen] = useState(false);
   const [rows, setRows] = useState(data);
+  const [notifications, setNotifications] = useState([]);
   const itemsPerPage = 10;
   const navigate = useNavigate();
 
   const loggedInUser = {
     name: 'A-san'
+  };
+
+  useEffect(() => {
+    checkUpcomingDates();
+    const intervalId = setInterval(() => {
+      checkUpcomingDates();
+    }, 300000); // Check every 5 minutes
+
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const checkUpcomingDates = () => {
+    const today = new Date();
+    const nextMonth = new Date(today);
+    nextMonth.setMonth(today.getMonth() + 1);
+
+    const upcomingNotifications = rows.filter(row => {
+      const rowDate = new Date(row.date);
+      return rowDate > today && rowDate < nextMonth;
+    });
+
+    setNotifications(upcomingNotifications);
   };
 
   const handleSearch = (event) => {
@@ -81,7 +104,7 @@ const VehicleManagerTableView = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4 md:p-10">
-      <UpdateWarning />
+      <CarNotification notifications={notifications} />
       <div className="absolute top-0 left-0 p-4 flex items-center">
         <button to="#">
           <FontAwesomeIcon icon={faCircleUser} className="text-4xl text-gray-700" />
@@ -100,7 +123,7 @@ const VehicleManagerTableView = () => {
           <button
             onClick={handleSearch}
             className="p-2 bg-blue-500 text-white mb-2 md:mb-0 md:ml-2 mr-2 pr-2 rounded-r">
-            <FontAwesomeIcon icon={faMagnifyingGlass} className="pr-2" />
+            <FontAwesomeIcon icon={faChevronLeft} />
             検索
           </button>
         </div>

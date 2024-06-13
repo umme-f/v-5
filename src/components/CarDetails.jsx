@@ -26,7 +26,7 @@ const VehicleManagerTableView = () => {
       .filter(row => {
         const rowDate = new Date(row.date);
         const diffDays = (rowDate - today) / (1000 * 60 * 60 * 24);
-        return diffDays <= 7 && diffDays >= 0; // Dates within the next 7 days
+        return diffDays <= 29 && diffDays >= 0; // Dates within the next 7 days
       })
       .map(row => ({
         message: `Car ${row.carID} date is near (${row.date})`,

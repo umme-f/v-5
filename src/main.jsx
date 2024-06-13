@@ -11,7 +11,7 @@ import Error from './components/Error';
 import './index.css';
 import AddButton from './components/AddButton';
 import EditButton from './components/EditButton';
-// import CarNotification from './components/CarNotification';
+import CarNotification from './components/CarNotification';
 
 
 const router = createBrowserRouter([
@@ -53,10 +53,10 @@ const router = createBrowserRouter([
     path: "/edit-button",
     element: <EditButton />,
   },
-  // {
-  //   path: "/car-notification",
-  //   element: <CarNotification />,
-  // },
+  {
+    path: "/car-notification",
+    element: <CarNotification />,
+  },
   {
     path: "*",
     element: <Error />,

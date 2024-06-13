@@ -12,8 +12,16 @@ const UpdateWarning = () => {
       Notification.requestPermission();
     }
 
-    // Check for upcoming dates
+    // Initial check for upcoming dates
     checkUpcomingDates();
+
+    // Set up an interval to check for upcoming dates every 5 minutes
+    const intervalId = setInterval(() => {
+      checkUpcomingDates();
+    }, 300000); // 300000 ms = 5 minutes
+
+    // Clear the interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   const checkUpcomingDates = () => {
@@ -36,10 +44,11 @@ const UpdateWarning = () => {
     if (Notification.permission === 'granted') {
       const notificationInstance = new Notification('Upcoming Updates', {
         body: `There are ${count} updates coming in the next month. Click to view details.`,
+        requireInteraction: true // Notification stays until clicked or closed
       });
 
       notificationInstance.onclick = () => {
-        navigate('/vehicle-manager');
+        navigate('./vehicle-manager');
         notificationInstance.close();
       };
     }

@@ -12,6 +12,7 @@ import './index.css';
 import AddButton from './components/AddButton';
 import EditButton from './components/EditButton';
 import CarNotification from './components/CarNotification';
+import CarDetails from './components/CarDetails';
 
 
 const router = createBrowserRouter([
@@ -56,6 +57,10 @@ const router = createBrowserRouter([
   {
     path: "/car-notification",
     element: <CarNotification />,
+  },
+  {
+    path: "/car-details",
+    element: <CarDetails />,
   },
   {
     path: "*",

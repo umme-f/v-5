@@ -98,7 +98,7 @@ const EditButton = () => {
         <div className="flex justify-between">
           <button
             type="submit"
-            className="border border-r-4 border-b-4 border-black rounded px-5 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:bg-blue-700"
+            className=" border border-slate-700 rounded px-5 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:bg-blue-700"
           >
             <FontAwesomeIcon icon={faFloppyDisk} className='pr-2' />
             登録
@@ -106,7 +106,7 @@ const EditButton = () => {
           <button
             type="button"
             onClick={handleCancel}
-            className="border border-r-4 border-b-4 border-black rounded px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-gray-700 focus:outline-none focus:bg-gray-700"
+            className=" border border-slate-700 rounded px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-gray-700 focus:outline-none focus:bg-gray-700"
           >
             キャンセル
           </button>

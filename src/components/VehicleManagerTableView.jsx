@@ -118,11 +118,11 @@ const VehicleManagerTableView = () => {
             placeholder="Search..."
             value={searchTerm}
             onChange={handleSearch}
-            className="border border-r-4 border-b-4 border-black rounded p-2 flex-grow mb-2 md:mb-0"
+            className=" border border-slate-700 rounded p-2 flex-grow mb-2 md:mb-0"
           />
           <button
             onClick={handleSearch}
-            className="border border-r-4 border-b-4 border-black rounded  p-2 bg-blue-500 text-white mb-2 md:mb-0 md:ml-2 mr-2 pr-2">
+            className=" border border-slate-700 rounded  p-2 bg-blue-500 text-white mb-2 md:mb-0 md:ml-2 mr-2 pr-2">
             <FontAwesomeIcon icon={faMagnifyingGlass} className='pr-2' />
             検索
           </button>
@@ -170,28 +170,28 @@ const VehicleManagerTableView = () => {
 
       <div className="flex justify-between w-full md:max-w-4xl mt-4 space-x-4">
         <div className="flex space-x-4">
-          <button onClick={handlePreviousPage} disabled={currentPage === 0} className="border border-r-4 border-b-4 border-black rounded p-4 bg-green-500 text-white rounded disabled:opacity-50">
+          <button onClick={handlePreviousPage} disabled={currentPage === 0} className="border border-slate-700 rounded p-4 bg-green-500 text-white rounded disabled:opacity-50">
             <FontAwesomeIcon icon={faChevronLeft} />
           </button>
-          <button onClick={handleNextPage} disabled={currentPage >= pageCount - 1} className="border border-r-4 border-b-4 border-black rounded p-4 bg-green-500 text-white rounded disabled:opacity-50">
+          <button onClick={handleNextPage} disabled={currentPage >= pageCount - 1} className=" border border-slate-700 rounded p-4 bg-green-500 text-white rounded disabled:opacity-50">
             <FontAwesomeIcon icon={faChevronRight} />
           </button>
         </div>
 
         <div className="flex space-x-4">
-          <button onClick={addButtonClick} className="border border-r-4 border-b-4 border-black rounded p-4 bg-blue-500 text-white rounded">
+          <button onClick={addButtonClick} className=" border border-slate-700 rounded p-4 bg-blue-500 text-white rounded">
             <FontAwesomeIcon icon={faPlus} className='pr-2'/>
             Add
           </button>
-          <button onClick={editButtonClick} className="border border-r-4 border-b-4 border-black rounded p-4 bg-yellow-500 text-white rounded">
+          <button onClick={editButtonClick} className=" border border-slate-700 rounded p-4 bg-yellow-500 text-white rounded">
             <FontAwesomeIcon icon={faEdit} className='pr-2'/>
             Edit
           </button>
-          <button onClick={deleteButtonClick} className="border border-r-4 border-b-4 border-black rounded p-4 bg-red-500 text-white rounded">
+          <button onClick={deleteButtonClick} className=" border border-slate-700 rounded p-4 bg-red-500 text-white rounded">
             <FontAwesomeIcon icon={faTrashCan} className='pr-2'/>
             Delete
           </button>
-          <button className="border border-r-4 border-b-4 border-black rounded p-4 bg-gray-500 text-white rounded">
+          <button className="b border border-slate-700 rounded p-4 bg-gray-500 text-white rounded">
             <FontAwesomeIcon icon={faCircleXmark} className='pr-2' />
             Close
           </button>

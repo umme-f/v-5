@@ -30,6 +30,16 @@ const CarDetails = () => {
       <form className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg" onSubmit={handleSave}>
         <h2 className="text-2xl font-bold mb-6 text-center">Car Details</h2>
         <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2">Car ID:</label>
+          <input
+            type="text"
+            name="carName"
+            value={carDetails.carID}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500"
+          />
+        </div>
+        <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2">Car Name:</label>
           <input
             type="text"
@@ -60,9 +70,19 @@ const CarDetails = () => {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">Next Date:</label>
+          <label className="block text-gray-700 text-sm font-bold mb-2"> Date:</label>
           <input
             type="text"
+            name="date"
+            value={carDetails.date}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500"
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2">Next Date:</label>
+          <input
+            type="date"
             name="date"
             value={carDetails.date}
             onChange={handleChange}
@@ -81,14 +101,15 @@ const CarDetails = () => {
           <button
             type="button"
             onClick={handleSave}
-            className="px-5 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:bg-blue-700"
+            className="px-5 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:bg-blue-700 border border-slate-700"
           >
-            <FontAwesomeIcon icon={faFloppyDisk} className='pr-2'/>Save
+            <FontAwesomeIcon icon={faFloppyDisk} className='pr-2'/>
+            Save
           </button>
           <button
             type="button"
             onClick={() => navigate('/vehicle-manager')}
-            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:bg-red-700"
+            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:bg-red-700 border border-slate-700"
           >
             <FontAwesomeIcon icon={faBan} className='pr-2'/>Cancel
           </button>

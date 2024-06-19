@@ -1,9 +1,9 @@
-// import React, { useEffect, useState } from 'react';
+// import { useEffect, useState } from 'react';
 // import { useNavigate } from 'react-router-dom';
 // import data from './data.json'; // Import your JSON data
 
 // const UpdateWarning = () => {
-//   const [notifications, setNotifications] = useState([]);
+//   const [, setNotifications] = useState([]);
 //   const navigate = useNavigate();
 
 //   useEffect(() => {
@@ -18,7 +18,7 @@
 //     // Set up an interval to check for upcoming dates every 5 minutes
 //     const intervalId = setInterval(() => {
 //       checkUpcomingDates();
-//     }, 1000000); // 300000 ms = 5 minutes
+//     }, 15000); // 300000 ms = 5 minutes
 
 //     // Clear the interval on component unmount
 //     return () => clearInterval(intervalId);

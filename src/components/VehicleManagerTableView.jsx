@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft, faChevronRight, faPlus, faEdit, faTrashCan, faCircleXmark, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import data from './data.json';
 import CarNotification from './CarNotification';
+// import UpdateWarning from './UpdateWarning';
 
 const VehicleManagerTableView = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -24,7 +25,7 @@ const VehicleManagerTableView = () => {
     checkUpcomingDates();
     const intervalId = setInterval(() => {
       checkUpcomingDates();
-    }, 300000); // Check every 5 minutes
+    }, 30000); // Check every .5 minutes
 
     return () => clearInterval(intervalId);
   }, []);
@@ -187,7 +188,7 @@ const VehicleManagerTableView = () => {
             <FontAwesomeIcon icon={faEdit} className='pr-2'/>
             Edit
           </button>
-          <button onClick={deleteButtonClick} className=" border border-slate-700 rounded p-4 bg-red-500 text-white rounded">
+          <button onClick={deleteButtonClick} className="border border-slate-700 rounded p-4 bg-red-500 text-white rounded">
             <FontAwesomeIcon icon={faTrashCan} className='pr-2'/>
             Delete
           </button>
@@ -228,6 +229,7 @@ const VehicleManagerTableView = () => {
           </div>
         </div>
       )}
+      {/* <UpdateWarning/> */}
     </div>
   );
 };

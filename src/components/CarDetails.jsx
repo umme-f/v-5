@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { faFloppyDisk, faBan, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faFloppyDisk, faBan, faTimes, faAngleDown } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
@@ -16,7 +16,19 @@ const CarDetails = () => {
   });
   const [, setFile] = useState(null);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [carNames, setCarNames] = useState(['Toyota', 'Honda', 'Ford', 'Chevrolet', 'BMW']);
+  const [showCarNames, setShowCarNames] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (location.state && location.state.car) {
+      const { car } = location.state;
+      setCarDetails({
+        ...car,
+        date: car.date ? new Date(car.date) : null,
+      });
+    }
+  }, [location.state]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,7 +46,7 @@ const CarDetails = () => {
 
   const handleSave = (e) => {
     e.preventDefault();
-    // Handle save logic here (e.g., update the car details in the database or state)
+    // Handle save logic 
     alert('車の詳細が保存されました！');
     navigate('/vehicle-manager'); // Redirect to the main table view
   };
@@ -51,7 +63,29 @@ const CarDetails = () => {
     setCarDetails((prevDetails) => ({ ...prevDetails, role: '' }));
   };
 
-  const currentYear = new Date().getFullYear();
+  const removeCarName = (nameToRemove) => {
+    setCarNames(carNames.filter((name) => name !== nameToRemove));
+    if (carDetails.carName === nameToRemove) {
+      setCarDetails({ ...carDetails, carName: '' });
+    }
+  };
+
+  const handleCancel =()=>{
+    navigate('/vehicle-manager');
+  };
+
+  const handleInputFocus = () => {
+    setShowCarNames(true);
+  };
+
+  const handleInputBlur = () => {
+    setTimeout(() => setShowCarNames(false), 200); // Delay to allow click selection
+  };
+
+  const handleCarNameSelect = (name) => {
+    setCarDetails((prevDetails) => ({ ...prevDetails, carName: name }));
+    setShowCarNames(false);
+  };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4">
@@ -67,16 +101,41 @@ const CarDetails = () => {
             className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500"
           />
         </div>
-        <div className="mb-4">
+        <div className="mb-4 relative">
           <label className="block text-gray-700 text-sm font-bold mb-2">Car Name(車名):</label>
-          <input
-            type="text"
-            name="carName"
-            value={carDetails.carName}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500"
-          />
+          <div className="flex">
+            <input
+              type="text"
+              name="carName"
+              value={carDetails.carName}
+              onChange={handleChange}
+              onFocus={handleInputFocus}
+              onBlur={handleInputBlur}
+              className="w-full px-3 py-2 border rounded-l-lg text-gray-700 focus:outline-none focus:border-blue-500"
+            />
+            <button
+              type="button"
+              onClick={() => removeCarName(carDetails.carName)}
+              className="px-3 py-2 bg-gray-200 border-l border border-gray-300 rounded-r-lg text-gray-700 focus:outline-none focus:border-blue-500"
+            >
+              <FontAwesomeIcon icon={faAngleDown} />
+            </button>
+          </div>
+          {showCarNames && (
+            <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto">
+              {carNames.map((name, index) => (
+                <li
+                  key={index}
+                  onMouseDown={() => handleCarNameSelect(name)}
+                  className="px-4 py-2 cursor-pointer hover:bg-gray-200"
+                >
+                  {name}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
+        {/* ------------------Year spin button------------------ */}
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2">Year (年式):</label>
           <input
@@ -91,20 +150,34 @@ const CarDetails = () => {
           />
         </div>
 
-        {/* ----------------Role dropdown--------------- */}
+        {/* ----------------Role radio buttons--------------- */}
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2">Role (役割):</label>
-          <div className="flex space-x-2">
-            <select
-              name="role"
-              value={carDetails.role}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-l-lg text-gray-700 focus:outline-none focus:border-blue-500"
-            >
-              <option value="" disabled>---役割を選択---</option>
-              <option value="VM">VM</option>
-              <option value="User">User</option>
-            </select>
+          <div className="flex space-x-4">
+            <div className="flex items-center">
+              <input
+                type="radio"
+                id="vehicleManager"
+                name="role"
+                value="Vehicle Manager"
+                checked={carDetails.role === 'Vehicle Manager'}
+                onChange={handleChange}
+                className="mr-2"
+              />
+              <label htmlFor="vehicleManager" className="mr-4">Vehicle Manager (VM)</label>
+            </div>
+            <div className="flex items-center">
+              <input
+                type="radio"
+                id="user"
+                name="role"
+                value="User"
+                checked={carDetails.role === 'User'}
+                onChange={handleChange}
+                className="mr-2"
+              />
+              <label htmlFor="user" className="mr-4">User</label>
+            </div>
           </div>
         </div>
         {/* --------------Next Update Date----------------- */}
@@ -169,7 +242,7 @@ const CarDetails = () => {
           </button>
           <button
             type="button"
-            onClick={() => navigate('/vehicle-manager')}
+            onClick={handleCancel}
             className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:bg-red-700 border border-slate-700"
           >
             <FontAwesomeIcon icon={faBan} className="pr-2" />キャンセル

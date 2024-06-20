@@ -4,7 +4,6 @@ import { faCarSide } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-// import UpdateWarning from './UpdateWarning';
 
 const AddButton = () => {
   const [carId, setCarId] = useState('');
@@ -72,22 +71,35 @@ const AddButton = () => {
             className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500"
           />
         </div>
-        <div className="mb-4">
-  <label className="block text-gray-700 text-sm font-bold mb-2 after:content-['*'] after:ml-0.5 after:text-red-500 block " htmlFor="role">
-    Role
-  </label>
-  <select
-    id="role"
-    value={role}
-    onChange={(e) => setRole(e.target.value)}
-    className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500"
-  >
-    <option value="" disabled>Select a role (役割を選択)</option>
-    <option value="option1">Vehicle Manager(VM)</option>
-    <option value="option2">User</option>
-  </select>
-</div>
 
+        {/* ---------------Role-------------- */}
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2 after:content-['*'] after:ml-0.5 after:text-red-500 block" htmlFor="role">
+            Role
+          </label>
+          <div className="flex items-center">
+            <input
+              type="radio"
+              id="vehicleManager"
+              name="role"
+              value="Vehicle Manager"
+              checked={role === 'Vehicle Manager'}
+              onChange={(e) => setRole(e.target.value)}
+              className="mr-2"
+            />
+            <label htmlFor="vehicleManager" className="mr-4">Vehicle Manager (VM)</label>
+            <input
+              type="radio"
+              id="user"
+              name="role"
+              value="User"
+              checked={role === 'User'}
+              onChange={(e) => setRole(e.target.value)}
+              className="mr-2"
+            />
+            <label htmlFor="user" className="mr-4">User</label>
+          </div>
+        </div>
         <div className="mb-6">
           <label className="after:content-['*'] after:ml-0.5 after:text-red-500 block  block text-gray-700 text-sm font-bold mb-2" htmlFor="date">
             Date
@@ -111,7 +123,7 @@ const AddButton = () => {
             type="button"
             onClick={handleCancel}
             className="border border-slate-700 font-bold border-rounded px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:bg-red-700"
-       >
+          >
             キャンセル
           </button>
         </div>

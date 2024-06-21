@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { faFloppyDisk, faBan, faTimes, faAngleDown } from '@fortawesome/free-solid-svg-icons';
+import { faFloppyDisk, faBan, faTimes, faAngleDown, faCaretUp, faCaretDown } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
@@ -13,6 +13,7 @@ const CarDetails = () => {
   const [carDetails, setCarDetails] = useState({
     ...car,
     date: car.date ? new Date(car.date) : null,
+    lastMileage: car.lastMileage || 0, // Ensure lastMileage is included
   });
   const [, setFile] = useState(null);
   const [showCalendar, setShowCalendar] = useState(false);
@@ -23,16 +24,22 @@ const CarDetails = () => {
   useEffect(() => {
     if (location.state && location.state.car) {
       const { car } = location.state;
+      console.log("Car data from location:", car); // Debugging line
       setCarDetails({
         ...car,
         date: car.date ? new Date(car.date) : null,
+        lastMileage: car.lastMileage || 0, // Ensure lastMileage is included
       });
     }
   }, [location.state]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setCarDetails((prevDetails) => ({ ...prevDetails, [name]: value }));
+    console.log("Handle change:", name, value); // Debugging line
+    setCarDetails((prevDetails) => ({
+      ...prevDetails,
+      [name]: name === 'lastMileage' ? parseInt(value.replace(/,/g, '')) || 0 : value,
+    }));
   };
 
   const handleDateChange = (date) => {
@@ -87,9 +94,26 @@ const CarDetails = () => {
     setShowCarNames(false);
   };
 
+  const handleButtonClick = () => {
+    setShowCarNames((prevShowCarNames) => !prevShowCarNames);
+  };
+
+  const incrementYear = () => {
+    setCarDetails((prevDetails) => ({ ...prevDetails, year: parseInt(prevDetails.year) + 1 }));
+  };
+
+  const decrementYear = () => {
+    setCarDetails((prevDetails) => ({ ...prevDetails, year: parseInt(prevDetails.year) - 1 }));
+  };
+
+  // Helper function to format number with thousand separators
+  const formatNumber = (number) => {
+    return number.toLocaleString('en-US');
+  };
+
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4">
-      <form className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg" onSubmit={handleSave}>
+      <form className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg relative" onSubmit={handleSave}>
         <h2 className="text-2xl font-bold mb-6 text-center">Car Details (車の詳細)</h2>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2">Car (車両)ID:</label>
@@ -102,7 +126,7 @@ const CarDetails = () => {
           />
         </div>
         <div className="mb-4 relative">
-          <label className="block text-gray-700 text-sm font-bold mb-2">Car Name(車名):</label>
+          <label className="block text-gray-700 text-sm font-bold mb-2">Car Maker Name(自動車メーカー名):</label>
           <div className="flex">
             <input
               type="text"
@@ -115,7 +139,7 @@ const CarDetails = () => {
             />
             <button
               type="button"
-              onClick={() => removeCarName(carDetails.carName)}
+              onClick={handleButtonClick}
               className="px-3 py-2 bg-gray-200 border-l border border-gray-300 rounded-r-lg text-gray-700 focus:outline-none focus:border-blue-500"
             >
               <FontAwesomeIcon icon={faAngleDown} />
@@ -136,8 +160,9 @@ const CarDetails = () => {
           )}
         </div>
         {/* ------------------Year spin button------------------ */}
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">Year (年式):</label>
+        <label className="block text-gray-700 text-sm font-bold mb-2">Year (年式):</label>
+
+        <div className="mb-4 relative spin-container">
           <input
             type="number"
             name="year"
@@ -146,6 +171,35 @@ const CarDetails = () => {
             min="1900"
             max="2100"
             step="1"
+            className="w-full px-3 py-2 border rounded-l text-gray-700 focus:outline-none focus:border-blue-500"
+          />
+          <div className="spin-buttons border rounded">
+            <button
+              type="button"
+              onClick={incrementYear}
+              className="up-button"
+            >
+              <FontAwesomeIcon icon={faCaretUp} />
+            </button>
+            <button
+              type="button"
+              onClick={decrementYear}
+              className="down-button"
+            >
+              <FontAwesomeIcon icon={faCaretDown} />
+            </button>
+          </div>
+        </div>
+
+        {/* ----------------Last Mileage input field--------------- */}
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2">Last Mileage (最終走行距離):</label>
+          <input
+            type="text"
+            name="lastMileage"
+            value={formatNumber(carDetails.lastMileage)}
+            onChange={handleChange}
+            min="0"
             className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500"
           />
         </div>

@@ -19,4 +19,50 @@
   .custom-calendar .react-calendar__month-view__days__day--weekend {
     color: red;
   }
-  
+ /* Hide default spin buttons for number input */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 40px; /* Space for custom spin buttons */
+  position: relative;
+}
+
+.spin-container {
+  display: flex;
+  align-items: center;
+}
+
+.spin-buttons {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-left: -1px; /* To remove the border gap between input and buttons */
+}
+
+.spin-buttons button {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ccc; /* Add border to match input border */
+  background: none;
+  cursor: pointer;
+}
+
+.spin-buttons .up-button {
+  border-bottom: none;
+}
+
+.spin-buttons .down-button {
+  border-top: none;
+}
+

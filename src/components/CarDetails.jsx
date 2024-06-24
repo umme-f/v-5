@@ -15,10 +15,12 @@ const CarDetails = () => {
     date: car.date ? new Date(car.date) : null,
     lastMileage: car.lastMileage || 0, // Ensure lastMileage is included
   });
+  const [selectedCarMaker, setSelectedCarMaker] = useState(''); // State for selected car maker
   const [, setFile] = useState(null);
   const [showCalendar, setShowCalendar] = useState(false);
   const [carNames, setCarNames] = useState(['Toyota', 'Honda', 'Ford', 'Chevrolet', 'BMW']);
   const [showCarNames, setShowCarNames] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -38,8 +40,28 @@ const CarDetails = () => {
     console.log("Handle change:", name, value); // Debugging line
     setCarDetails((prevDetails) => ({
       ...prevDetails,
-      [name]: name === 'lastMileage' ? parseInt(value.replace(/,/g, '')) || 0 : value,
+      [name]: name === 'lastMileage' ? value.replace(/,/g, '') : value,
     }));
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    if (name === 'lastMileage') {
+      setCarDetails((prevDetails) => ({
+        ...prevDetails,
+        [name]: value ? parseInt(value).toLocaleString('en-US') : '',
+      }));
+    }
+  };
+
+  const handleFocus = (e) => {
+    const { name } = e.target;
+    if (name === 'lastMileage') {
+      setCarDetails((prevDetails) => ({
+        ...prevDetails,
+        [name]: prevDetails[name].toString().replace(/,/g, ''),
+      }));
+    }
   };
 
   const handleDateChange = (date) => {
@@ -77,7 +99,7 @@ const CarDetails = () => {
     }
   };
 
-  const handleCancel =()=>{
+  const handleCancel = () => {
     navigate('/vehicle-manager');
   };
 
@@ -90,7 +112,7 @@ const CarDetails = () => {
   };
 
   const handleCarNameSelect = (name) => {
-    setCarDetails((prevDetails) => ({ ...prevDetails, carName: name }));
+    setSelectedCarMaker(name); // Update the selected car maker name
     setShowCarNames(false);
   };
 
@@ -106,9 +128,8 @@ const CarDetails = () => {
     setCarDetails((prevDetails) => ({ ...prevDetails, year: parseInt(prevDetails.year) - 1 }));
   };
 
-  // Helper function to format number with thousand separators
-  const formatNumber = (number) => {
-    return number.toLocaleString('en-US');
+  const handleCheckBox = () => {
+    setIsChecked(!isChecked);
   };
 
   return (
@@ -126,12 +147,12 @@ const CarDetails = () => {
           />
         </div>
         <div className="mb-4 relative">
-          <label className="block text-gray-700 text-sm font-bold mb-2">Car Maker Name(自動車メーカー名):</label>
+          <label className="block text-gray-700 text-sm font-bold mb-2">Car Maker Name (自動車メーカー名):</label>
           <div className="flex">
             <input
               type="text"
-              name="carName"
-              value={carDetails.carName}
+              name="carMaker"
+              value={selectedCarMaker} // Show the selected car maker name
               onChange={handleChange}
               onFocus={handleInputFocus}
               onBlur={handleInputBlur}
@@ -159,9 +180,18 @@ const CarDetails = () => {
             </ul>
           )}
         </div>
+        <div className="mb-4 relative">
+          <label className="block text-gray-700 text-sm font-bold mb-2">Car Name (車名):</label>
+          <input
+            type="text"
+            name="carName"
+            value={carDetails.carName}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500"
+          />
+        </div>
         {/* ------------------Year spin button------------------ */}
         <label className="block text-gray-700 text-sm font-bold mb-2">Year (年式):</label>
-
         <div className="mb-4 relative spin-container">
           <input
             type="number"
@@ -197,9 +227,12 @@ const CarDetails = () => {
           <input
             type="text"
             name="lastMileage"
-            value={formatNumber(carDetails.lastMileage)}
+            value={carDetails.lastMileage}
             onChange={handleChange}
+            onBlur={handleBlur}
+            onFocus={handleFocus}
             min="0"
+            style={{ textAlign: 'right' }}
             className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500"
           />
         </div>
@@ -236,27 +269,40 @@ const CarDetails = () => {
         </div>
         {/* --------------Next Update Date----------------- */}
         <div className="mb-4 relative">
-          <label className="block text-gray-700 text-sm font-bold mb-2">Next update date (次の更新日):
-          </label>
-          <div className="flex space-x-2">
+          <div className="mb-4 flex items-center">
+            <input
+              type="checkbox"
+              name="updateCheckbox"
+              className="mr-2 mb-2"
+              checked={isChecked}
+              onChange={handleCheckBox}
+            />
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Next update date (次の更新日):
+            </label>
+          </div>
+
+          <div className="flex">
             <input
               type="text"
               value={carDetails.date ? carDetails.date.toLocaleDateString('ja-JP') : ''}
               onClick={toggleCalendar}
               onChange={(e) => setCarDetails({ ...carDetails, date: e.target.value ? new Date(e.target.value) : null })}
-              className="w-full px-3 py-2 border rounded-l-lg text-gray-700 focus:outline-none focus:border-blue-500 cursor-pointer"
+              className={`w-full px-3 py-2 border rounded-l-lg text-gray-700 focus:outline-none focus:border-blue-500 cursor-pointer ${!isChecked ? 'bg-gray-100 text-gray-400' : ''}`}
               readOnly
+              disabled={!isChecked}
             />
             <button
               type="button"
               onClick={clearDate}
-              className="px-3 py-2 bg-gray-200 border-l border border-gray-300 rounded-r-lg text-gray-700 focus:outline-none focus:border-blue-500"
+              className={`px-3 py-2 bg-gray-200 border-l border border-gray-300 rounded-r-lg text-gray-700 focus:outline-none focus:border-blue-500 ${!isChecked ? 'bg-gray-100 text-gray-400' : ''}`}
+              disabled={!isChecked}
             >
               <FontAwesomeIcon icon={faTimes} />
             </button>
           </div>
 
-          {showCalendar && (
+          {showCalendar && isChecked && (
             <div className="absolute z-10 mt-2">
               <Calendar
                 onChange={handleDateChange}

@@ -22,6 +22,11 @@ const CarDetails = () => {
   const [showCarNames, setShowCarNames] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const navigate = useNavigate();
+  const [inputValue, setInputValue] = useState('');
+  const [textBoxInput, setTextBoxInput] = useState('');
+  const maxLength = 20;
+  // Function to handle changes in the input field
+  
 
   useEffect(() => {
     if (location.state && location.state.car) {
@@ -44,6 +49,11 @@ const CarDetails = () => {
     }));
   };
 
+  
+  const handletextInputChange =(e)=>{
+    setTextBoxInput(e.target.value);
+  };
+  
   const handleBlur = (e) => {
     const { name, value } = e.target;
     if (name === 'lastMileage') {
@@ -68,6 +78,7 @@ const CarDetails = () => {
     setCarDetails((prevDetails) => ({ ...prevDetails, date: date }));
     setShowCalendar(false);
   };
+
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -131,6 +142,11 @@ const CarDetails = () => {
   const handleCheckBox = () => {
     setIsChecked(!isChecked);
   };
+  const getRemainingColor = (remaining) => {
+    if (remaining <= 10) return 'text-red-500 font-bold';     
+    // if (remaining <= 10) return 'text-green-500 font-bold'; 
+    return 'text-green-500 font-bold';                      
+  };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4">
@@ -182,13 +198,24 @@ const CarDetails = () => {
         </div>
         <div className="mb-4 relative">
           <label className="block text-gray-700 text-sm font-bold mb-2">Car Name (車名):</label>
+          <div className="flex">
           <input
             type="text"
             name="carName"
             value={carDetails.carName}
             onChange={handleChange}
-            className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500"
+            
+            className="w-full px-3 py-2 border rounded text-gray-700 focus:outline-none focus:border-blue-500"
           />
+          <button
+            type="button"
+            onClick={handleButtonClick}
+            className="px-3 py-2 bg-gray-200 border-l border border-gray-300 rounded-r-lg text-gray-700 focus:outline-none focus:border-blue-500"
+          >
+            <FontAwesomeIcon icon={faAngleDown} />
+          </button>
+          
+          </div>
         </div>
         {/* ------------------Year spin button------------------ */}
         <label className="block text-gray-700 text-sm font-bold mb-2">Year (年式):</label>
@@ -322,7 +349,23 @@ const CarDetails = () => {
             </div>
           )}
         </div>
+          {/* -----------------------Details Input field--------------------- */}
+          <div className="p-2">
+            <lable className="block text-gray-700 text-sm font-bold mb-2">
+              Write details (詳細を記入してください。):
+            </lable>
+            <textarea className='border border-gray-300 focus:outline-none focus:border-blue-500 border rounded p-2 ' id="message" name="message"
+              onChange={handletextInputChange} 
+              rows="4"
+              cols="57"
+              value={textBoxInput}
+              maxLength={maxLength}
+              >
+            </textarea>
+            <p className={getRemainingColor(maxLength - textBoxInput.length)}>Remaining characters(残り文字数): {maxLength - textBoxInput.length}</p>   
+          </div>
 
+          {/* -------------File upload---------------- */}
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2">File Upload (ファイルをアップロード):</label>
           <input
@@ -331,6 +374,9 @@ const CarDetails = () => {
             className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500"
           />
         </div>
+          
+
+      
 
         <div className="flex justify-between">
           <button
@@ -348,6 +394,7 @@ const CarDetails = () => {
             <FontAwesomeIcon icon={faBan} className="pr-2" />キャンセル
           </button>
         </div>
+        
       </form>
     </div>
   );

@@ -3,20 +3,23 @@ import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell, faTimes } from '@fortawesome/free-solid-svg-icons';
 
-const CarNotification = ({ notifications, rows }) => {
+const CarNotification = ({ notifications, rows, setIsModalVisible }) => {
   const [isVisible, setIsVisible] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
+    setIsModalVisible(true); // Modal is visible initially
     const timer = setInterval(() => {
       setIsVisible(true);
-    }, 100000); // Reappear every 5 seconds
+      setIsModalVisible(true);
+    }, 100000); // Reappear every 100 seconds
 
     return () => clearInterval(timer);
-  }, []);
+  }, [setIsModalVisible]);
 
   const closeModal = () => {
     setIsVisible(false);
+    setIsModalVisible(false);
   };
 
   const handleNotificationClick = (carID) => {

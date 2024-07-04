@@ -1,0 +1,22 @@
+{
+    "welcome": "Welcome!",
+    "enter_email_password": "Enter Email ID and Password",
+    "email": "Email",
+    "password": "Password",
+    "remember_me": "Remember me",
+    "forgot_password": "Forgot password?",
+    "login": "Login",
+    "car_details": "Car Details",
+    "car_id": "Car ID",
+    "car_maker_name": "Car Maker Name",
+    "car_name": "Car Name",
+    "year": "Year",
+    "last_mileage": "Last Mileage",
+    "role": "Role",
+    "next_update_date": "Next update date",
+    "write_details": "Write details",
+    "file_upload": "File Upload",
+    "save": "Save",
+    "cancel": "Cancel"
+  }
+  

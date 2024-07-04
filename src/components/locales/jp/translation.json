@@ -1,0 +1,22 @@
+{
+    "welcome": "ようこそ！",
+    "enter_email_password": "メールアドレスとパスワードを入力してください",
+    "email": "メ－ル",
+    "password": "パスワード",
+    "remember_me": "Remember me",
+    "forgot_password": "パスワードをお忘れですか？",
+    "login": "ログイン",
+    "car_details": "車の詳細",
+    "car_id": "車両ID",
+    "car_maker_name": "自動車メーカー名",
+    "car_name": "車名",
+    "year": "年式",
+    "last_mileage": "最終走行距離",
+    "role": "役割",
+    "next_update_date": "次の更新日",
+    "write_details": "詳細を記入してください",
+    "file_upload": "ファイルをアップロード",
+    "save": "保存",
+    "cancel": "キャンセル"
+  }
+  

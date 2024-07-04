@@ -1,8 +1,9 @@
-import React from 'react'
+import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { I18nextProvider } from 'react-i18next';
+import i18n from './i18n';  // Import i18n configuration
 import Login from './components/Login';
-import ForgotPassword from './components/ForgotPassword';
 import AfterLogin from './components/AfterLogin';
 import VehicleManagerTableView from './components/VehicleManagerTableView';
 import UserTableView from './components/UserTableView';
@@ -13,23 +14,20 @@ import AddButton from './components/AddButton';
 import EditButton from './components/EditButton';
 import CarNotification from './components/CarNotification';
 import CarDetails from './components/CarDetails';
-
+import UserMenuDropdown from './components/UserMenuDropdown';
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Login />,
-    children:[
+    children: [
       {
-        path:'/footer',
-        element:<Footer />,
+        path: '/footer',
+        element: <Footer />,
       }
     ]
   },
-  {
-    path: "/forgot-password",
-    element: <ForgotPassword />,
-  },
+  
   {
     path: "/after-login",
     element: <AfterLogin />,
@@ -62,6 +60,10 @@ const router = createBrowserRouter([
     path: "/car-details",
     element: <CarDetails />,
   },
+    
+  {path: "/usermenudropdown",
+    element: <UserMenuDropdown />,
+  },
   {
     path: "*",
     element: <Error />,
@@ -70,7 +72,8 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <I18nextProvider i18n={i18n}>
+      <RouterProvider router={router} />
+    </I18nextProvider>
   </React.StrictMode>,
 );
-

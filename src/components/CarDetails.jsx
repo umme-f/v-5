@@ -3,11 +3,13 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { faFloppyDisk, faBan, faTimes, faAngleDown, faCaretUp, faCaretDown } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Calendar from 'react-calendar';
+import { useTranslation } from 'react-i18next';
 import 'react-calendar/dist/Calendar.css';
 import './customCalendar.css'; // Import the custom CSS file
-import ja from 'date-fns/locale/ja'; // Import Japanese locale
 
 const CarDetails = () => {
+  const [language, setLanguage] = useState('jp');
+  const { t, i18n } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const car = location.state ? location.state.car : {}; // Safe handling for car state
@@ -27,8 +29,6 @@ const CarDetails = () => {
   const [isChecked, setIsChecked] = useState(false);
   const [textBoxInput, setTextBoxInput] = useState('');
   const maxLength = 20;
-  const [language, setLanguage] = useState('en');
-
   useEffect(() => {
     if (car) {
       console.log("Car data from location:", car); // Debug
@@ -40,10 +40,23 @@ const CarDetails = () => {
     }
   }, [location.state]);
 
-  // toggle between English and Japanese
-  const toggleLanguage = () => {
-    setLanguage(lang => (lang === 'en' ? 'jp' : 'en'));
-  };
+  // Language change
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem('selectedLanguage');
+    if (savedLanguage) {
+      i18n.changeLanguage(savedLanguage);
+      setLanguage(savedLanguage);
+    }
+  }, [i18n]);
+
+ // Language change from the vehicle-manager component
+ const setJapaneseLanguage = () => {
+  i18n.changeLanguage('jp');
+};
+
+const setEnglishLanguage = () => {
+  i18n.changeLanguage('en');
+};
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -67,7 +80,7 @@ const CarDetails = () => {
             [name]: value
         }));
     }
-};
+  };
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -145,6 +158,11 @@ const CarDetails = () => {
     setIsChecked(!isChecked);
   };
 
+  const handleInputChange = (e) => {
+    const input = e.target.value;
+    setTextBoxInput(input);
+  };
+
   const incrementYear = () => {
     setCarDetails((prevDetails) => ({ ...prevDetails, year: parseInt(prevDetails.year) + 1 }));
   };
@@ -156,21 +174,27 @@ const CarDetails = () => {
   const getRemainingColor = (remaining) => {
     return remaining <= 10 ? 'text-red-500 font-bold' : 'text-green-500 font-bold';
   };
+  
 
   // JSX 
   return (
     <div className="relative flex items-center justify-center min-h-screen bg-gray-100 p-4">
-      {/* Language toggle button */}
-      <button onClick={toggleLanguage} className="absolute top-4 right-4 p-2 bg-gray-200 text-xs uppercase font-bold rounded-full">
-        {language === 'en' ? '日本語' : 'English'}
-      </button>
+      {/* Language toggle buttons */}
+      <div className="absolute top-4 right-4 border border-black rounded">
+        <button onClick={setJapaneseLanguage} className={`p-2 ${i18n.language === 'jp' ? 'bg-blue-600 text-white' : 'bg-gray-400'} text-xs uppercase font-bold rounded-l`}>
+          日本語
+        </button>
+        <button onClick={setEnglishLanguage} className={`p-2 ${i18n.language === 'en' ? 'bg-blue-600 text-white' : 'bg-gray-400'} text-xs uppercase font-bold rounded-r`}>
+          En
+        </button>
+      </div>
 
       <div className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold mb-6 text-center">{language === 'en' ? 'Car Details' : '車の詳細'}</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center">{t("cardetails")}</h2>
         <form onSubmit={handleSave}>
           {/* Car ID field */}
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">{language === 'en' ? 'Car ID:' : '車両ID:'}</label>
+            <label className="block text-gray-700 text-sm font-bold mb-2">{t("carID")}</label>
             <input
               type="text"
               name="carID"
@@ -182,7 +206,7 @@ const CarDetails = () => {
 
           {/* Car Maker Name field */}
           <div className="mb-4 relative">
-            <label className="block text-gray-700 text-sm font-bold mb-2">{language === 'en' ? 'Car Maker Name:' : '自動車メーカー名:'}</label>
+            <label className="block text-gray-700 text-sm font-bold mb-2">{t("carmakername")}</label>
             <div className="flex">
               <input
                 type="text"
@@ -218,7 +242,7 @@ const CarDetails = () => {
 
           {/* Car Name field */}
           <div className="mb-4 relative">
-            <label className="block text-gray-700 text-sm font-bold mb-2">{language === 'en' ? 'Car Name:' : '車名:'}</label>
+            <label className="block text-gray-700 text-sm font-bold mb-2">{t("carname")}</label>
             <div className="flex">
               <input
                 type="text"
@@ -254,7 +278,7 @@ const CarDetails = () => {
 
           {/* Year spin button */}
           <div className="mb-4 relative">
-            <label className="block text-gray-700 text-sm font-bold mb-2">{language === 'en' ? 'Year:' : '年式:'} </label>
+            <label className="block text-gray-700 text-sm font-bold mb-2">{t("year")} </label>
             <div className="flex">
               <input
                 type="number"
@@ -287,7 +311,7 @@ const CarDetails = () => {
 
           {/* Last Mileage input field */}
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">{language === 'en' ? 'Last Mileage:' : '最終走行距離:'}</label>
+            <label className="block text-gray-700 text-sm font-bold mb-2">{t("lastmileage")}</label>
             <input
               type="text"
               name="lastMileage"
@@ -302,7 +326,7 @@ const CarDetails = () => {
 
           {/* Role radio buttons */}
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">{language === 'en' ? 'Role:' : '役割:'}</label>
+            <label className="block text-gray-700 text-sm font-bold mb-2">{t("role")}</label>
             <div className="flex space-x-4">
               <div className="flex items-center">
                 <input
@@ -342,7 +366,7 @@ const CarDetails = () => {
                 className="mr-2 mb-2"
               />
               <label className="block text-gray-700 text-sm font-bold mb-2">
-              {language === 'en' ? 'Next update date:' : '次の更新日:'}
+              {t("nextupdatedate")}
               </label>
             </div>
             <div className="flex">
@@ -378,12 +402,12 @@ const CarDetails = () => {
           {/* Details Input field */}
           <div className="p-2">
             <label className="block text-gray-700 text-sm font-bold mb-2">
-            {language === 'en' ? 'Write details:' : '詳細を記入してください。:'} 
+            {t("writedetails")} 
             </label>
             <textarea
               id="message"
               name="message"
-              onChange={(e) => setTextBoxInput(e.target.value)}
+              onChange={handleInputChange}
               rows="4"
               cols="57"
               value={textBoxInput}
@@ -391,7 +415,7 @@ const CarDetails = () => {
               className='border border-gray-300 focus:outline-none focus:border-blue-500 rounded p-2'
             ></textarea>
             <p className={getRemainingColor(maxLength - textBoxInput.length)}>
-            {language === 'en' ? 'Remaining characters: ' : '残り文字数: '} 
+            {t("remainingcharacters")} 
              {maxLength - textBoxInput.length}
             </p>
           </div>
@@ -399,7 +423,7 @@ const CarDetails = () => {
           {/* File upload */}
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
-            {language === 'en' ? 'File Upload : ' : 'ファイルをアップロード: '} 
+            {t("fileupload")} 
             </label>
             <input
               type="file"
@@ -414,7 +438,7 @@ const CarDetails = () => {
               className="px-5 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:bg-blue-700 border border-slate-700"
             >
               <FontAwesomeIcon icon={faFloppyDisk} className="pr-2" />
-              {language === 'en' ? 'Save ' : '保存 '} 
+              {t("save")} 
               
             </button>
             <button
@@ -423,7 +447,7 @@ const CarDetails = () => {
               className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:bg-red-700 border border-slate-700"
             >
               <FontAwesomeIcon icon={faBan} className="pr-2" />
-              {language === 'en' ? 'Cancel ' : 'キャンセル '}              
+              {t("cancel")}              
             </button>
           </div>
         </form>

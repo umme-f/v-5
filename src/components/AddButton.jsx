@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { faTimes, faCaretUp, faCaretDown, faFloppyDisk, faBan, faAngleDown } from '@fortawesome/free-solid-svg-icons';
+import { faTimes, faCaretUp, faCaretDown, faFloppyDisk, faBan, faAngleDown, faPlus, faCircleInfo, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+// import { Button } from 'react-day-picker';
 
 const AddButton = () => {
   const maxLength = 20;
@@ -18,14 +19,14 @@ const AddButton = () => {
   const [isChecked, setIsChecked] = useState(false);
   const [textBoxInput, setTextBoxInput] = useState('');
   const [carName, setCarName] = useState('');
-  const [year, setYear] = useState(new Date().getFullYear()); // Initialize with current year
+  const [year, setYear] = useState(new Date().getFullYear());
   const [role, setRole] = useState('');
-  const [date, setDate] = useState(new Date()); // Initialize date with current date
+  const [date, setDate] = useState(new Date());
   const [selectedCarMaker, setSelectedCarMaker] = useState('');
-  const [showCarMakers, setShowCarMakers] = useState(false); // New state for car makers dropdown
-  const [showCarNames, setShowCarNames] = useState(false); // New state for car names dropdown
-  const [file, setFile] = useState(null); // New state for file upload
-  const [fileName, setFileName] = useState(''); // New state for file name
+  const [showCarMakers, setShowCarMakers] = useState(false);
+  const [showCarNames, setShowCarNames] = useState(false);
+  const [files, setFiles] = useState([]); // State for multiple files
+  const [fileNames, setFileNames] = useState([]); // State for multiple file names
   const navigate = useNavigate();
   const car = location.state ? location.state.car : {};
   const [carDetails, setCarDetails] = useState({
@@ -34,10 +35,8 @@ const AddButton = () => {
     lastMileage: car.lastMileage || 0,
   });
 
-  // Sample car names
   const carNames = ['Toyota', 'Honda', 'Ford', 'Chevrolet', 'BMW'];
 
-  // Language
   const setLanguageToEnglish = () => {
     i18n.changeLanguage('en');
     setLanguage('en');
@@ -50,7 +49,6 @@ const AddButton = () => {
     localStorage.setItem('selectedLanguage', 'jp');
   };
 
-  // Save language to local storage
   useEffect(() => {
     const savedLanguage = localStorage.getItem('selectedLanguage');
     if (savedLanguage) {
@@ -59,15 +57,13 @@ const AddButton = () => {
     }
   }, [i18n]);
 
-  // Add info warning
   const handleAdd = (e) => {
     e.preventDefault();
-    if (!carId || !carName || !role || (isChecked && !date) || !file) {
+    if (!carId || !carName || !role || (isChecked && !date) || files.length === 0) {
       toast.error(t('toastAddWarning'));
       return;
     }
-    console.log({ carId, carName, year, role, date });
-    // Navigate to the VehicleManager page after form submission
+    console.log({ carId, carName, year, role, date, files });
     navigate('/vehicle-manager');
   };
 
@@ -81,15 +77,14 @@ const AddButton = () => {
     setShowCarNames(false);
   };
 
-  // Cancel and navigate
   const handleCancel = () => {
     setCarId('');
     setCarName('');
     setYear(new Date().getFullYear());
     setRole('');
     setDate(new Date());
-    setFile(null);
-    setFileName('');
+    setFiles([]);
+    setFileNames([]);
     navigate('/vehicle-manager');
   };
 
@@ -103,7 +98,7 @@ const AddButton = () => {
 
   const handleDateChange = (date) => {
     setDate(date);
-    setShowCalendar(false); // Hide calendar after date selection
+    setShowCalendar(false);
   };
 
   const clearDate = () => {
@@ -147,12 +142,9 @@ const AddButton = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Handle changes specifically for the 'lastMileage' field
     if (name === 'lastMileage') {
-        // Regular expression to check if the input is numeric
         const reg = /^[0-9\b]+$/;
 
-        // If the field is empty or matches the numeric regex, update the state
         if (value === '' || reg.test(value)) {
             setCarDetails((prevDetails) => ({
                 ...prevDetails,
@@ -160,7 +152,6 @@ const AddButton = () => {
             }));
         }
     } else {
-        // For all other inputs, update the state as usual
         setCarDetails((prevDetails) => ({
             ...prevDetails,
             [name]: value
@@ -169,8 +160,8 @@ const AddButton = () => {
   };
 
   const handleInputBlur = () => {
-    setTimeout(() => setShowCarMakers(false), 200); // to prevent immediate hide on click
-    setTimeout(() => setShowCarNames(false), 200); // to prevent immediate hide on click
+    setTimeout(() => setShowCarMakers(false), 200);
+    setTimeout(() => setShowCarNames(false), 200);
   };
 
   const handleCarMakerButtonClick = () => {
@@ -188,21 +179,24 @@ const AddButton = () => {
 
   const handleCarIdChange = (e) => {
     const value = e.target.value;
-    // Only allow numeric input
     if (/^\d*$/.test(value)) {
       setCarId(value);
     }
   };
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    setFile(file);
-    setFileName(file ? file.name : '');
+    const newFiles = Array.from(e.target.files);
+    setFiles(newFiles);
+    setFileNames(newFiles.map(file => file.name));
   };
 
-  const clearFile = () => {
-    setFile(null);
-    setFileName('');
+  const clearFile = (index) => {
+    const newFiles = [...files];
+    const newFileNames = [...fileNames];
+    newFiles.splice(index, 1);
+    newFileNames.splice(index, 1);
+    setFiles(newFiles);
+    setFileNames(newFileNames);
   };
 
   const getRemainingColor = (remaining) => {
@@ -221,6 +215,7 @@ const AddButton = () => {
         </button>
       </div>
 
+      {/* Form */}
       <form className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg" onSubmit={handleAdd}>
         <h2 className="text-2xl font-bold mb-6 text-center">{t("carAddForm")}</h2>
 
@@ -273,7 +268,7 @@ const AddButton = () => {
           )}
         </div>
 
-        {/* Car Name */}
+        {/* Car name */}
         <div className="mb-4 relative">
           <label className="block text-gray-700 text-sm font-bold mb-2 after:content-['*'] after:ml-0.5 after:text-red-500 block " htmlFor="carName">
             {t("carname")}
@@ -311,7 +306,7 @@ const AddButton = () => {
           )}
         </div>
 
-          {/* Year */}
+        {/* Year */}
         <div className="mb-4 relative">
           <label className="after:content-['*'] after:ml-0.5 after:text-red-500 block text-gray-700 text-sm font-bold mb-2">{t("year")} </label>
           <div className="flex">
@@ -344,50 +339,51 @@ const AddButton = () => {
           </div>
         </div>
 
-        {/* Last Mileage input field */}
+        {/* Mileage */}
         <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">{t("lastmileage")}</label>
-            <input
-              type="text"
-              name="lastMileage"
-              value={carDetails.lastMileage}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              onFocus={handleFocus}
-              style={{ textAlign: 'right' }}
-              className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500"
-            />
-          </div>
+          <label className="block text-gray-700 text-sm font-bold mb-2">{t("lastmileage")}</label>
+          <input
+            type="text"
+            name="lastMileage"
+            value={carDetails.lastMileage}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            onFocus={handleFocus}
+            style={{ textAlign: 'right' }}
+            className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500"
+          />
+        </div>
 
-        {/* Role */}
+        {/* Radio Button */}
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2 after:content-['*'] after:ml-0.5 after:text-red-500 block" htmlFor="role">
-            {t("role")}
+          <label className="block text-gray-700 text-sm font-bold mb-2 after:content-['*'] after:ml-0.5 after:text-red-500 block" htmlFor="carType">
+            {t("carType")}
           </label>
           <div className="flex items-center">
             <input
               type="radio"
-              id="vehicleManager"
-              name="role"
-              value="Vehicle Manager"
-              checked={role === 'Vehicle Manager'}
+              id="purchase"
+              name="carType"
+              value="purchase"
+              checked={role === 'purchase'}
               onChange={(e) => setRole(e.target.value)}
               className="mr-2"
             />
-            <label htmlFor="vehicleManager" className="mr-4">Vehicle Manager (VM)</label>
+            <label htmlFor="purchase" className="mr-4">Purchase</label>
             <input
               type="radio"
-              id="user"
-              name="role"
-              value="User"
-              checked={role === 'User'}
+              id="lease"
+              name="carType"
+              value="lease"
+              checked={role === 'lease'}
               onChange={(e) => setRole(e.target.value)}
               className="mr-2"
             />
-            <label htmlFor="user" className="mr-4">User</label>
+            <label htmlFor="lease" className="mr-4">Lease</label>
           </div>
         </div>
 
+        {/* Calendar */}
         <div className="mb-4 relative">
           <div className="mb-4 flex items-center">
             <input
@@ -439,27 +435,38 @@ const AddButton = () => {
           <div className="flex items-center">
             <input
               type="file"
+              multiple
               onChange={handleFileChange}
               className="w-full px-3 py-2 border rounded-l-lg text-gray-700 focus:outline-none focus:border-blue-500"
             />
-            {file && (
-              <button
-                type="button"
-                onClick={clearFile}
-                className="px-3 py-3 bg-gray-200 border-l border border-gray-300 rounded-r-lg text-gray-700 focus:outline-none focus:border-blue-500"
-              >
-                <FontAwesomeIcon icon={faTimes} />
-              </button>
-            )}
           </div>
-          {fileName && (
+          {fileNames.length > 0 && (
             <div className="mt-2 text-gray-700">
-              {t("uploadedFile")}: {fileName}
+              <ul>
+                {fileNames.map((name, index) => (
+                  <li key={index} className="flex items-center">
+                    {name}
+                    <button
+                      type="button"
+                      onClick={() => clearFile(index)}
+                      className="ml-2 text-red-500"
+                    >
+                      <FontAwesomeIcon icon={faTimes} />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              <div className="">
+                <button className="ml-2 text-white bg-orange-500 p-1 rounded"><FontAwesomeIcon icon={faCircleInfo} className='pr-1'/>Show Details</button>
+                <button className="ml-2 text-white bg-green-500 p-1 rounded"><FontAwesomeIcon icon={faPlus} className='pr-1'/>Add more</button>
+                <button className="ml-2 text-white bg-red-500 p-1 rounded">
+                  <FontAwesomeIcon icon={faTrashCan} className='pr-1'/>Delete</button>
+              </div>
             </div>
           )}
         </div>
 
-        {/* Write Details */}
+        {/* Write details */}
         <div className="p-2">
           <label className="block text-gray-700 text-sm font-bold mb-2">
             {t("writedetails")} 
@@ -479,7 +486,7 @@ const AddButton = () => {
           </p>
         </div>
 
-        {/* Buttons */}
+        {/* Save and Cancel Button */}
         <div className="flex justify-between">
           <button
             type="submit"

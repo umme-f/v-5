@@ -41,15 +41,17 @@ const AddButton = () => {
       i18n.changeLanguage(savedLanguage);
       setLanguage(savedLanguage);
     }
-    // Clear backend data on mount
-    const clearBackendData = async () => {
+
+    const fetchFiles = async () => {
       try {
-        await axios.post('http://localhost:5000/clear');
+        const response = await axios.get('http://localhost:5000/files');
+        setFileDetails(response.data);
       } catch (error) {
-        console.error('Failed to clear backend data:', error);
+        console.error('Failed to fetch files:', error);
       }
     };
-    clearBackendData();
+
+    fetchFiles();
   }, [i18n]);
 
   const handleLanguageChange = (lang) => {
@@ -199,21 +201,6 @@ const AddButton = () => {
       });
   };
 
-  const clearFile = (index) => {
-    const newFiles = [...files];
-    const newFileNames = [...fileNames];
-    const newFileDetails = [...fileDetails];
-    newFiles.splice(index, 1);
-    newFileNames.splice(index, 1);
-    newFileDetails.splice(index, 1);
-    setFiles(newFiles);
-    setFileNames(newFileNames);
-    setFileDetails(newFileDetails);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
-
   const handleFileDateChange = (index, date) => {
     const updatedFileDetails = [...fileDetails];
     updatedFileDetails[index].date = date;
@@ -235,7 +222,13 @@ const AddButton = () => {
     });
   };
 
-  const deleteSelectedFiles = async () => {
+  const deleteSelectedFiles = async (e) => {
+    e.preventDefault(); // Prevent form submission
+    if (selectedFiles.length === 0) {
+      toast.error(t('toastDeleteWarning'));
+      return;
+    }
+
     const filesToDelete = fileDetails.filter((_, index) => selectedFiles.includes(index)).map(file => file.originalName);
     try {
       const response = await axios.post('http://localhost:5000/delete', { files: filesToDelete });
@@ -495,35 +488,16 @@ const AddButton = () => {
               className="w-full px-3 py-2 border rounded-l-lg text-gray-700 focus:outline-none focus:border-blue-500"
             />
           </div>
-          {/* {fileDetails.length === 0 && (
-            <div className="mt-2 text-gray-700">
-              <ul>
-                {fileNames.map((name, index) => (
-                  <li key={index} className="flex items-center">
-                    {name}
-                    <button
-                      type="button"
-                      onClick={() => clearFile(index)}
-                      className="ml-2 text-red-500"
-                    >
-                      <FontAwesomeIcon icon={faTimes} />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )} */}
         </div>
 
-        {/* File Details Table */}
-        {fileDetails.length > 0 && (
+        {/* File Details Table */}        
           <div className="mt-4 border-2 border-gray-300 rounded">
             <table className="min-w-full bg-white">
               <thead>
                 <tr className="border-b-2">
                   <th className="py-2 px-4"></th>
                   <th className="py-2 px-4 border-r-2">{t("fileName")}</th>
-                  <th className="py-2 px-4">{t("updatedate")}</th>
+                  <th className="py-2 px-4">{t("date")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -532,21 +506,9 @@ const AddButton = () => {
                     key={index}
                     className={`border-b-2 ${selectedFiles.includes(index) ? 'bg-gray-200' : ''}`}
                   >
-                    <td className="py-2 px-4">
-                      <input
-                        type="checkbox"
-                        checked={selectedFiles.includes(index)}
-                        onChange={() => toggleFileSelection(index)}
-                        className="form-checkbox h-4 w-4 text-blue-600"
-                      />
-                    </td>
+                    
                     <td className="py-2 px-4 border-r-2">
-                      <a
-                        href={`http://localhost:5000/uploads/${file.originalName}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-500 hover:underline"
-                      >
+                      <a href={`http://localhost:5000/uploads/${file.originalName}`} target="_blank" rel="noopener noreferrer">
                         {file.originalName}
                       </a>
                     </td>
@@ -560,6 +522,8 @@ const AddButton = () => {
                             ? new Date(file.date).toLocaleDateString('ja-JP')
                             : 'Select Date'}
                         </span>
+        
+                        {/* Button to show calendar */}
                         <button type="button" className="mt-2">
                           <FontAwesomeIcon icon={faCalendarDays} />
                         </button>
@@ -583,6 +547,25 @@ const AddButton = () => {
               </tbody>
             </table>
             {/* Deletes file name from the table */}
+            <div className="grid grid-cols-3">
+            <div className="text-right m-4">
+              <button
+                className="bg-green-500 p-1 text-white rounded font-semibold"
+                onClick={deleteSelectedFiles}
+              >
+                <FontAwesomeIcon icon={faTrashCan} className="pr-1" />
+                {t("delete")}
+              </button>
+            </div>
+            <div className="text-right m-4">
+              <button
+                className="bg-orange-500 p-1 text-white rounded font-semibold"
+                onClick={deleteSelectedFiles}
+              >
+                <FontAwesomeIcon icon={faTrashCan} className="pr-1" />
+                {t("delete")}
+              </button>
+            </div>
             <div className="text-right m-4">
               <button
                 className="bg-red-500 p-1 text-white rounded font-semibold"
@@ -592,8 +575,9 @@ const AddButton = () => {
                 {t("delete")}
               </button>
             </div>
+            </div>
           </div>
-        )}
+        
 
         {/* Write Details */}
         <div className="p-2">

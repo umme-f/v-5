@@ -3,26 +3,28 @@ const multer = require('multer');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+
 const app = express();
 const port = 5000;
 
 app.use(cors());
 app.use(express.json());
 
-// Serve static files from the 'uploads' directory
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    cb(null, file.originalname);
-  }
-});
-const upload = multer({ storage: storage });
+const upload = multer({ dest: 'uploads/' });
 
 let uploadedFiles = [];
+
+// Function to load existing files from the uploads directory
+const loadExistingFiles = () => {
+  const files = fs.readdirSync('uploads');
+  uploadedFiles = files.map(file => ({
+    originalName: file,
+    date: new Date().toISOString().split('T')[0], // Default date to current date
+  }));
+};
+
+// Load existing files on server start
+loadExistingFiles();
 
 app.post('/upload', upload.array('files'), (req, res) => {
   req.files.forEach(file => {
@@ -34,25 +36,21 @@ app.post('/upload', upload.array('files'), (req, res) => {
   res.status(200).json(uploadedFiles);
 });
 
-app.post('/delete', (req, res) => {
+app.get('/files', (req, res) => {
+  res.status(200).json(uploadedFiles);
+});
+
+app.post('/delete', async (req, res) => {
   const { files } = req.body;
   try {
     files.forEach(file => {
-      const filePath = path.join(__dirname, 'uploads', file);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
+      fs.unlinkSync(path.join('uploads', file));
+      uploadedFiles = uploadedFiles.filter(f => f.originalName !== file);
     });
-    uploadedFiles = uploadedFiles.filter(file => !files.includes(file.originalName));
     res.status(200).send({ message: 'Files deleted successfully' });
   } catch (error) {
-    console.error('Error deleting files:', error);
     res.status(500).send({ message: 'Failed to delete files', error });
   }
-});
-
-app.get('/files', (req, res) => {
-  res.status(200).json(uploadedFiles);
 });
 
 app.post('/clear', (req, res) => {

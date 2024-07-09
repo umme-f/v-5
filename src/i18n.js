@@ -55,6 +55,9 @@ i18n
           duplicateFileWarning: "You already have a file with same name!",
           // duplicateDelete 
           updatedate: "inspection day",
+          toastDeleteSuccess: "File Deleted successfully",
+          toastDeleteError: "Couldnot Delete the file.",
+          toastDeleteWarning: "Please Select Data From the Table",
         },
       },
       jp: {
@@ -105,6 +108,9 @@ i18n
           lease: "リース",          
           duplicateFileWarning: "同じ名前のファイルが既に存在します。",
           updatedate:"検査日",
+          toastDeleteSuccess: "ファイルが正常に削除されました。",
+          toastDeleteError: "ファイルを削除できませんでした。",
+          toastDeleteWarning: "表からデータを選択してください。",
         },
       },
     },

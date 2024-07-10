@@ -56,8 +56,11 @@ i18n
           // duplicateDelete 
           updatedate: "inspection day",
           toastDeleteSuccess: "File Deleted successfully",
-          toastDeleteError: "Couldnot Delete the file.",
-          toastDeleteWarning: "Please Select Data From the Table",
+          toastDeleteError: "Couldnot delete the file.",
+          toastDeleteWarning: "Please select data from the table",
+          openlink: "Open Link",
+          choosefiles : "Upload",
+
         },
       },
       jp: {
@@ -111,6 +114,8 @@ i18n
           toastDeleteSuccess: "ファイルが正常に削除されました。",
           toastDeleteError: "ファイルを削除できませんでした。",
           toastDeleteWarning: "表からデータを選択してください。",
+          openlink: "リンクを開く",
+          choosefiles : "アップロード",
         },
       },
     },

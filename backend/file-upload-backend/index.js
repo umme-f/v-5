@@ -28,12 +28,26 @@ loadExistingFiles();
 
 app.post('/upload', upload.array('files'), (req, res) => {
   req.files.forEach(file => {
-    uploadedFiles.push({
-      originalName: file.originalname,
-      date: new Date().toISOString().split('T')[0], // Default date to current date
+    const newFileName = `${file.originalname}-${Date.now()}${path.extname(file.originalname)}`;
+    const newPath = path.join('uploads', newFileName);
+
+    // Rename the file
+    fs.rename(file.path, newPath, (err) => {
+      if (err) {
+        console.error('Error renaming file:', err);
+        return res.status(500).json({ error: 'Error renaming file' });
+      }
+
+      uploadedFiles.push({
+        originalName: newFileName,
+        date: new Date().toISOString().split('T')[0], // Default date to current date
+      });
+
+      if (uploadedFiles.length === req.files.length) {
+        res.status(200).json(uploadedFiles);
+      }
     });
   });
-  res.status(200).json(uploadedFiles);
 });
 
 app.get('/files', (req, res) => {
@@ -43,13 +57,22 @@ app.get('/files', (req, res) => {
 app.post('/delete', async (req, res) => {
   const { files } = req.body;
   try {
-    files.forEach(file => {
-      fs.unlinkSync(path.join('uploads', file));
-      uploadedFiles = uploadedFiles.filter(f => f.originalName !== file);
-    });
-    res.status(200).send({ message: 'Files deleted successfully' });
+    console.log('Files to delete:', files); // Log the files to be deleted
+    for (const file of files) {
+      const filePath = path.join(__dirname, 'uploads', file);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+        console.log(`Deleted file: ${filePath}`);
+      } else {
+        console.error(`File not found: ${filePath}`);
+        throw new Error(`File not found: ${filePath}`);
+      }
+    }
+    uploadedFiles = uploadedFiles.filter(file => !files.includes(file.originalName));
+    res.status(200).json({ message: 'Files deleted successfully' });
   } catch (error) {
-    res.status(500).send({ message: 'Failed to delete files', error });
+    console.error('Error deleting file:', error);
+    res.status(500).send(`Error deleting file: ${error.message}`);
   }
 });
 

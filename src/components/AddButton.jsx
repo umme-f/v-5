@@ -17,6 +17,7 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import DeleteRow from "./DeleteRow"; // Adjust the import path as necessary
 
 const AddButton = () => {
   const maxLength = 20;
@@ -43,6 +44,7 @@ const AddButton = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [buttonClicked, setButtonClicked] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const carNames = ["Toyota", "Honda", "Ford", "Chevrolet", "BMW"];
   const fileInputRef = useRef(null);
@@ -208,6 +210,7 @@ const AddButton = () => {
     const newFileDetails = filteredNewFiles.map((file) => ({
       originalName: file.name,
       date: null,
+      fileData: file,
     }));
     const updatedFileDetails = [...fileDetails, ...newFileDetails];
     setFileDetails(updatedFileDetails);
@@ -237,6 +240,10 @@ const AddButton = () => {
       return;
     }
 
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
     const updatedFileDetails = fileDetails.filter(
       (_, index) => index !== selectedRow
     );
@@ -244,14 +251,17 @@ const AddButton = () => {
     setSelectedRow(null);
     localStorage.setItem("fileDetails", JSON.stringify(updatedFileDetails));
     toast.success(t("toastDeleteSuccess"));
+    setIsDeleteDialogOpen(false);
+  };
+
+  const cancelDelete = () => {
+    setIsDeleteDialogOpen(false);
   };
 
   const handleOpenLink = () => {
     if (selectedRow !== null) {
-      const selectedFile = fileDetails[selectedRow];
-      const fileUrl = URL.createObjectURL(
-        new Blob([selectedFile], { type: "application/pdf" })
-      );
+      const selectedFile = fileDetails[selectedRow].fileData;
+      const fileUrl = URL.createObjectURL(selectedFile);
       window.open(fileUrl, "_blank");
     } else {
       toast.error(t("toastNoFileSelected"));
@@ -575,9 +585,11 @@ const AddButton = () => {
                 >
                   <td className="py-2 px-4 border-r-2">
                     <a
-                      href={URL.createObjectURL(new Blob([file], { type: "application/pdf" }))}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      href={`#`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleOpenLink(index);
+                      }}
                     >
                       {file.originalName}
                     </a>
@@ -624,7 +636,7 @@ const AddButton = () => {
                 onClick={handleClick}
                 className={`w-full px-4 py-2 rounded font-semibold flex items-center justify-center ${
                   buttonClicked ? "bg-green-700" : "bg-green-500"
-                } text-white hover:bg-green-700 focus:outline-none focus:bg-green-700`}
+                } text-white hover:bg-green-700`}
               >
                 <FontAwesomeIcon
                   icon={faArrowUpFromBracket}
@@ -703,6 +715,12 @@ const AddButton = () => {
           </button>
         </div>
       </form>
+
+      <DeleteRow
+        isDeleteDialogOpen={isDeleteDialogOpen}
+        confirmDelete={confirmDelete}
+        cancelDelete={cancelDelete}
+      />
     </div>
   );
 };

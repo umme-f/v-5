@@ -36,7 +36,7 @@ i18n
           fileupload: "File Upload",
           remainingcharacters: "Remaining characters: ",
           cardetails: "Car Details",
-          confirmdelete: "Confirm Delete",
+          confirmdelete: "Confirm Delete?",
           deleteconfirmmessage: "Are you sure you want to delete this item?",
           carAddForm: "Car Add Form",
           toastAddWarning: "Please fill in all mandatory fields.",

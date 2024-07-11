@@ -36,7 +36,7 @@ i18n
           fileupload: "File Upload",
           remainingcharacters: "Remaining characters: ",
           cardetails: "Car Details",
-          confirmdelete: "Confirm Delete?",
+          confirmdelete: "Confirm Delete",
           deleteconfirmmessage: "Are you sure you want to delete this item?",
           carAddForm: "Car Add Form",
           toastAddWarning: "Please fill in all mandatory fields.",
@@ -60,7 +60,7 @@ i18n
           toastDeleteWarning: "Please select data from the table",
           openlink: "Open Link",
           choosefiles : "Upload",
-
+          uploadTime: "Time of upload",
         },
       },
       jp: {
@@ -116,6 +116,8 @@ i18n
           toastDeleteWarning: "表からデータを選択してください。",
           openlink: "リンクを開く",
           choosefiles : "アップロード",
+          uploadTime: "アップロードの時間。",
+
         },
       },
     },

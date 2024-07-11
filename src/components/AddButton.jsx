@@ -17,8 +17,9 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import DeleteRow from "./DeleteRow"; // Adjust the import path as necessary
+import DeleteRow from "./DeleteRow"; 
 
+// -----------Component State and References-------------
 const AddButton = () => {
   const maxLength = 20;
   const { t, i18n } = useTranslation();
@@ -49,6 +50,7 @@ const AddButton = () => {
   const carNames = ["Toyota", "Honda", "Ford", "Chevrolet", "BMW"];
   const fileInputRef = useRef(null);
 
+  // -------------useEffect hook for Language and File Details---------
   useEffect(() => {
     const savedLanguage = localStorage.getItem("selectedLanguage");
     if (savedLanguage) {
@@ -62,12 +64,14 @@ const AddButton = () => {
     }
   }, [i18n]);
 
+  // -------------------Handle Language Change-----------
   const handleLanguageChange = (lang) => {
     i18n.changeLanguage(lang);
     setLanguage(lang);
     localStorage.setItem("selectedLanguage", lang);
   };
 
+  // -------------------Handle Submission---------------
   const handleAdd = (e) => {
     e.preventDefault();
     if (
@@ -83,6 +87,7 @@ const AddButton = () => {
     console.log({ carDetails, files });
   };
 
+  // ----------------Car Maker and Car Name Selecting----------------------
   const handleCarMakerSelect = (maker) => {
     setSelectedCarMaker(maker);
     setShowCarMakers(false);
@@ -93,6 +98,7 @@ const AddButton = () => {
     setShowCarNames(false);
   };
 
+  // -----------------Handle Cancel Button-----------
   const handleCancel = () => {
     setCarDetails({
       carId: "",
@@ -109,6 +115,7 @@ const AddButton = () => {
     setSelectedRow(null);
   };
 
+  // <---------------Checkbox and Calendar handling---------------->
   const handleCheckBox = () => {
     setIsChecked(!isChecked);
   };
@@ -127,6 +134,7 @@ const AddButton = () => {
     setShowCalendar(false);
   };
 
+  // <----------------Handle year-------------------->
   const incrementYear = () => {
     setCarDetails((prevDetails) => ({
       ...prevDetails,
@@ -146,6 +154,7 @@ const AddButton = () => {
     setCarDetails((prevDetails) => ({ ...prevDetails, year: value }));
   };
 
+  // <-------------------Handle Mileage------------------------->
   const handleBlur = (e) => {
     const { name, value } = e.target;
     if (name === "lastMileage") {
@@ -184,6 +193,7 @@ const AddButton = () => {
     setShowCarNames((prev) => !prev);
   };
 
+  // <----------------Handle file input---------------------->
   const handleInputChange = (e) => {
     const input = e.target.value;
     setTextBoxInput(input);
@@ -205,13 +215,16 @@ const AddButton = () => {
       toast.error(t("duplicateFileWarning"));
     }
 
-    setFiles([...files, ...filteredNewFiles]);
-    setFileNames([...fileNames, ...filteredNewFileNames]);
+    const currentTime = new Date().toLocaleString("ja-JP");
     const newFileDetails = filteredNewFiles.map((file) => ({
       originalName: file.name,
       date: null,
       fileData: file,
+      uploadTime: currentTime,
     }));
+
+    setFiles([...files, ...filteredNewFiles]);
+    setFileNames([...fileNames, ...filteredNewFileNames]);
     const updatedFileDetails = [...fileDetails, ...newFileDetails];
     setFileDetails(updatedFileDetails);
     localStorage.setItem("fileDetails", JSON.stringify(updatedFileDetails));
@@ -261,20 +274,26 @@ const AddButton = () => {
   const handleOpenLink = () => {
     if (selectedRow !== null) {
       const selectedFile = fileDetails[selectedRow].fileData;
-      const fileUrl = URL.createObjectURL(selectedFile);
-      window.open(fileUrl, "_blank");
+      if (selectedFile instanceof Blob) {
+        const fileUrl = URL.createObjectURL(selectedFile);
+        window.open(fileUrl, "_blank");
+      } else {
+        toast.error(t("toastInvalidFile"));
+      }
     } else {
       toast.error(t("toastNoFileSelected"));
     }
   };
-
+// <----------------For showing remaining charactar in color-------------->
   const getRemainingColor = (remaining) => {
     return remaining <= 10
       ? "text-red-500 font-bold"
       : "text-green-500 font-bold";
   };
 
-  const handleClick = () => {
+  // <------------------------For Choosing File------------------->
+  const handleClick = (e) => {
+    e.preventDefault();
     setButtonClicked(true);
     fileInputRef.current.click();
     setTimeout(() => setButtonClicked(false), 100); // Revert after 100ms
@@ -571,7 +590,8 @@ const AddButton = () => {
             <thead>
               <tr className="border-b-2">
                 <th className="py-2 px-4 border-r-2">{t("fileName")}</th>
-                <th className="py-2 px-4">{t("inspectiondate")}</th>
+                <th className="py-2 px-4 border-r-2">{t("inspectiondate")}</th>
+                <th className="py-2 px-4">{t("uploadTime")}</th>
               </tr>
             </thead>
             <tbody>
@@ -588,13 +608,13 @@ const AddButton = () => {
                       href={`#`}
                       onClick={(e) => {
                         e.preventDefault();
-                        handleOpenLink(index);
+                        handleOpenLink();
                       }}
                     >
                       {file.originalName}
                     </a>
                   </td>
-                  <td className="py-2 px-4">
+                  <td className="py-2 px-4 border-r-2">
                     <div
                       onClick={() => toggleFileCalendar(index)}
                       className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500 flex items-center justify-between"
@@ -626,6 +646,7 @@ const AddButton = () => {
                       />
                     )}
                   </td>
+                  <td className="py-2 px-4">{file.uploadTime}</td>
                 </tr>
               ))}
             </tbody>

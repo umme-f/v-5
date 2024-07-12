@@ -45,6 +45,14 @@ const AddButton = () => {
   const [buttonClicked, setButtonClicked] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [validation, setValidation] = useState({
+    carId: true,
+    carName: true,
+    carType: true,
+    date: true,
+    fileDates: true,
+    year: true,
+  });
 
   const carNames = ["Toyota", "Honda", "Ford", "Chevrolet", "BMW"];
   const fileInputRef = useRef(null);
@@ -58,7 +66,19 @@ const AddButton = () => {
 
     const savedFiles = localStorage.getItem("fileDetails");
     if (savedFiles) {
-      setFileDetails(JSON.parse(savedFiles));
+      const parsedFiles = JSON.parse(savedFiles);
+      parsedFiles.sort((a, b) => {
+        if (a.date && b.date) {
+          return new Date(b.date) - new Date(a.date);
+        } else if (a.date) {
+          return -1;
+        } else if (b.date) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
+      setFileDetails(parsedFiles);
     }
   }, [i18n]);
 
@@ -70,16 +90,33 @@ const AddButton = () => {
 
   const handleAdd = (e) => {
     e.preventDefault();
-    if (
-      !carDetails.carId ||
-      !carDetails.carName ||
-      !carDetails.carType ||
-      (isChecked && !carDetails.date) ||
-      files.length === 0
-    ) {
+    const isFileDateMissing =
+      files.length > 0 && fileDetails.some((file) => !file.date);
+
+    const newValidation = {
+      carId: !!carDetails.carId,
+      carName: !!carDetails.carName,
+      carType: !!carDetails.carType,
+      date: isChecked ? !!carDetails.date : true,
+      fileDates: !isFileDateMissing,
+      year: !!carDetails.year,
+    };
+
+    setValidation(newValidation);
+
+    const isValid = Object.values(newValidation).every(Boolean);
+
+    if (!isValid) {
       toast.error(t("toastAddWarning"));
       return;
     }
+
+    if (!isChecked) {
+      setValidation((prev) => ({ ...prev, date: false }));
+      toast.error(t("toastAddWarning"));
+      return;
+    }
+
     console.log({ carDetails, files });
   };
 
@@ -107,6 +144,14 @@ const AddButton = () => {
     setFileDetails([]);
     setSelectedFiles([]);
     setSelectedRow(null);
+    setValidation({
+      carId: true,
+      carName: true,
+      carType: true,
+      date: true,
+      fileDates: true,
+      year: true,
+    });
   };
 
   const handleCheckBox = () => {
@@ -229,12 +274,34 @@ const AddButton = () => {
 
     // Save the updated file details in localStorage
     const updatedFileDetails = [...fileDetails, ...newFileDetails];
+    updatedFileDetails.sort((a, b) => {
+      if (a.date && b.date) {
+        return new Date(b.date) - new Date(a.date);
+      } else if (a.date) {
+        return -1;
+      } else if (b.date) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
     localStorage.setItem("fileDetails", JSON.stringify(updatedFileDetails));
   };
 
   const handleFileDateChange = (index, date) => {
     const updatedFileDetails = [...fileDetails];
     updatedFileDetails[index].date = date;
+    updatedFileDetails.sort((a, b) => {
+      if (a.date && b.date) {
+        return new Date(b.date) - new Date(a.date);
+      } else if (a.date) {
+        return -1;
+      } else if (b.date) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
     setFileDetails(updatedFileDetails);
     setFileCalendars((prev) => ({ ...prev, [index]: false }));
     localStorage.setItem("fileDetails", JSON.stringify(updatedFileDetails));
@@ -332,34 +399,45 @@ const AddButton = () => {
 
         <div className="mb-4">
           <label
-            className="block text-gray-700 text-sm font-bold mb-2 after:content-['*'] after:ml-0.5 after:text-red-500 block "
+            className={`block text-gray-700 text-sm font-bold mb-2 after:content-['*'] after:ml-0.5 after:text-red-500 block ${
+              !validation.carId ? "text-red-500" : ""
+            }`}
             htmlFor="carId"
           >
             {t("carID")}
           </label>
           <input
             id="carId"
+            name="carId"
             type="text"
             value={carDetails.carId}
             onChange={handleChange}
-            className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500"
+            className={`w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500 ${
+              !validation.carId ? "border-red-500" : ""
+            }`}
           />
         </div>
 
         {/* Car Maker Name */}
         <div className="mb-4 relative">
-          <label className="after:content-['*'] after:ml-0.5 after:text-red-500 block text-gray-700 text-sm font-bold mb-2">
+          <label
+            className={`after:content-['*'] after:ml-0.5 after:text-red-500 block text-gray-700 text-sm font-bold mb-2 ${
+              !validation.carName ? "text-red-500" : ""
+            }`}
+          >
             {t("carmakername")}
           </label>
           <div className="flex">
             <input
               type="text"
-              name="carMaker"
+              name="carName"
               value={selectedCarMaker}
               onChange={handleChange}
               onFocus={() => setShowCarMakers(true)}
               onBlur={handleInputBlur}
-              className="w-full px-3 py-2 border rounded-l-lg text-gray-700 focus:outline-none focus:border-blue-500"
+              className={`w-full px-3 py-2 border rounded-l-lg text-gray-700 focus:outline-none focus:border-blue-500 ${
+                !validation.carName ? "border-red-500" : ""
+              }`}
             />
             <button
               type="button"
@@ -389,7 +467,9 @@ const AddButton = () => {
         {/* Car Name */}
         <div className="mb-4 relative">
           <label
-            className="block text-gray-700 text-sm font-bold mb-2 after:content-['*'] after:ml-0.5 after:text-red-500 block "
+            className={`block text-gray-700 text-sm font-bold mb-2 after:content-['*'] after:ml-0.5 after:text-red-500 block ${
+              !validation.carName ? "text-red-500" : ""
+            }`}
             htmlFor="carName"
           >
             {t("carname")}
@@ -407,7 +487,9 @@ const AddButton = () => {
               }
               onFocus={() => setShowCarNames(true)}
               onBlur={handleInputBlur}
-              className="w-full px-3 py-2 border rounded-l-lg text-gray-700 focus:outline-none focus:border-blue-500"
+              className={`w-full px-3 py-2 border rounded-l-lg text-gray-700 focus:outline-none focus:border-blue-500 ${
+                !validation.carName ? "border-red-500" : ""
+              }`}
             />
             <button
               type="button"
@@ -434,19 +516,27 @@ const AddButton = () => {
 
         {/* Year */}
         <div className="mb-4 relative">
-          <label className="after:content-['*'] after:ml-0.5 after:text-red-500 block text-gray-700 text-sm font-bold mb-2">
-            {t("year")}{" "}
+          <label
+            className={`block text-gray-700 text-sm font-bold mb-2 after:content-['*'] after:ml-0.5 after:text-red-500 block ${
+              !validation.year ? "text-red-500" : ""
+            }`}
+            htmlFor="year"
+          >
+            {t("year")}
           </label>
           <div className="flex">
             <input
-              type="number"
+              id="year"
               name="year"
+              type="number"
               value={carDetails.year}
               onChange={handleYearChange}
               min="1900"
               max="2100"
               step="1"
-              className="w-full px-3 py-2 border rounded-l text-gray-700 focus:outline-none focus:border-blue-500"
+              className={`w-full px-3 py-2 border rounded-l text-gray-700 focus:outline-none focus:border-blue-500 ${
+                !validation.year ? "border-red-500" : ""
+              }`}
             />
             <div className="spin-buttons flex flex-col border rounded">
               <button
@@ -487,7 +577,9 @@ const AddButton = () => {
         {/* Car Type */}
         <div className="mb-4">
           <label
-            className="block text-gray-700 text-sm font-bold mb-2 after:content-['*'] after:ml-0.5 after:text-red-500 block"
+            className={`block text-gray-700 text-sm font-bold mb-2 after:content-['*'] after:ml-0.5 after:text-red-500 block ${
+              !validation.carType ? "text-red-500" : ""
+            }`}
             htmlFor="carType"
           >
             {t("carType")}
@@ -540,7 +632,11 @@ const AddButton = () => {
               onChange={handleCheckBox}
               className="mr-2 mb-2"
             />
-            <label className="after:content-['*'] after:ml-0.5 after:text-red-500 block text-gray-700 text-sm font-bold mb-2">
+            <label
+              className={`after:content-['*'] after:ml-0.5 after:text-red-500 block text-gray-700 text-sm font-bold mb-2 ${
+                !validation.date ? "text-red-500" : ""
+              }`}
+            >
               {t("nextupdatedate")}
             </label>
           </div>
@@ -555,7 +651,7 @@ const AddButton = () => {
               onClick={toggleCalendar}
               className={`w-full px-3 py-2 border rounded-l-lg text-gray-700 focus:outline-none focus:border-blue-500 cursor-pointer ${
                 isChecked ? "" : "bg-gray-400 cursor-not-allowed"
-              }`}
+              } ${isChecked && !validation.date ? "border-red-500" : ""}`}
               readOnly
               disabled={!isChecked}
             />
@@ -580,18 +676,24 @@ const AddButton = () => {
                 ["日", "月", "火", "水", "木", "金", "土"][date.getDay()]
               }
               formatDay={(locale, date) => date.getDate()}
-              className="border rounded-lg shadow-lg custom-calendar mt-2"
+              className="border rounded-lg shadow-lg mt-2"
             />
           )}
         </div>
 
-        {/* File Upload */}
+        {/* File Upload table */}
         <div className="mt-4 border-2 border-gray-300 rounded">
           <table className="min-w-full bg-white">
             <thead>
               <tr className="border-b-2">
                 <th className="py-2 px-4 border-r-2">{t("fileName")}</th>
-                <th className="py-2 px-4 border-r-2">{t("inspectiondate")}</th>
+                <th
+                  className={`py-2 px-4 border-r-2 ${
+                    !validation.fileDates ? "text-red-500" : ""
+                  }`}
+                >
+                  {t("inspectiondate")}
+                </th>
                 {/* <th className="py-2 px-4">{t("uploadTime")}</th> */}
               </tr>
             </thead>

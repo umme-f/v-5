@@ -1,29 +1,36 @@
-import express from 'express';
-import cors from 'cors';
-import { connectToSqlServer } from './db.js'; // Ensure the correct path
+const express = require('express');
+const cors = require('cors');
+const multer = require('multer');
+const path = require('path');
 
 const app = express();
-const PORT = 5000;
+const port = 3001;
 
 app.use(cors());
+app.use(express.json());
 
-app.get('http://localhost:5000/api/data', async (req, res) => {
-  try {
-    const data = await connectToSqlServer();
-    if (data.length === 0) {
-      res.status(404).json({ message: 'No data found' });
-    } else {
-      res.json(data);
-    }
-  } catch (err) {
-    res.status(500).json({ error: 'Error fetching data from database' });
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, `${Date.now()}-${file.originalname}`);
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+const upload = multer({ storage: storage });
+
+app.post('/upload', upload.array('files'), (req, res) => {
+  res.json({ message: 'Files uploaded successfully', files: req.files });
 });
 
+app.get('/files', (req, res) => {
+  // Serve the list of files
+  res.json([]);
+});
 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// http://localhost:5173/api/data
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});

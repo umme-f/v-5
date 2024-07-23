@@ -239,7 +239,7 @@ const VehicleManagerTableView = () => {
                 <th className="py-2 px-4 border border-gray-300 text-center">ID</th>
                 <th className="py-2 px-4 border border-gray-300 text-center">{t("carname")}</th>
                 <th className="py-2 px-4 border border-gray-300 text-center">{t("year")}</th>
-                <th className="py-2 px-4 border border-gray-300 text-center">{t("role")}</th>
+                {/* <th className="py-2 px-4 border border-gray-300 text-center">{t("role")}</th> */}
                 <th className="py-2 px-4 border border-gray-300 text-center">{t("nextupdatedate")}</th>
               </tr>
             </thead>
@@ -255,7 +255,7 @@ const VehicleManagerTableView = () => {
                   <td className="py-2 px-4 border-r border-gray-300 text-center">{row.carID}</td>
                   <td className="py-2 px-4 border-r border-gray-300 text-center">{row.carName}</td>
                   <td className="py-2 px-4 border-r border-gray-300 text-center">{row.year}</td>
-                  <td className="py-2 px-4 border-r border-gray-300 text-center">{row.role}</td>
+                  {/* <td className="py-2 px-4 border-r border-gray-300 text-center">{row.role}</td> */}
                   <td className="py-2 px-4 border-r border-gray-300 text-center">{row.date}</td>
                 </tr>
               ))}

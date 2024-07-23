@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes, faFloppyDisk, faCaretUp, faCaretDown } from '@fortawesome/free-solid-svg-icons';
+import { faBan,faTimes, faFloppyDisk, faCaretUp, faCaretDown, faCalendarDays, faArrowUpFromBracket, faArrowUpRightFromSquare, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 import Calendar from 'react-calendar';
 import { useTranslation } from 'react-i18next';
 import 'react-calendar/dist/Calendar.css';
@@ -10,6 +10,9 @@ const EditButton = () => {
   const { t, i18n } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
+  const [fileDetails, setFileDetails] = useState([]);
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [showFileCalendar, setShowFileCalendar] = useState({});
   const [file, setFile] = useState(null);
   const [formData, setFormData] = useState({
     carID: '',
@@ -21,8 +24,12 @@ const EditButton = () => {
   });
   const [isChecked, setIsChecked] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [showYearList, setShowYearList] = useState(false);
   const [textBoxInput, setTextBoxInput] = useState('');
   const maxLength = 20;
+
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: currentYear - 1900 + 1 }, (_, i) => currentYear - i);
 
   useEffect(() => {
     if (location.state && location.state.selectedData) {
@@ -31,6 +38,11 @@ const EditButton = () => {
         ...selectedData,
         date: selectedData.date ? new Date(selectedData.date) : null,
       });
+    }
+
+    const savedFiles = localStorage.getItem('fileDetails');
+    if (savedFiles) {
+      setFileDetails(JSON.parse(savedFiles));
     }
   }, [location.state]);
 
@@ -43,25 +55,13 @@ const EditButton = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    // Handle changes specifically for the 'lastMileage' field
     if (name === 'lastMileage') {
-      // Regular expression to check if the input is numeric
       const reg = /^[0-9\b]+$/;
-
-      // If the field is empty or matches the numeric regex, update the state
       if (value === '' || reg.test(value)) {
-        setFormData((prevData) => ({
-          ...prevData,
-          [name]: value
-        }));
+        setFormData((prevData) => ({ ...prevData, [name]: value }));
       }
     } else {
-      // For all other inputs, update the state as usual
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: value
-      }));
+      setFormData((prevData) => ({ ...prevData, [name]: value }));
     }
   };
 
@@ -95,20 +95,14 @@ const EditButton = () => {
   const handleFocus = (e) => {
     const { name } = e.target;
     if (name === 'lastMileage') {
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: prevData[name].toString().replace(/,/g, ''),
-      }));
+      setFormData((prevData) => ({ ...prevData, [name]: prevData[name].toString().replace(/,/g, '') }));
     }
   };
 
   const handleBlur = (e) => {
     const { name, value } = e.target;
     if (name === 'lastMileage') {
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: value ? parseInt(value).toLocaleString('en-US') : '',
-      }));
+      setFormData((prevData) => ({ ...prevData, [name]: value ? parseInt(value).toLocaleString('en-US') : '' }));
     }
   };
 
@@ -144,7 +138,62 @@ const EditButton = () => {
   };
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    const newFile = e.target.files[0];
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      const base64File = reader.result;
+      const newFileDetails = [...fileDetails, { originalName: newFile.name, date: null, fileUrl: base64File }];
+      setFileDetails(newFileDetails);
+      localStorage.setItem('fileDetails', JSON.stringify(newFileDetails));
+    };
+
+    if (newFile) {
+      reader.readAsDataURL(newFile);
+    }
+  };
+
+  const handleRowClick = (index) => {
+    setSelectedRow(index);
+  };
+
+  const handleFileDateChange = (index, date) => {
+    const updatedFileDetails = [...fileDetails];
+    updatedFileDetails[index].date = date;
+    setFileDetails(updatedFileDetails);
+    localStorage.setItem('fileDetails', JSON.stringify(updatedFileDetails));
+    setShowFileCalendar((prev) => ({ ...prev, [index]: false }));
+  };
+
+  const toggleFileCalendar = (index) => {
+    setShowFileCalendar((prev) => ({ ...prev, [index]: !prev[index] }));
+  };
+
+  const handleOpenLink = () => {
+    if (selectedRow !== null) {
+      const selectedFileUrl = fileDetails[selectedRow].fileUrl;
+      if (selectedFileUrl) {
+        window.open(selectedFileUrl, '_blank');
+      }
+    }
+  };
+
+  const deleteSelectedFiles = () => {
+    if (selectedRow !== null) {
+      const updatedFileDetails = fileDetails.filter((_, index) => index !== selectedRow);
+      setFileDetails(updatedFileDetails);
+      localStorage.setItem('fileDetails', JSON.stringify(updatedFileDetails));
+      setSelectedRow(null);
+    }
+  };
+
+  const handleYearButtonClick = () => {
+    setShowYearList((prev) => !prev);
+  };
+
+  const handleYearSelect = (year) => {
+    setFormData((prevData) => ({ ...prevData, year }));
+    setShowYearList(false);
   };
 
   return (
@@ -189,35 +238,55 @@ const EditButton = () => {
 
         {/* Year input with spin buttons */}
         <div className="mb-4 relative">
-          <label className="block text-gray-700 text-sm font-bold mb-2">{t("year")} </label>
+          <label
+            className={`block text-gray-700 text-sm font-bold mb-2 after:content-['*'] after:ml-0.5 after:text-red-500`}
+            htmlFor="year"
+          >
+            {t("year")}
+          </label>
           <div className="flex">
             <input
-              type="number"
+              id="year"
               name="year"
+              type="number"
               value={formData.year}
               onChange={handleChange}
+              onFocus={handleYearButtonClick}
               min="1900"
-              max="2100"
+              max={currentYear}
               step="1"
               className="w-full px-3 py-2 border rounded-l text-gray-700 focus:outline-none focus:border-blue-500"
             />
-            <div className="flex flex-col border rounded-r">
+            <div className="spin-buttons flex flex-col border rounded">
               <button
                 type="button"
                 onClick={incrementYear}
-                className="up-button px-1 bg-gray-200 hover:bg-gray-300 focus:outline-none focus:bg-gray-300"
+                className="up-button px-2 py-1"
               >
                 <FontAwesomeIcon icon={faCaretUp} />
               </button>
               <button
                 type="button"
                 onClick={decrementYear}
-                className="down-button px-1 bg-gray-200 hover:bg-gray-300 focus:outline-none focus:bg-gray-300"
+                className="down-button px-2 py-1"
               >
                 <FontAwesomeIcon icon={faCaretDown} />
               </button>
             </div>
           </div>
+          {showYearList && (
+            <div className="absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto grid grid-cols-5 gap-2 p-2">
+              {years.map((year, index) => (
+                <div
+                  key={index}
+                  onMouseDown={() => handleYearSelect(year)}
+                  className="flex px-4 py-2 cursor-pointer hover:bg-gray-200 border border-gray-300 rounded justify-center"
+                >
+                  {year}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Last Mileage input field */}
@@ -310,6 +379,98 @@ const EditButton = () => {
           )}
         </div>
 
+        {/* File upload table */}
+        <div className="mt-4 border-2 border-gray-300 rounded">
+          <table className="min-w-full bg-white">
+            <thead>
+              <tr className="border-b-2">
+                <th className="py-2 px-4 border-r-2">{t("fileName")}</th>
+                <th className={`py-2 px-4`}>{t("inspectiondate")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {fileDetails.map((file, index) => (
+                <tr
+                  key={index}
+                  className={`border-b-2 cursor-pointer ${selectedRow === index ? 'bg-gray-200' : ''}`}
+                  onClick={() => handleRowClick(index)}
+                >
+                  <td className="py-2 px-4 border-r-2">
+                    <a
+                      href={`#`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleOpenLink();
+                      }}
+                    >
+                      {file.originalName}
+                    </a>
+                  </td>
+                  <td className="py-2 px-4">
+                    <div
+                      onClick={() => toggleFileCalendar(index)}
+                      className={`w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500 flex items-center justify-between ${!file.date ? 'border-red-500' : ''}`}
+                    >
+                      <span className={`${!file.date ? 'text-red-500' : ''}`}>
+                        {file.date ? new Date(file.date).toLocaleDateString('ja-JP') : 'Select Date'}
+                      </span>
+                      <button type="button" className="mt-2">
+                        <FontAwesomeIcon icon={faCalendarDays} />
+                      </button>
+                    </div>
+                    {showFileCalendar[index] && (
+                      <Calendar
+                        onChange={(date) => handleFileDateChange(index, date)}
+                        value={file.date ? new Date(file.date) : new Date()}
+                        locale="ja"
+                        calendarType="gregory"
+                        formatShortWeekday={(locale, date) => ['日', '月', '火', '水', '木', '金', '土'][date.getDay()]}
+                        className="border rounded-lg shadow-lg custom-calendar mt-2"
+                      />
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="grid grid-cols-3 gap-4 p-2">
+            <div className="text-right">
+              <button
+                className={`w-full px-4 py-2 rounded font-semibold flex items-center justify-center ${file ? 'bg-green-700' : 'bg-green-500'} text-white hover:bg-green-700`}
+                onClick={() => document.getElementById('fileUpload').click()}
+              >
+                <FontAwesomeIcon icon={faArrowUpFromBracket} className="pr-2 text-white" />
+                {t("choosefiles")}
+              </button>
+              <input
+                id="fileUpload"
+                type="file"
+                multiple
+                onChange={handleFileChange}
+                className="hidden"
+              />
+            </div>
+            <div className="text-right">
+              <button
+                className="w-full px-4 py-2 bg-orange-500 text-white rounded font-semibold flex items-center justify-center hover:bg-orange-700"
+                onClick={handleOpenLink}
+              >
+                <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="pr-2" />
+                {t("openlink")}
+              </button>
+            </div>
+            <div className="text-right">
+              <button
+                className={`w-full px-4 py-2 bg-red-500 text-white rounded font-semibold flex items-center justify-center hover:bg-red-700 ${i18n.language === 'en' ? '' : 'py-3 text-sm'}`}
+                onClick={deleteSelectedFiles}
+              >
+                <FontAwesomeIcon icon={faTrashCan} className="pr-2" />
+                {t("deletefile")}
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* Details Input field */}
         <div className="p-2">
           <label className="block text-gray-700 text-sm font-bold mb-2">
@@ -330,23 +491,10 @@ const EditButton = () => {
             {maxLength - textBoxInput.length}
           </p>
         </div>
-
-        {/* File upload */}
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">
-            {t("fileupload")}
-          </label>
-          <input
-            type="file"
-            onChange={handleFileChange}
-            className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500"
-          />
-        </div>
-
-        <div className="flex justify-between">
+        <div className="flex justify-between mt-4">
           <button
             type="submit"
-            className="border border-slate-700 rounded px-5 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:bg-blue-700"
+            className="rounded px-5 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:bg-blue-700"
           >
             <FontAwesomeIcon icon={faFloppyDisk} className='pr-2' />
             {i18n.language === 'en' ? 'Save' : '保存'}
@@ -354,8 +502,9 @@ const EditButton = () => {
           <button
             type="button"
             onClick={handleCancel}
-            className="border border-slate-700 rounded px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-gray-700 focus:outline-none focus:bg-gray-700"
+            className="rounded px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-gray-700 focus:outline-none focus:bg-gray-700"
           >
+            <FontAwesomeIcon icon={faBan} className='pr-2'/>
             {i18n.language === 'en' ? 'Cancel' : 'キャンセル'}
           </button>
         </div>

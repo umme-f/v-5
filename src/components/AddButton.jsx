@@ -3,13 +3,13 @@ import {
   faTimes,
   faCaretUp,
   faCaretDown,
-  faFloppyDisk,
-  faBan,
-  faAngleDown,
   faCalendarDays,
-  faTrashCan,
-  faArrowUpRightFromSquare,
-  faArrowUpFromBracket,
+  faAngleDown,
+  faPlus,
+  faBan,
+  faFloppyDisk,
+  faUpload,
+  faMinus,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useTranslation } from "react-i18next";
@@ -17,7 +17,7 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import DeleteRow from "./DeleteRow";
+import { useTable } from "react-table";
 
 const AddButton = () => {
   const maxLength = 20;
@@ -26,6 +26,7 @@ const AddButton = () => {
   const [carDetails, setCarDetails] = useState({
     carId: "",
     carName: "",
+    carMaker: "",
     year: new Date().getFullYear(),
     lastMileage: 0,
     carType: "",
@@ -33,28 +34,42 @@ const AddButton = () => {
   });
   const [isChecked, setIsChecked] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [showYearList, setShowYearList] = useState(false);
   const [textBoxInput, setTextBoxInput] = useState("");
   const [selectedCarMaker, setSelectedCarMaker] = useState("");
+
   const [showCarMakers, setShowCarMakers] = useState(false);
   const [showCarNames, setShowCarNames] = useState(false);
-  const [files, setFiles] = useState([]);
-  const [fileNames, setFileNames] = useState([]);
   const [fileDetails, setFileDetails] = useState([]);
   const [fileCalendars, setFileCalendars] = useState({});
-  const [selectedFiles, setSelectedFiles] = useState([]);
-  const [buttonClicked, setButtonClicked] = useState(false);
-  const [selectedRow, setSelectedRow] = useState(null);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [selectedColumn, setSelectedColumn] = useState("");
   const [validation, setValidation] = useState({
     carId: true,
     carName: true,
+    carMaker: true,
     carType: true,
     date: true,
     fileDates: true,
     year: true,
   });
+  const [isYearChanged, setIsYearChanged] = useState(false);
+  const [isSavePressed, setIsSavePressed] = useState(false);
+  const [showDeleteCheckboxes, setShowDeleteCheckboxes] = useState(false);
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [addingFiles, setAddingFiles] = useState(false); // New state to manage adding files
+  const [selectedRowIndex, setSelectedRowIndex] = useState(null); // State to manage selected row for file addition
 
   const carNames = ["Toyota", "Honda", "Ford", "Chevrolet", "BMW"];
+  const columnNames = [
+    "Compulsory Insurance Certificate",
+    "Vehicle Inspection Certificate",
+  ];
+  const currentYear = new Date().getFullYear();
+  const years = Array.from(
+    { length: currentYear - 1900 + 1 },
+    (_, i) => currentYear - i
+  );
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -90,12 +105,14 @@ const AddButton = () => {
 
   const handleAdd = (e) => {
     e.preventDefault();
+    setIsSavePressed(true);
     const isFileDateMissing =
-      files.length > 0 && fileDetails.some((file) => !file.date);
+      fileDetails.length > 0 && fileDetails.some((file) => !file.date);
 
     const newValidation = {
       carId: !!carDetails.carId,
       carName: !!carDetails.carName,
+      carMaker: !!carDetails.carMaker,
       carType: !!carDetails.carType,
       date: isChecked ? !!carDetails.date : true,
       fileDates: !isFileDateMissing,
@@ -117,7 +134,8 @@ const AddButton = () => {
       return;
     }
 
-    console.log({ carDetails, files });
+    toast.success(t("toastAddSuccessfulSaving"));
+    console.log({ carDetails, fileDetails });
   };
 
   const handleCarMakerSelect = (maker) => {
@@ -134,24 +152,24 @@ const AddButton = () => {
     setCarDetails({
       carId: "",
       carName: "",
+      carMaker: "",
       year: new Date().getFullYear(),
       lastMileage: 0,
       carType: "",
       date: new Date(),
     });
-    setFiles([]);
-    setFileNames([]);
     setFileDetails([]);
-    setSelectedFiles([]);
-    setSelectedRow(null);
     setValidation({
       carId: true,
       carName: true,
+      carMaker: true,
       carType: true,
       date: true,
       fileDates: true,
       year: true,
     });
+    setIsYearChanged(false);
+    setIsSavePressed(false);
   };
 
   const handleCheckBox = () => {
@@ -172,11 +190,34 @@ const AddButton = () => {
     setShowCalendar(false);
   };
 
+  const handleYearInputChange = (e) => {
+    handleYearChange(e);
+    setIsYearChanged(true);
+  };
+
+  const deleteSelectedFiles = () => {
+    const updatedFileDetails = fileDetails.filter(
+      (file, index) => !selectedRows.includes(index)
+    );
+    setFileDetails(updatedFileDetails);
+    setSelectedRows([]);
+    setShowDeleteCheckboxes(false);
+    localStorage.setItem("fileDetails", JSON.stringify(updatedFileDetails));
+    toast.success(t("toastDeleteSuccess"));
+  };
+
+  const handleYearSelect = (year) => {
+    setCarDetails((prevDetails) => ({ ...prevDetails, year }));
+    setShowYearList(false);
+    setIsYearChanged(true);
+  };
+
   const incrementYear = () => {
     setCarDetails((prevDetails) => ({
       ...prevDetails,
       year: Math.min(prevDetails.year + 1, 2100),
     }));
+    setIsYearChanged(true);
   };
 
   const decrementYear = () => {
@@ -184,11 +225,13 @@ const AddButton = () => {
       ...prevDetails,
       year: Math.max(prevDetails.year - 1, 1900),
     }));
+    setIsYearChanged(true);
   };
 
   const handleYearChange = (e) => {
     const value = Math.max(1900, Math.min(2100, Number(e.target.value)));
     setCarDetails((prevDetails) => ({ ...prevDetails, year: value }));
+    setIsYearChanged(true);
   };
 
   const handleBlur = (e) => {
@@ -219,6 +262,7 @@ const AddButton = () => {
   const handleInputBlur = () => {
     setTimeout(() => setShowCarMakers(false), 200);
     setTimeout(() => setShowCarNames(false), 200);
+    setTimeout(() => setShowYearList(false), 200);
   };
 
   const handleCarMakerButtonClick = () => {
@@ -229,6 +273,10 @@ const AddButton = () => {
     setShowCarNames((prev) => !prev);
   };
 
+  const handleYearButtonClick = () => {
+    setShowYearList((prev) => !prev);
+  };
+
   const handleInputChange = (e) => {
     const input = e.target.value;
     setTextBoxInput(input);
@@ -236,56 +284,60 @@ const AddButton = () => {
 
   const handleFileChange = (e) => {
     const newFiles = Array.from(e.target.files);
-    const existingFileNames = new Set(
-      fileDetails.map((file) => file.originalName)
-    );
-
-    // Filter out duplicate files
-    const uniqueNewFiles = newFiles.filter(
-      (file) => !existingFileNames.has(file.name)
-    );
-
-    // Show toast notification if there are duplicates
-    if (uniqueNewFiles.length < newFiles.length) {
-      toast.error(t("duplicateFileWarning"));
-    }
-
-    // Get the current time
     const currentTime = new Date().toLocaleString("ja-JP");
 
-    // Create file details for unique new files
-    const newFileDetails = uniqueNewFiles.map((file) => ({
+    const newFileDetails = newFiles.map((file) => ({
       originalName: file.name,
       date: null,
       fileUrl: URL.createObjectURL(file),
       uploadTime: currentTime,
+      column: selectedColumn,
     }));
 
-    // Update state with unique new files
-    setFiles((prevFiles) => [...prevFiles, ...uniqueNewFiles]);
-    setFileNames((prevFileNames) => [
-      ...prevFileNames,
-      ...uniqueNewFiles.map((file) => file.name),
-    ]);
-    setFileDetails((prevFileDetails) => [
-      ...prevFileDetails,
-      ...newFileDetails,
-    ]);
-
-    // Save the updated file details in localStorage
-    const updatedFileDetails = [...fileDetails, ...newFileDetails];
-    updatedFileDetails.sort((a, b) => {
-      if (a.date && b.date) {
-        return new Date(b.date) - new Date(a.date);
-      } else if (a.date) {
-        return -1;
-      } else if (b.date) {
-        return 1;
-      } else {
-        return 0;
+    setFileDetails((prevFileDetails) => {
+      const updatedFileDetails = [...prevFileDetails];
+      if (selectedRowIndex !== null) {
+        const row = updatedFileDetails[selectedRowIndex];
+        if (selectedColumn === "Compulsory Insurance Certificate") {
+          row.compulsoryInsuranceCertificate = newFileDetails[0];
+        } else if (selectedColumn === "Vehicle Inspection Certificate") {
+          row.vehicleInspectionCertificate = newFileDetails[0];
+        }
       }
+      return updatedFileDetails;
     });
-    localStorage.setItem("fileDetails", JSON.stringify(updatedFileDetails));
+
+    setShowDropdown(false);
+    setAddingFiles(false);
+    setSelectedRowIndex(null);
+    setSelectedColumn("");
+  };
+
+  const handleAddRow = () => {
+    setFileDetails((prevDetails) => [
+      ...prevDetails,
+      {
+        compulsoryInsuranceCertificate: null,
+        vehicleInspectionCertificate: null,
+        date: null,
+      },
+    ]);
+  };
+
+  const handleDeleteRowToggle = () => {
+    if (showDeleteCheckboxes && selectedRows.length > 0) {
+      deleteSelectedFiles();
+    } else {
+      setShowDeleteCheckboxes(!showDeleteCheckboxes);
+    }
+  };
+
+  const handleRowSelect = (index) => {
+    if (selectedRows.includes(index)) {
+      setSelectedRows(selectedRows.filter((row) => row !== index));
+    } else {
+      setSelectedRows([...selectedRows, index]);
+    }
   };
 
   const handleFileDateChange = (index, date) => {
@@ -311,49 +363,6 @@ const AddButton = () => {
     setFileCalendars((prev) => ({ ...prev, [index]: !prev[index] }));
   };
 
-  const handleRowClick = (index) => {
-    setSelectedRow(selectedRow === index ? null : index);
-  };
-
-  const deleteSelectedFiles = (e) => {
-    e.preventDefault(); // Prevent form submission
-    if (selectedRow === null) {
-      toast.error(t("toastDeleteWarning"));
-      return;
-    }
-
-    setIsDeleteDialogOpen(true);
-  };
-
-  const confirmDelete = () => {
-    const updatedFileDetails = fileDetails.filter(
-      (_, index) => index !== selectedRow
-    );
-    setFileDetails(updatedFileDetails);
-    setSelectedRow(null);
-    localStorage.setItem("fileDetails", JSON.stringify(updatedFileDetails));
-    toast.success(t("toastDeleteSuccess"));
-    setIsDeleteDialogOpen(false);
-  };
-
-  const cancelDelete = () => {
-    setIsDeleteDialogOpen(false);
-  };
-
-  const handleOpenLink = (e) => {
-    e.preventDefault();
-    if (selectedRow !== null) {
-      const selectedFileUrl = fileDetails[selectedRow].fileUrl;
-      if (selectedFileUrl) {
-        window.open(selectedFileUrl, "_blank");
-      } else {
-        toast.error(t("toastInvalidFile"));
-      }
-    } else {
-      toast.error(t("toastNoFileSelected"));
-    }
-  };
-
   const getRemainingColor = (remaining) => {
     return remaining <= 10
       ? "text-red-500 font-bold"
@@ -362,10 +371,137 @@ const AddButton = () => {
 
   const handleClick = (e) => {
     e.preventDefault();
-    setButtonClicked(true);
-    fileInputRef.current.click();
-    setTimeout(() => setButtonClicked(false), 100); // Revert after 100ms
+    if (!addingFiles) {
+      setShowDeleteCheckboxes(false);
+      setSelectedRows([]);
+      setAddingFiles(true);
+    } else {
+      setShowDropdown(true);
+    }
   };
+
+  const handleColumnSelect = (column) => {
+    setSelectedColumn(column);
+    setShowDropdown(false);
+    fileInputRef.current.click();
+  };
+
+  const columns = React.useMemo(
+    () => [
+      {
+        Header: "",
+        accessor: "select",
+        Cell: ({ row: { index } }) =>
+          addingFiles ? (
+            <input
+              type="checkbox"
+              checked={selectedRowIndex === index}
+              onChange={() => setSelectedRowIndex(index)}
+            />
+          ) : showDeleteCheckboxes ? (
+            <input
+              type="checkbox"
+              checked={selectedRows.includes(index)}
+              onChange={() => handleRowSelect(index)}
+            />
+          ) : null,
+      },
+      {
+        Header: t("compulsoryInsuranceCertificate"),
+        accessor: "compulsoryInsuranceCertificate",
+        Cell: ({ cell: { value } }) =>
+          value ? (
+            <a
+              href={value.fileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 underline"
+            >
+              {value.originalName}
+            </a>
+          ) : null,
+      },
+      {
+        Header: t("vehicleInspectionCertificate"),
+        accessor: "vehicleInspectionCertificate",
+        Cell: ({ cell: { value } }) =>
+          value ? (
+            <a
+              href={value.fileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 underline"
+            >
+              {value.originalName}
+            </a>
+          ) : null,
+      },
+      {
+        Header: t("inspectiondate"),
+        accessor: "date",
+        Cell: ({ cell: { value }, row: { index } }) => (
+          <div className="relative">
+            <div
+              onClick={() => toggleFileCalendar(index)}
+              className={`w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500 flex items-center justify-between ${
+                !value ? "border-red-500" : ""
+              }`}
+            >
+              <span
+                className={`${!validation.fileDates ? "text-red-500" : ""}`}
+              >
+                {value
+                  ? new Date(value).toLocaleDateString("ja-JP")
+                  : t("selectdate")}
+              </span>
+              <button type="button">
+                <FontAwesomeIcon icon={faCalendarDays} />
+              </button>
+            </div>
+            {fileCalendars[index] && (
+              <div className="absolute left-0 mt-2 z-20">
+                <Calendar
+                  onChange={(date) => handleFileDateChange(index, date)}
+                  value={value ? new Date(value) : new Date()}
+                  locale="ja"
+                  calendarType="gregory"
+                  formatShortWeekday={(locale, date) =>
+                    ["日", "月", "火", "水", "木", "金", "土"][date.getDay()]
+                  }
+                  formatDay={(locale, date) => date.getDate()}
+                  className="border rounded-lg shadow-lg"
+                />
+              </div>
+            )}
+          </div>
+        ),
+      },
+    ],
+    [
+      fileDetails,
+      fileCalendars,
+      validation,
+      t,
+      showDeleteCheckboxes,
+      selectedRows,
+      addingFiles,
+      selectedRowIndex,
+    ]
+  );
+
+  const data = React.useMemo(
+    () =>
+      fileDetails.map((file) => ({
+        ...file,
+        compulsoryInsuranceCertificate: file.compulsoryInsuranceCertificate,
+        vehicleInspectionCertificate: file.vehicleInspectionCertificate,
+        date: file.date,
+      })),
+    [fileDetails]
+  );
+
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
+    useTable({ columns, data });
 
   return (
     <div className="relative flex items-center justify-center min-h-screen bg-gray-100 p-4">
@@ -562,16 +698,19 @@ const AddButton = () => {
           <label className="block text-gray-700 text-sm font-bold mb-2">
             {t("lastmileage")}
           </label>
-          <input
-            type="text"
-            name="lastMileage"
-            value={carDetails.lastMileage}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            onFocus={handleFocus}
-            style={{ textAlign: "right" }}
-            className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500"
-          />
+          <div className="flex justify-between">
+            <input
+              type="text"
+              name="lastMileage"
+              value={carDetails.lastMileage}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              onFocus={handleFocus}
+              style={{ textAlign: "right" }}
+              className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500"
+            />
+            <h1 className="pt-2 pl-2 font-bold">km</h1>
+          </div>
         </div>
 
         {/* Car Type */}
@@ -681,152 +820,126 @@ const AddButton = () => {
           )}
         </div>
 
-        {/* File Upload table */}
-        <div className="mt-4 border-2 border-gray-300 rounded">
-          <table className="min-w-full bg-white">
+        {/* Table */}
+        <div className="mt-4 border-2 border-gray-300 rounded p-4 mb-2">
+          <table {...getTableProps()} className="w-full">
             <thead>
-              <tr className="border-b-2">
-                <th className="py-2 px-4 border-r-2">{t("fileName")}</th>
-                <th
-                  className={`py-2 px-4 border-r-2 ${
-                    !validation.fileDates ? "text-red-500" : ""
-                  }`}
-                >
-                  {t("inspectiondate")}
-                </th>
-                {/* <th className="py-2 px-4">{t("uploadTime")}</th> */}
-              </tr>
-            </thead>
-            <tbody>
-              {fileDetails.map((file, index) => (
-                <tr
-                  key={index}
-                  className={`border-b-2 cursor-pointer ${
-                    selectedRow === index ? "bg-gray-200" : ""
-                  }`}
-                  onClick={() => handleRowClick(index)}
-                >
-                  <td className="py-2 px-4 border-r-2">
-                    <a
-                      href={`#`}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleOpenLink();
-                      }}
-                    >
-                      {file.originalName}
-                    </a>
-                  </td>
-                  <td className="py-2 px-4 border-r-2">
-                    <div
-                      onClick={() => toggleFileCalendar(index)}
-                      className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500 flex items-center justify-between"
-                    >
-                      <span>
-                        {file.date
-                          ? new Date(file.date).toLocaleDateString("ja-JP")
-                          : "Select Date"}
-                      </span>
-
-                      {/* Button to show calendar */}
-                      <button type="button" className="mt-2">
-                        <FontAwesomeIcon icon={faCalendarDays} />
-                      </button>
-                    </div>
-                    {fileCalendars[index] && (
-                      <Calendar
-                        onChange={(date) => handleFileDateChange(index, date)}
-                        value={file.date ? new Date(file.date) : new Date()}
-                        locale="ja"
-                        calendarType="gregory"
-                        formatShortWeekday={(locale, date) =>
-                          ["日", "月", "火", "水", "木", "金", "土"][
-                            date.getDay()
-                          ]
-                        }
-                        formatDay={(locale, date) => date.getDate()}
-                        className="border rounded-lg shadow-lg custom-calendar mt-2"
-                      />
-                    )}
-                  </td>
-                  {/* <td className="py-2 px-4">{file.uploadTime}</td> */}
+              {headerGroups.map((headerGroup) => (
+                <tr {...headerGroup.getHeaderGroupProps()}>
+                  {headerGroup.headers.map((column) => (
+                    <th {...column.getHeaderProps()} className="border p-2">
+                      {column.render("Header")}
+                    </th>
+                  ))}
                 </tr>
               ))}
+            </thead>
+            <tbody {...getTableBodyProps()}>
+              {rows.map((row) => {
+                prepareRow(row);
+                return (
+                  <tr {...row.getRowProps()}>
+                    {row.cells.map((cell) => {
+                      let cellProps = { ...cell.getCellProps() };
+                      delete cellProps.key;
+
+                      return (
+                        <td
+                          key={cell.getCellProps().key}
+                          {...cellProps}
+                          className="border p-2"
+                        >
+                          {cell.render("Cell")}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
-          <div className="grid grid-cols-3 gap-4 p-2">
-            <div className="text-right">
+
+          {/* Add buttons */}
+          <div className="grid grid-cols-1 gap-4 my-5">
+            <div className="relative w-full">
               <button
                 onClick={handleClick}
-                className={`w-full px-4 py-2 rounded font-semibold flex items-center justify-center ${
-                  buttonClicked ? "bg-green-700" : "bg-green-500"
-                } text-white hover:bg-green-700`}
+                className="w-full bg-blue-500 text-white py-2 px-4 rounded"
               >
-                <FontAwesomeIcon
-                  icon={faArrowUpFromBracket}
-                  className="pr-2 text-white"
-                />
+                <FontAwesomeIcon icon={faUpload} className="pr-2" />
                 {t("choosefiles")}
               </button>
-              <input
-                type="file"
-                multiple
-                onChange={handleFileChange}
-                ref={fileInputRef}
-                className="hidden"
-              />
+              {showDropdown && (
+                <div className="absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1">
+                  {columnNames.map((column, index) => (
+                    <div
+                      key={index}
+                      className="px-4 py-2 cursor-pointer hover:bg-gray-200"
+                      onClick={() => handleColumnSelect(column)}
+                    >
+                      {column}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            <div className="text-right">
-              <button
-                className="w-full px-4 py-2 bg-orange-500 text-white rounded font-semibold flex items-center justify-center hover:bg-orange-700 "
-                onClick={handleOpenLink}
-              >
-                <FontAwesomeIcon
-                  icon={faArrowUpRightFromSquare}
-                  className="pr-2"
-                />
-                {t("openlink")}
-              </button>
-            </div>
-            <div className="text-right">
-              <button
-                className={`w-full px-4 py-2 bg-red-500 text-white rounded font-semibold flex items-center justify-center hover:bg-red-700 ${
-                  i18n.language === "en" ? "" : "py-3 text-sm"
-                }`}
-                onClick={deleteSelectedFiles}
-              >
-                <FontAwesomeIcon icon={faTrashCan} className="pr-2" />
-                {t("deletefile")}
-              </button>
-            </div>
+            <input
+              type="file"
+              multiple
+              onChange={handleFileChange}
+              ref={fileInputRef}
+              className="hidden"
+            />
           </div>
+          <div className="flex justify-between my-5">
+            <button
+              type="button"
+              onClick={handleAddRow}
+              className="bg-green-500 text-white py-2 px-4 rounded"
+            >
+              <FontAwesomeIcon icon={faPlus} className="mr-2" />
+              {t("addRow")}
+            </button>
+            <button
+              type="button"
+              onClick={handleDeleteRowToggle}
+              className="bg-red-500 text-white py-2 px-4 rounded"
+            >
+              <FontAwesomeIcon icon={faMinus} className="mr-2" />
+              {t("removeRow")}
+            </button>
+          </div><hr></hr>
+          <p className="text-gray-400 pt-2">{t("explanationAdd")}<br></br>
+          {t("explanationDelete")}
+          </p>
         </div>
 
-        {/* Write Details */}
-        <div className="p-2">
-          <label className="block text-gray-700 text-sm font-bold mb-2">
+        {/* Details box */}
+        <div className="p-2 mt-4">
+          <label
+            htmlFor="message"
+            className="block text-gray-700 text-sm font-bold mb-2"
+          >
             {t("writedetails")}
           </label>
           <textarea
             id="message"
             name="message"
-            onChange={handleInputChange}
             rows="4"
-            cols="57"
             value={textBoxInput}
+            onChange={handleInputChange}
             maxLength={maxLength}
-            className="border border-gray-300 focus:outline-none focus:border-blue-500 rounded p-2"
-          ></textarea>
+            className="w-full px-3 py-2 border rounded-lg focus:outline-none border-gray-300"
+          />
           <p className={getRemainingColor(maxLength - textBoxInput.length)}>
             {t("remainingcharacters")} {maxLength - textBoxInput.length}
           </p>
         </div>
 
-        {/* Save and Cancel Button */}
-        <div className="flex justify-between">
+        <div className="flex justify-between mt-4">
           <button
             type="submit"
-            className="border border-slate-700 font-bold border-rounded px-5 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:bg-blue-700"
+            className="bg-blue-500 text-white py-2 px-4 rounded"
           >
             <FontAwesomeIcon icon={faFloppyDisk} className="pr-2" />
             {t("save")}
@@ -834,19 +947,13 @@ const AddButton = () => {
           <button
             type="button"
             onClick={handleCancel}
-            className="border border-slate-700 font-bold border-rounded px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:bg-red-700"
+            className="bg-red-500 text-white py-2 px-4 rounded"
           >
             <FontAwesomeIcon icon={faBan} className="pr-2" />
             {t("cancel")}
           </button>
         </div>
       </form>
-
-      <DeleteRow
-        isDeleteDialogOpen={isDeleteDialogOpen}
-        confirmDelete={confirmDelete}
-        cancelDelete={cancelDelete}
-      />
     </div>
   );
 };

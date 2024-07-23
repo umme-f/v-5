@@ -15,6 +15,8 @@ import EditButton from './components/EditButton';
 import CarNotification from './components/CarNotification';
 import CarDetails from './components/CarDetails';
 import UserMenuDropdown from './components/UserMenuDropdown';
+import 'regenerator-runtime/runtime';
+
 
 const router = createBrowserRouter([
   {

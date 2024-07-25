@@ -119,7 +119,7 @@ const AddButton = () => {
       year: !!carDetails.year,
     };
 
-    setValidation(newValidation);
+    (newValidation);
 
     const isValid = Object.values(newValidation).every(Boolean);
 
@@ -190,10 +190,10 @@ const AddButton = () => {
     setShowCalendar(false);
   };
 
-  const handleYearInputChange = (e) => {
-    handleYearChange(e);
-    setIsYearChanged(true);
-  };
+  // const handleYearInputChange = (e) => {
+  //   handleYearChange(e);
+  //   setIsYearChanged(true);
+  // };
 
   const deleteSelectedFiles = () => {
     const updatedFileDetails = fileDetails.filter(
@@ -206,11 +206,11 @@ const AddButton = () => {
     toast.success(t("toastDeleteSuccess"));
   };
 
-  const handleYearSelect = (year) => {
-    setCarDetails((prevDetails) => ({ ...prevDetails, year }));
-    setShowYearList(false);
-    setIsYearChanged(true);
-  };
+  // const handleYearSelect = (year) => {
+  //   setCarDetails((prevDetails) => ({ ...prevDetails, year }));
+  //   setShowYearList(false);
+  //   setIsYearChanged(true);
+  // };
 
   const incrementYear = () => {
     setCarDetails((prevDetails) => ({
@@ -273,9 +273,9 @@ const AddButton = () => {
     setShowCarNames((prev) => !prev);
   };
 
-  const handleYearButtonClick = () => {
-    setShowYearList((prev) => !prev);
-  };
+  // const handleYearButtonClick = () => {
+  //   setShowYearList((prev) => !prev);
+  // };
 
   const handleInputChange = (e) => {
     const input = e.target.value;
@@ -371,6 +371,10 @@ const AddButton = () => {
 
   const handleClick = (e) => {
     e.preventDefault();
+    if (fileDetails.length === 0) {
+      toast.error(t("clickAddRowFirst"));
+      return;
+    }
     if (!addingFiles) {
       setShowDeleteCheckboxes(false);
       setSelectedRows([]);
@@ -709,7 +713,7 @@ const AddButton = () => {
               style={{ textAlign: "right" }}
               className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500"
             />
-            <h1 className="pt-2 pl-2 font-bold">km</h1>
+            <h1 className="p-2 font-bold">km</h1>
           </div>
         </div>
 
@@ -908,7 +912,8 @@ const AddButton = () => {
               <FontAwesomeIcon icon={faMinus} className="mr-2" />
               {t("removeRow")}
             </button>
-          </div><hr></hr>
+          </div>
+          <hr></hr>
           <p className="text-gray-400 pt-2">{t("explanationAdd")}<br></br>
           {t("explanationDelete")}
           </p>

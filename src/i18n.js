@@ -72,6 +72,7 @@ i18n
           selectdate: "Select Date",
           explanationAdd: "※ How to upload file: Click add row → file upload → check box → file upload press again → select the column name ",
           explanationDelete: "※ how to delete row: press remove row → check box → press delete row button again ",
+          clickAddRowFirst: "Click 'Add Row' button first.",
         },
       },
       jp: {
@@ -138,6 +139,8 @@ i18n
           selectdate: "Select Date",
           explanationAdd: "※ ファイルのアップロード方法: 行の追加をクリック → ファイルのアップロード → チェックボックスをオンにして → ファイルのアップロードをもう一度押す → 列名を選択",
           explanationDelete: "※ 行を削除する方法: 行の削除を押す → チェックボックスをオンにする → 行の削除ボタンをもう一度押す ",
+          clickAddRowFirst: "「行を追加」ボタンをクリックしてください。",
+
         },
       },
     },

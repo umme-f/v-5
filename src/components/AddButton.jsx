@@ -271,10 +271,10 @@ const AddButton = () => {
       console.error("Event or event target is undefined");
       return;
     }
-
+  
     const newFiles = Array.from(e.target.files);
     const currentTime = new Date().toLocaleString("ja-JP");
-
+  
     const newFileDetails = newFiles.map((file) => ({
       originalName: file.name,
       date: null,
@@ -282,46 +282,62 @@ const AddButton = () => {
       uploadTime: currentTime,
       column: column,
     }));
-
-    console.log("New file details: ", newFileDetails);
-
+  
     setFileDetails((prevFileDetails) => {
       const updatedFileDetails = [...prevFileDetails];
       if (index !== null) {
         const row = updatedFileDetails[index];
-        if (column === "Compulsory Insurance Certificate") {
-          row.compulsoryInsuranceCertificate = newFileDetails[0];
-        } else if (column === "Vehicle Inspection Certificate") {
-          row.vehicleInspectionCertificate = newFileDetails[0];
-        }
+        newFileDetails.forEach((fileDetail) => {
+          if (fileDetail.column === "Compulsory Insurance Certificate") {
+            row.compulsoryInsuranceCertificate = fileDetail;
+          } else if (fileDetail.column === "Vehicle Inspection Certificate") {
+            row.vehicleInspectionCertificate = fileDetail;
+          }
+        });
       } else {
-        // Handling the case where the file is added to a new row
-        const newRow = {
-          compulsoryInsuranceCertificate: column === "Compulsory Insurance Certificate" ? newFileDetails[0] : null,
-          vehicleInspectionCertificate: column === "Vehicle Inspection Certificate" ? newFileDetails[0] : null,
-          date: null,
-        };
-        updatedFileDetails.push(newRow);
+        // Ensure we are not adding a new empty row if index is null
+        if (selectedRowIndex !== null) {
+          const row = updatedFileDetails[selectedRowIndex];
+          newFileDetails.forEach((fileDetail) => {
+            if (fileDetail.column === "Compulsory Insurance Certificate") {
+              row.compulsoryInsuranceCertificate = fileDetail;
+            } else if (fileDetail.column === "Vehicle Inspection Certificate") {
+              row.vehicleInspectionCertificate = fileDetail;
+            }
+          });
+        } else {
+          // Only add a new row if necessary
+          const newRow = {
+            compulsoryInsuranceCertificate: column === "Compulsory Insurance Certificate" ? newFileDetails[0] : null,
+            vehicleInspectionCertificate: column === "Vehicle Inspection Certificate" ? newFileDetails[0] : null,
+            date: null,
+          };
+          updatedFileDetails.push(newRow);
+        }
       }
-      localStorage.setItem("fileDetails", JSON.stringify(updatedFileDetails)); // Save to local storage
-      console.log("Updated file details after change: ", updatedFileDetails);
+      localStorage.setItem("fileDetails", JSON.stringify(updatedFileDetails));
       return updatedFileDetails;
     });
   };
+  
+  
+  
 
   const handleAddRow = () => {
-    const newRow = {
-      compulsoryInsuranceCertificate: null,
-      vehicleInspectionCertificate: null,
-      date: null,
-    };
-    setFileDetails((prevDetails) => {
-      const updatedDetails = [...prevDetails, newRow];
-      localStorage.setItem("fileDetails", JSON.stringify(updatedDetails));
-      console.log("Added new row:", updatedDetails);
-      return updatedDetails;
-    });
+  const newRow = {
+    compulsoryInsuranceCertificate: null,
+    vehicleInspectionCertificate: null,
+    date: null,
   };
+  setFileDetails((prevDetails) => {
+    const updatedDetails = [...prevDetails, newRow];
+    setSelectedRowIndex(updatedDetails.length - 1); // Set the index of the newly added row
+    localStorage.setItem("fileDetails", JSON.stringify(updatedDetails));
+    console.log("Added new row:", updatedDetails);
+    return updatedDetails;
+  });
+};
+
 
   const handleDeleteRowToggle = () => {
     if (selectedCells.length > 0) {

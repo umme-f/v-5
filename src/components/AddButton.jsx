@@ -34,10 +34,8 @@ const AddButton = () => {
   });
   const [isChecked, setIsChecked] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
-  const [showYearList, setShowYearList] = useState(false);
   const [textBoxInput, setTextBoxInput] = useState("");
   const [selectedCarMaker, setSelectedCarMaker] = useState("");
-
   const [showCarMakers, setShowCarMakers] = useState(false);
   const [showCarNames, setShowCarNames] = useState(false);
   const [fileDetails, setFileDetails] = useState([]);
@@ -55,10 +53,9 @@ const AddButton = () => {
   });
   const [isYearChanged, setIsYearChanged] = useState(false);
   const [isSavePressed, setIsSavePressed] = useState(false);
-  const [showDeleteCheckboxes, setShowDeleteCheckboxes] = useState(false);
-  const [selectedRows, setSelectedRows] = useState([]);
-  const [addingFiles, setAddingFiles] = useState(false); // New state to manage adding files
-  const [selectedRowIndex, setSelectedRowIndex] = useState(null); // State to manage selected row for file addition
+  const [selectedCells, setSelectedCells] = useState([]);
+  const [addingFiles, setAddingFiles] = useState(false);
+  const [selectedRowIndex, setSelectedRowIndex] = useState(null);
 
   const carNames = ["Toyota", "Honda", "Ford", "Chevrolet", "BMW"];
   const columnNames = [
@@ -70,7 +67,7 @@ const AddButton = () => {
     { length: currentYear - 1900 + 1 },
     (_, i) => currentYear - i
   );
-  const fileInputRef = useRef(null);
+  const fileInputRefs = useRef([]);
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem("selectedLanguage");
@@ -93,6 +90,7 @@ const AddButton = () => {
           return 0;
         }
       });
+      console.log("Loaded files from local storage:", parsedFiles);
       setFileDetails(parsedFiles);
     }
   }, [i18n]);
@@ -119,7 +117,7 @@ const AddButton = () => {
       year: !!carDetails.year,
     };
 
-    (newValidation);
+    setValidation(newValidation);
 
     const isValid = Object.values(newValidation).every(Boolean);
 
@@ -190,27 +188,17 @@ const AddButton = () => {
     setShowCalendar(false);
   };
 
-  // const handleYearInputChange = (e) => {
-  //   handleYearChange(e);
-  //   setIsYearChanged(true);
-  // };
-
   const deleteSelectedFiles = () => {
     const updatedFileDetails = fileDetails.filter(
-      (file, index) => !selectedRows.includes(index)
+      (file, index) =>
+        !selectedCells.includes(`compulsoryInsuranceCertificate-${index}`) &&
+        !selectedCells.includes(`vehicleInspectionCertificate-${index}`)
     );
     setFileDetails(updatedFileDetails);
-    setSelectedRows([]);
-    setShowDeleteCheckboxes(false);
-    localStorage.setItem("fileDetails", JSON.stringify(updatedFileDetails));
+    setSelectedCells([]);
+    localStorage.setItem("fileDetails", JSON.stringify(updatedFileDetails)); // Update local storage
     toast.success(t("toastDeleteSuccess"));
   };
-
-  // const handleYearSelect = (year) => {
-  //   setCarDetails((prevDetails) => ({ ...prevDetails, year }));
-  //   setShowYearList(false);
-  //   setIsYearChanged(true);
-  // };
 
   const incrementYear = () => {
     setCarDetails((prevDetails) => ({
@@ -262,7 +250,6 @@ const AddButton = () => {
   const handleInputBlur = () => {
     setTimeout(() => setShowCarMakers(false), 200);
     setTimeout(() => setShowCarNames(false), 200);
-    setTimeout(() => setShowYearList(false), 200);
   };
 
   const handleCarMakerButtonClick = () => {
@@ -273,16 +260,18 @@ const AddButton = () => {
     setShowCarNames((prev) => !prev);
   };
 
-  // const handleYearButtonClick = () => {
-  //   setShowYearList((prev) => !prev);
-  // };
-
   const handleInputChange = (e) => {
     const input = e.target.value;
     setTextBoxInput(input);
   };
 
-  const handleFileChange = (e) => {
+  // Adding a defensive check before accessing the 'target' property
+  const handleFileChange = (e, index, column) => {
+    if (!e || !e.target) {
+      console.error("Event or event target is undefined");
+      return;
+    }
+
     const newFiles = Array.from(e.target.files);
     const currentTime = new Date().toLocaleString("ja-JP");
 
@@ -291,53 +280,68 @@ const AddButton = () => {
       date: null,
       fileUrl: URL.createObjectURL(file),
       uploadTime: currentTime,
-      column: selectedColumn,
+      column: column,
     }));
+
+    console.log("New file details: ", newFileDetails);
 
     setFileDetails((prevFileDetails) => {
       const updatedFileDetails = [...prevFileDetails];
-      if (selectedRowIndex !== null) {
-        const row = updatedFileDetails[selectedRowIndex];
-        if (selectedColumn === "Compulsory Insurance Certificate") {
+      if (index !== null) {
+        const row = updatedFileDetails[index];
+        if (column === "Compulsory Insurance Certificate") {
           row.compulsoryInsuranceCertificate = newFileDetails[0];
-        } else if (selectedColumn === "Vehicle Inspection Certificate") {
+        } else if (column === "Vehicle Inspection Certificate") {
           row.vehicleInspectionCertificate = newFileDetails[0];
         }
+      } else {
+        // Handling the case where the file is added to a new row
+        const newRow = {
+          compulsoryInsuranceCertificate: column === "Compulsory Insurance Certificate" ? newFileDetails[0] : null,
+          vehicleInspectionCertificate: column === "Vehicle Inspection Certificate" ? newFileDetails[0] : null,
+          date: null,
+        };
+        updatedFileDetails.push(newRow);
       }
+      localStorage.setItem("fileDetails", JSON.stringify(updatedFileDetails)); // Save to local storage
+      console.log("Updated file details after change: ", updatedFileDetails);
       return updatedFileDetails;
     });
-
-    setShowDropdown(false);
-    setAddingFiles(false);
-    setSelectedRowIndex(null);
-    setSelectedColumn("");
   };
 
   const handleAddRow = () => {
-    setFileDetails((prevDetails) => [
-      ...prevDetails,
-      {
-        compulsoryInsuranceCertificate: null,
-        vehicleInspectionCertificate: null,
-        date: null,
-      },
-    ]);
+    const newRow = {
+      compulsoryInsuranceCertificate: null,
+      vehicleInspectionCertificate: null,
+      date: null,
+    };
+    setFileDetails((prevDetails) => {
+      const updatedDetails = [...prevDetails, newRow];
+      localStorage.setItem("fileDetails", JSON.stringify(updatedDetails));
+      console.log("Added new row:", updatedDetails);
+      return updatedDetails;
+    });
   };
 
   const handleDeleteRowToggle = () => {
-    if (showDeleteCheckboxes && selectedRows.length > 0) {
+    if (selectedCells.length > 0) {
       deleteSelectedFiles();
     } else {
-      setShowDeleteCheckboxes(!showDeleteCheckboxes);
+      toast.error(t("toastSelectCells"));
     }
   };
 
-  const handleRowSelect = (index) => {
-    if (selectedRows.includes(index)) {
-      setSelectedRows(selectedRows.filter((row) => row !== index));
+  const handleCellSelect = (column, index) => {
+    const cellKey = `${column}-${index}`;
+    if (selectedCells.includes(cellKey)) {
+      setSelectedCells(selectedCells.filter((key) => key !== cellKey));
     } else {
-      setSelectedRows([...selectedRows, index]);
+      setSelectedCells([...selectedCells, cellKey]);
     }
+  };
+
+  const handleCellDoubleClick = (column, index) => {
+    fileInputRefs.current[`${column}-${index}`].click();
   };
 
   const handleFileDateChange = (index, date) => {
@@ -356,7 +360,7 @@ const AddButton = () => {
     });
     setFileDetails(updatedFileDetails);
     setFileCalendars((prev) => ({ ...prev, [index]: false }));
-    localStorage.setItem("fileDetails", JSON.stringify(updatedFileDetails));
+    localStorage.setItem("fileDetails", JSON.stringify(updatedFileDetails)); // Update local storage
   };
 
   const toggleFileCalendar = (index) => {
@@ -371,49 +375,21 @@ const AddButton = () => {
 
   const handleClick = (e) => {
     e.preventDefault();
-    if (fileDetails.length === 0) {
-      toast.error(t("clickAddRowFirst"));
-      return;
-    }
-    if (!addingFiles) {
-      setShowDeleteCheckboxes(false);
-      setSelectedRows([]);
-      setAddingFiles(true);
-    } else {
-      setShowDropdown(true);
-    }
+    setShowDropdown(true);
   };
 
   const handleColumnSelect = (column) => {
     setSelectedColumn(column);
     setShowDropdown(false);
-    fileInputRef.current.click();
+    fileInputRefs.current["bulkUpload"].click();
   };
 
   const columns = React.useMemo(
     () => [
       {
-        Header: "",
-        accessor: "select",
-        Cell: ({ row: { index } }) =>
-          addingFiles ? (
-            <input
-              type="checkbox"
-              checked={selectedRowIndex === index}
-              onChange={() => setSelectedRowIndex(index)}
-            />
-          ) : showDeleteCheckboxes ? (
-            <input
-              type="checkbox"
-              checked={selectedRows.includes(index)}
-              onChange={() => handleRowSelect(index)}
-            />
-          ) : null,
-      },
-      {
         Header: t("compulsoryInsuranceCertificate"),
         accessor: "compulsoryInsuranceCertificate",
-        Cell: ({ cell: { value } }) =>
+        Cell: ({ cell: { value }, row: { index } }) =>
           value ? (
             <a
               href={value.fileUrl}
@@ -423,12 +399,39 @@ const AddButton = () => {
             >
               {value.originalName}
             </a>
-          ) : null,
+          ) : (
+            <div
+              className={`w-full h-full ${
+                selectedCells.includes(`compulsoryInsuranceCertificate-${index}`)
+                  ? "bg-gray-200"
+                  : ""
+              }`}
+              onClick={() =>
+                handleCellSelect("compulsoryInsuranceCertificate", index)
+              }
+              onDoubleClick={() =>
+                handleCellDoubleClick("compulsoryInsuranceCertificate", index)
+              }
+            >
+              <input
+                type="file"
+                ref={(el) =>
+                  (fileInputRefs.current[
+                    `compulsoryInsuranceCertificate-${index}`
+                  ] = el)
+                }
+                style={{ display: "none" }}
+                onChange={(e) =>
+                  handleFileChange(e, index, "Compulsory Insurance Certificate")
+                }
+              />
+            </div>
+          ),
       },
       {
         Header: t("vehicleInspectionCertificate"),
         accessor: "vehicleInspectionCertificate",
-        Cell: ({ cell: { value } }) =>
+        Cell: ({ cell: { value }, row: { index } }) =>
           value ? (
             <a
               href={value.fileUrl}
@@ -438,7 +441,34 @@ const AddButton = () => {
             >
               {value.originalName}
             </a>
-          ) : null,
+          ) : (
+            <div
+              className={`w-full h-full ${
+                selectedCells.includes(`vehicleInspectionCertificate-${index}`)
+                  ? "bg-gray-200"
+                  : ""
+              }`}
+              onClick={() =>
+                handleCellSelect("vehicleInspectionCertificate", index)
+              }
+              onDoubleClick={() =>
+                handleCellDoubleClick("vehicleInspectionCertificate", index)
+              }
+            >
+              <input
+                type="file"
+                ref={(el) =>
+                  (fileInputRefs.current[
+                    `vehicleInspectionCertificate-${index}`
+                  ] = el)
+                }
+                style={{ display: "none" }}
+                onChange={(e) =>
+                  handleFileChange(e, index, "Vehicle Inspection Certificate")
+                }
+              />
+            </div>
+          ),
       },
       {
         Header: t("inspectiondate"),
@@ -451,9 +481,7 @@ const AddButton = () => {
                 !value ? "border-red-500" : ""
               }`}
             >
-              <span
-                className={`${!validation.fileDates ? "text-red-500" : ""}`}
-              >
+              <span className={`${!validation.fileDates ? "text-red-500" : ""}`}>
                 {value
                   ? new Date(value).toLocaleDateString("ja-JP")
                   : t("selectdate")}
@@ -481,24 +509,19 @@ const AddButton = () => {
         ),
       },
     ],
-    [
-      fileDetails,
-      fileCalendars,
-      validation,
-      t,
-      showDeleteCheckboxes,
-      selectedRows,
-      addingFiles,
-      selectedRowIndex,
-    ]
+    [fileDetails, fileCalendars, validation, t, selectedCells]
   );
 
   const data = React.useMemo(
     () =>
-      fileDetails.map((file) => ({
+      fileDetails.map((file, index) => ({
         ...file,
-        compulsoryInsuranceCertificate: file.compulsoryInsuranceCertificate,
-        vehicleInspectionCertificate: file.vehicleInspectionCertificate,
+        compulsoryInsuranceCertificate: file.compulsoryInsuranceCertificate
+          ? { ...file.compulsoryInsuranceCertificate, index }
+          : null,
+        vehicleInspectionCertificate: file.vehicleInspectionCertificate
+          ? { ...file.vehicleInspectionCertificate, index }
+          : null,
         date: file.date,
       })),
     [fileDetails]
@@ -828,30 +851,48 @@ const AddButton = () => {
         <div className="mt-4 border-2 border-gray-300 rounded p-4 mb-2">
           <table {...getTableProps()} className="w-full">
             <thead>
-              {headerGroups.map((headerGroup) => (
-                <tr {...headerGroup.getHeaderGroupProps()}>
-                  {headerGroup.headers.map((column) => (
-                    <th {...column.getHeaderProps()} className="border p-2">
-                      {column.render("Header")}
-                    </th>
-                  ))}
-                </tr>
-              ))}
+              {headerGroups.map((headerGroup) => {
+                const { key, ...rest } = headerGroup.getHeaderGroupProps();
+                return (
+                  <tr key={key} {...rest}>
+                    {headerGroup.headers.map((column) => {
+                      const { key, ...rest } = column.getHeaderProps();
+                      return (
+                        <th key={key} {...rest} className="border p-2">
+                          {column.render("Header")}
+                        </th>
+                      );
+                    })}
+                  </tr>
+                );
+              })}
             </thead>
             <tbody {...getTableBodyProps()}>
               {rows.map((row) => {
                 prepareRow(row);
+                const { key, ...rest } = row.getRowProps();
                 return (
-                  <tr {...row.getRowProps()}>
+                  <tr key={key} {...rest}>
                     {row.cells.map((cell) => {
                       let cellProps = { ...cell.getCellProps() };
-                      delete cellProps.key;
-
+                      const { key, ...rest } = cellProps;
                       return (
                         <td
-                          key={cell.getCellProps().key}
-                          {...cellProps}
-                          className="border p-2"
+                          key={key}
+                          {...rest}
+                          className={`border p-2 cursor-pointer ${
+                            selectedCells.includes(
+                              `${cell.column.id}-${row.index}`
+                            )
+                              ? "bg-gray-200"
+                              : ""
+                          }`}
+                          onClick={() =>
+                            handleCellSelect(cell.column.id, row.index)
+                          }
+                          onDoubleClick={() =>
+                            handleCellDoubleClick(cell.column.id, row.index)
+                          }
                         >
                           {cell.render("Cell")}
                         </td>
@@ -890,8 +931,8 @@ const AddButton = () => {
             <input
               type="file"
               multiple
-              onChange={handleFileChange}
-              ref={fileInputRef}
+              onChange={(e) => handleFileChange(e, null, selectedColumn)}
+              ref={(el) => (fileInputRefs.current["bulkUpload"] = el)}
               className="hidden"
             />
           </div>
@@ -914,8 +955,10 @@ const AddButton = () => {
             </button>
           </div>
           <hr></hr>
-          <p className="text-gray-400 pt-2">{t("explanationAdd")}<br></br>
-          {t("explanationDelete")}
+          <p className="text-gray-400 pt-2">
+            {t("explanationAdd")}
+            <br></br>
+            {t("explanationDelete")}
           </p>
         </div>
 

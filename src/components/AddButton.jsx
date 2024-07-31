@@ -271,10 +271,10 @@ const AddButton = () => {
       console.error("Event or event target is undefined");
       return;
     }
-  
+
     const newFiles = Array.from(e.target.files);
     const currentTime = new Date().toLocaleString("ja-JP");
-  
+
     const newFileDetails = newFiles.map((file) => ({
       originalName: file.name,
       date: null,
@@ -282,7 +282,7 @@ const AddButton = () => {
       uploadTime: currentTime,
       column: column,
     }));
-  
+
     setFileDetails((prevFileDetails) => {
       const updatedFileDetails = [...prevFileDetails];
       if (index !== null) {
@@ -308,8 +308,14 @@ const AddButton = () => {
         } else {
           // Only add a new row if necessary
           const newRow = {
-            compulsoryInsuranceCertificate: column === "Compulsory Insurance Certificate" ? newFileDetails[0] : null,
-            vehicleInspectionCertificate: column === "Vehicle Inspection Certificate" ? newFileDetails[0] : null,
+            compulsoryInsuranceCertificate:
+              column === "Compulsory Insurance Certificate"
+                ? newFileDetails[0]
+                : null,
+            vehicleInspectionCertificate:
+              column === "Vehicle Inspection Certificate"
+                ? newFileDetails[0]
+                : null,
             date: null,
           };
           updatedFileDetails.push(newRow);
@@ -319,25 +325,21 @@ const AddButton = () => {
       return updatedFileDetails;
     });
   };
-  
-  
-  
 
   const handleAddRow = () => {
-  const newRow = {
-    compulsoryInsuranceCertificate: null,
-    vehicleInspectionCertificate: null,
-    date: null,
+    const newRow = {
+      compulsoryInsuranceCertificate: null,
+      vehicleInspectionCertificate: null,
+      date: null,
+    };
+    setFileDetails((prevDetails) => {
+      const updatedDetails = [...prevDetails, newRow];
+      setSelectedRowIndex(updatedDetails.length - 1); // Set the index of the newly added row
+      localStorage.setItem("fileDetails", JSON.stringify(updatedDetails));
+      console.log("Added new row:", updatedDetails);
+      return updatedDetails;
+    });
   };
-  setFileDetails((prevDetails) => {
-    const updatedDetails = [...prevDetails, newRow];
-    setSelectedRowIndex(updatedDetails.length - 1); // Set the index of the newly added row
-    localStorage.setItem("fileDetails", JSON.stringify(updatedDetails));
-    console.log("Added new row:", updatedDetails);
-    return updatedDetails;
-  });
-};
-
 
   const handleDeleteRowToggle = () => {
     if (selectedCells.length > 0) {
@@ -391,7 +393,18 @@ const AddButton = () => {
 
   const handleClick = (e) => {
     e.preventDefault();
-    setShowDropdown(true);
+    // Check if there are any empty cells in the table
+    const allCellsFilled = fileDetails.every(
+      (file) =>
+        file.compulsoryInsuranceCertificate !== null &&
+        file.vehicleInspectionCertificate !== null
+    );
+
+    if (allCellsFilled) {
+      toast.info(t("addNewRowMessage"));
+    } else {
+      setShowDropdown(true);
+    }
   };
 
   const handleColumnSelect = (column) => {

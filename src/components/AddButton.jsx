@@ -376,8 +376,7 @@ const AddButton = () => {
 
   const handleClick = (e) => {
     e.preventDefault();
-    setShowDropdown(true);
-  };
+    setShowDropdown(prevState => !prevState);  };
 
   const handleColumnSelect = (column) => {
     setSelectedColumn(column);
@@ -737,7 +736,7 @@ const AddButton = () => {
               style={{ textAlign: "right" }}
               className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500"
             />
-            <h1 className="p-2 font-bold">km</          h1>
+            <h1 className="p-2 font-bold">km</h1>
           </div>
         </div>
 

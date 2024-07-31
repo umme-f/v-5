@@ -67,7 +67,7 @@ const AddButton = () => {
     { length: currentYear - 1900 + 1 },
     (_, i) => currentYear - i
   );
-  const fileInputRefs = useRef([]);
+  const fileInputRefs = useRef({});
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem("selectedLanguage");
@@ -265,7 +265,6 @@ const AddButton = () => {
     setTextBoxInput(input);
   };
 
-  // Adding a defensive check before accessing the 'target' property
   const handleFileChange = (e, index, column) => {
     if (!e || !e.target) {
       console.error("Event or event target is undefined");
@@ -285,8 +284,10 @@ const AddButton = () => {
 
     setFileDetails((prevFileDetails) => {
       const updatedFileDetails = [...prevFileDetails];
-      if (index !== null) {
+
+      if (index !== null && index < updatedFileDetails.length) {
         const row = updatedFileDetails[index];
+
         newFileDetails.forEach((fileDetail) => {
           if (fileDetail.column === "Compulsory Insurance Certificate") {
             row.compulsoryInsuranceCertificate = fileDetail;
@@ -294,35 +295,13 @@ const AddButton = () => {
             row.vehicleInspectionCertificate = fileDetail;
           }
         });
-      } else {
-        // Ensure we are not adding a new empty row if index is null
-        if (selectedRowIndex !== null) {
-          const row = updatedFileDetails[selectedRowIndex];
-          newFileDetails.forEach((fileDetail) => {
-            if (fileDetail.column === "Compulsory Insurance Certificate") {
-              row.compulsoryInsuranceCertificate = fileDetail;
-            } else if (fileDetail.column === "Vehicle Inspection Certificate") {
-              row.vehicleInspectionCertificate = fileDetail;
-            }
-          });
-        } else {
-          // Only add a new row if necessary
-          const newRow = {
-            compulsoryInsuranceCertificate:
-              column === "Compulsory Insurance Certificate"
-                ? newFileDetails[0]
-                : null,
-            vehicleInspectionCertificate:
-              column === "Vehicle Inspection Certificate"
-                ? newFileDetails[0]
-                : null,
-            date: null,
-          };
-          updatedFileDetails.push(newRow);
-        }
+
+        localStorage.setItem("fileDetails", JSON.stringify(updatedFileDetails));
+        return updatedFileDetails;
       }
-      localStorage.setItem("fileDetails", JSON.stringify(updatedFileDetails));
-      return updatedFileDetails;
+
+      console.warn("Invalid row index or no existing row to update");
+      return prevFileDetails;
     });
   };
 
@@ -342,7 +321,7 @@ const AddButton = () => {
   };
 
   const handleDeleteRowToggle = () => {
-    if (selectedCells.length > 0) {
+    if (selectedCells.length === 2) {
       deleteSelectedFiles();
     } else {
       toast.error(t("toastSelectCells"));
@@ -359,7 +338,11 @@ const AddButton = () => {
   };
 
   const handleCellDoubleClick = (column, index) => {
-    fileInputRefs.current[`${column}-${index}`].click();
+    if (fileInputRefs.current[`${column}-${index}`]) {
+      fileInputRefs.current[`${column}-${index}`].click();
+    } else {
+      console.error(`No file input ref found for ${column}-${index}`);
+    }
   };
 
   const handleFileDateChange = (index, date) => {
@@ -393,18 +376,7 @@ const AddButton = () => {
 
   const handleClick = (e) => {
     e.preventDefault();
-    // Check if there are any empty cells in the table
-    const allCellsFilled = fileDetails.every(
-      (file) =>
-        file.compulsoryInsuranceCertificate !== null &&
-        file.vehicleInspectionCertificate !== null
-    );
-
-    if (allCellsFilled) {
-      toast.info(t("addNewRowMessage"));
-    } else {
-      setShowDropdown(true);
-    }
+    setShowDropdown(true);
   };
 
   const handleColumnSelect = (column) => {
@@ -765,7 +737,7 @@ const AddButton = () => {
               style={{ textAlign: "right" }}
               className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500"
             />
-            <h1 className="p-2 font-bold">km</h1>
+            <h1 className="p-2 font-bold">km</          h1>
           </div>
         </div>
 
@@ -865,7 +837,7 @@ const AddButton = () => {
             <Calendar
               onChange={handleDateChange}
               value={carDetails.date}
-              locale="ja"
+              locale="ja-JP"
               calendarType="gregory"
               formatShortWeekday={(locale, date) =>
                 ["日", "月", "火", "水", "木", "金", "土"][date.getDay()]
@@ -924,6 +896,18 @@ const AddButton = () => {
                           }
                         >
                           {cell.render("Cell")}
+                          <input
+                            type="file"
+                            ref={(el) =>
+                              (fileInputRefs.current[
+                                `${cell.column.id}-${row.index}`
+                              ] = el)
+                            }
+                            style={{ display: "none" }}
+                            onChange={(e) =>
+                              handleFileChange(e, row.index, cell.column.id)
+                            }
+                          />
                         </td>
                       );
                     })}
@@ -960,7 +944,7 @@ const AddButton = () => {
             <input
               type="file"
               multiple
-              onChange={(e) => handleFileChange(e, null, selectedColumn)}
+              onChange={(e) => handleFileChange(e, selectedRowIndex, selectedColumn)}
               ref={(el) => (fileInputRefs.current["bulkUpload"] = el)}
               className="hidden"
             />

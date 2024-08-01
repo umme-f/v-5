@@ -305,6 +305,7 @@ const AddButton = () => {
     });
   };
 
+  // Adding new row
   const handleAddRow = () => {
     const newRow = {
       compulsoryInsuranceCertificate: null,
@@ -328,15 +329,22 @@ const AddButton = () => {
     }
   };
 
+  // Cell selection
   const handleCellSelect = (column, index) => {
     const cellKey = `${column}-${index}`;
-    if (selectedCells.includes(cellKey)) {
-      setSelectedCells(selectedCells.filter((key) => key !== cellKey));
+    if (selectedRowIndex !== index) {
+      setSelectedCells([cellKey]);
+      setSelectedRowIndex(index);
     } else {
-      setSelectedCells([...selectedCells, cellKey]);
+      if (selectedCells.includes(cellKey)) {
+        setSelectedCells(selectedCells.filter((key) => key !== cellKey));
+      } else {
+        setSelectedCells([...selectedCells, cellKey]);
+      }
     }
   };
 
+  // Double click
   const handleCellDoubleClick = (column, index) => {
     if (fileInputRefs.current[`${column}-${index}`]) {
       fileInputRefs.current[`${column}-${index}`].click();
@@ -376,7 +384,12 @@ const AddButton = () => {
 
   const handleClick = (e) => {
     e.preventDefault();
-    setShowDropdown(prevState => !prevState);  };
+    if (fileDetails.some(file => !file.compulsoryInsuranceCertificate || !file.vehicleInspectionCertificate)) {
+      setShowDropdown(true);
+    } else {
+      toast.error(t("pleaseAddNewRow"));
+    }
+  };
 
   const handleColumnSelect = (column) => {
     setSelectedColumn(column);
@@ -872,7 +885,13 @@ const AddButton = () => {
                 prepareRow(row);
                 const { key, ...rest } = row.getRowProps();
                 return (
-                  <tr key={key} {...rest}>
+                  <tr
+                    key={key}
+                    {...rest}
+                    className={`cursor-pointer ${
+                      selectedRowIndex === row.index ? "bg-gray-200" : ""
+                    }`}
+                  >
                     {row.cells.map((cell) => {
                       let cellProps = { ...cell.getCellProps() };
                       const { key, ...rest } = cellProps;
@@ -880,11 +899,11 @@ const AddButton = () => {
                         <td
                           key={key}
                           {...rest}
-                          className={`border p-2 cursor-pointer ${
+                          className={`border p-2 ${
                             selectedCells.includes(
                               `${cell.column.id}-${row.index}`
                             )
-                              ? "bg-gray-200"
+                              ? "bg-gray-300"
                               : ""
                           }`}
                           onClick={() =>

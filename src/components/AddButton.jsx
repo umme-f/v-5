@@ -331,7 +331,11 @@ const AddButton = () => {
 
   // Cell selection
   const handleCellSelect = (column, index) => {
+
+    // Unique cell key- for each cell using the column identifier and row index
     const cellKey = `${column}-${index}`;
+
+    
     if (selectedRowIndex !== index) {
       setSelectedCells([cellKey]);
       setSelectedRowIndex(index);

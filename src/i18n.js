@@ -74,6 +74,7 @@ i18n
           explanationDelete: "※ how to delete row: press remove row → check box → press delete row button again ",
           clickAddRowFirst: "Click 'Add Row' button first.",
           pleaseAddNewRow: "Please add a new row by pressing the 'Add Row' button.",
+          noFileUploaded: "NO file",
         },
       },
       jp: {
@@ -142,6 +143,8 @@ i18n
           explanationDelete: "※ 行を削除する方法: 行の削除を押す → チェックボックスをオンにする → 行の削除ボタンをもう一度押す ",
           clickAddRowFirst: "「行を追加」ボタンをクリックしてください。",
           pleaseAddNewRow: "「行を追加」ボタンを押して新しい行を追加してください。",
+          noFileUploaded: "ファイルがアップロードされていません",
+
         },
       },
     },

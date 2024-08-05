@@ -266,8 +266,8 @@ const AddButton = () => {
   };
 
   const handleFileChange = (e, index, column) => {
-    if (!e || !e.target) {
-      console.error("Event or event target is undefined");
+    if (!e || !e.target || !e.target.files) {
+      console.error("Event, event target, or files are undefined");
       return;
     }
 
@@ -305,7 +305,6 @@ const AddButton = () => {
     });
   };
 
-  // Adding new row
   const handleAddRow = () => {
     const newRow = {
       compulsoryInsuranceCertificate: null,
@@ -314,7 +313,7 @@ const AddButton = () => {
     };
     setFileDetails((prevDetails) => {
       const updatedDetails = [...prevDetails, newRow];
-      setSelectedRowIndex(updatedDetails.length - 1); // Set the index of the newly added row
+      setSelectedRowIndex(updatedDetails.length - 1);
       localStorage.setItem("fileDetails", JSON.stringify(updatedDetails));
       console.log("Added new row:", updatedDetails);
       return updatedDetails;
@@ -329,13 +328,9 @@ const AddButton = () => {
     }
   };
 
-  // Cell selection
   const handleCellSelect = (column, index) => {
-
-    // Unique cell key- for each cell using the column identifier and row index
     const cellKey = `${column}-${index}`;
 
-    
     if (selectedRowIndex !== index) {
       setSelectedCells([cellKey]);
       setSelectedRowIndex(index);
@@ -348,7 +343,7 @@ const AddButton = () => {
     }
   };
 
-  // Double click
+  // Cell double click
   const handleCellDoubleClick = (column, index) => {
     if (fileInputRefs.current[`${column}-${index}`]) {
       fileInputRefs.current[`${column}-${index}`].click();
@@ -373,7 +368,7 @@ const AddButton = () => {
     });
     setFileDetails(updatedFileDetails);
     setFileCalendars((prev) => ({ ...prev, [index]: false }));
-    localStorage.setItem("fileDetails", JSON.stringify(updatedFileDetails)); // Update local storage
+    localStorage.setItem("fileDetails", JSON.stringify(updatedFileDetails));
   };
 
   const toggleFileCalendar = (index) => {
@@ -753,7 +748,7 @@ const AddButton = () => {
               style={{ textAlign: "right" }}
               className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500"
             />
-            <h1 className="p-2 font-bold">km</h1>
+            <h1 className="p-2 font-bold">km</            h1>
           </div>
         </div>
 

@@ -266,6 +266,7 @@ const AddButton = () => {
   };
 
   const handleFileChange = (e, index, column) => {
+    console.log("handleFileChange called with event: ", e);
     if (!e || !e.target || !e.target.files) {
       console.error("Event, event target, or files are undefined");
       return;
@@ -328,6 +329,7 @@ const AddButton = () => {
     }
   };
 
+  // Cell single select
   const handleCellSelect = (column, index) => {
     const cellKey = `${column}-${index}`;
 
@@ -340,15 +342,6 @@ const AddButton = () => {
       } else {
         setSelectedCells([...selectedCells, cellKey]);
       }
-    }
-  };
-
-  // Cell double click
-  const handleCellDoubleClick = (column, index) => {
-    if (fileInputRefs.current[`${column}-${index}`]) {
-      fileInputRefs.current[`${column}-${index}`].click();
-    } else {
-      console.error(`No file input ref found for ${column}-${index}`);
     }
   };
 
@@ -383,11 +376,11 @@ const AddButton = () => {
 
   const handleClick = (e) => {
     e.preventDefault();
-    if (fileDetails.some(file => !file.compulsoryInsuranceCertificate || !file.vehicleInspectionCertificate)) {
-      setShowDropdown(true);
-    } else {
-      toast.error(t("pleaseAddNewRow"));
+    if (selectedCells.length === 0) {
+      toast.error(t("pleaseSelectCell"));
+      return;
     }
+    setShowDropdown(true);
   };
 
   const handleColumnSelect = (column) => {
@@ -416,13 +409,10 @@ const AddButton = () => {
               className={`w-full h-full ${
                 selectedCells.includes(`compulsoryInsuranceCertificate-${index}`)
                   ? "bg-gray-200"
-                  : ""
+                  : "pointer-events-none"
               }`}
               onClick={() =>
                 handleCellSelect("compulsoryInsuranceCertificate", index)
-              }
-              onDoubleClick={() =>
-                handleCellDoubleClick("compulsoryInsuranceCertificate", index)
               }
             >
               <input
@@ -458,13 +448,10 @@ const AddButton = () => {
               className={`w-full h-full ${
                 selectedCells.includes(`vehicleInspectionCertificate-${index}`)
                   ? "bg-gray-200"
-                  : ""
+                  : "pointer-events-none"
               }`}
               onClick={() =>
                 handleCellSelect("vehicleInspectionCertificate", index)
-              }
-              onDoubleClick={() =>
-                handleCellDoubleClick("vehicleInspectionCertificate", index)
               }
             >
               <input
@@ -491,7 +478,7 @@ const AddButton = () => {
               onClick={() => toggleFileCalendar(index)}
               className={`w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500 flex items-center justify-between ${
                 !value ? "border-red-500" : ""
-              }`}
+              } ${selectedCells.includes(`date-${index}`) ? "" : "pointer-events-none"}`}
             >
               <span className={`${!validation.fileDates ? "text-red-500" : ""}`}>
                 {value
@@ -572,6 +559,7 @@ const AddButton = () => {
           {t("carAddForm")}
         </h2>
 
+        {/* Car ID */}
         <div className="mb-4">
           <label
             className={`block text-gray-700 text-sm font-bold mb-2 after:content-['*'] after:ml-0.5 after:text-red-500 block ${
@@ -748,7 +736,7 @@ const AddButton = () => {
               style={{ textAlign: "right" }}
               className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500"
             />
-            <h1 className="p-2 font-bold">km</            h1>
+            <h1 className="p-2 font-bold">km</h1>
           </div>
         </div>
 
@@ -908,9 +896,6 @@ const AddButton = () => {
                           onClick={() =>
                             handleCellSelect(cell.column.id, row.index)
                           }
-                          onDoubleClick={() =>
-                            handleCellDoubleClick(cell.column.id, row.index)
-                          }
                         >
                           {cell.render("Cell")}
                           <input
@@ -922,7 +907,11 @@ const AddButton = () => {
                             }
                             style={{ display: "none" }}
                             onChange={(e) =>
-                              handleFileChange(e, row.index, cell.column.id)
+                              handleFileChange(
+                                e,
+                                row.index,
+                                cell.column.id
+                              )
                             }
                           />
                         </td>
@@ -961,7 +950,10 @@ const AddButton = () => {
             <input
               type="file"
               multiple
-              onChange={(e) => handleFileChange(e, selectedRowIndex, selectedColumn)}
+              onChange={(e) => {
+                console.log("Bulk upload input changed", e);
+                handleFileChange(e, selectedRowIndex, selectedColumn);
+              }}
               ref={(el) => (fileInputRefs.current["bulkUpload"] = el)}
               className="hidden"
             />
@@ -985,11 +977,6 @@ const AddButton = () => {
             </button>
           </div>
           <hr></hr>
-          <p className="text-gray-400 pt-2">
-            {t("explanationAdd")}
-            <br></br>
-            {t("explanationDelete")}
-          </p>
         </div>
 
         {/* Details box */}

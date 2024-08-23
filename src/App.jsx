@@ -1,11 +1,11 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { LanguageProvider } from './LanguageContext';
-import App from './App';
+import React from "react";
+import ReactDOM from "react-dom";
+import App from "./App";
+import { FileProvider } from "./contexts/FileContext";
 
 ReactDOM.render(
-  <LanguageProvider>
+  <FileProvider>
     <App />
-  </LanguageProvider>,
-  document.getElementById('root')
+  </FileProvider>,
+  document.getElementById("root")
 );

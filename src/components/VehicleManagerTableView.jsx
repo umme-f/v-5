@@ -117,7 +117,7 @@ const VehicleManagerTableView = () => {
     // Simulate a delay for loading
     setTimeout(() => {
       setLoading(false);
-    }, 3000); // 3-second delay
+    }, 2000); // 2-second delay
   }, [searchTerm, currentPage]);
 
   const handleNextPage = () => {
@@ -132,6 +132,7 @@ const VehicleManagerTableView = () => {
     }
   };
 
+  // Delay for previous page loading
   const handlePreviousPage = () => {
     if (currentPage > 0) {
       setLoading(true);
@@ -156,6 +157,7 @@ const VehicleManagerTableView = () => {
     localStorage.setItem('selectedLanguage', 'en');
   };
 
+  // Navigate to previous Login page
   const previousLoginPage = () => {
     navigate('/');
   };
@@ -168,9 +170,9 @@ const VehicleManagerTableView = () => {
     navigate('/');
   };
 
-  const handleChangePassword = () => {
-    navigate('/change-password');
-  };
+  // const handleChangePassword = () => {
+  //   navigate('/change-password');
+  // };
 
   const closeDropdown = () => {
     setShowDropdown(false);
@@ -190,7 +192,7 @@ const VehicleManagerTableView = () => {
       </div>
 
       {/* Update Notification List */}
-      {/* <CarNotification notifications={notifications} rows={rows} setIsModalVisible={setIsModalVisible} /> */}
+      <CarNotification notifications={notifications} rows={rows} setIsModalVisible={setIsModalVisible} />
 
       {/* User Menu */}
       <div className="absolute top-0 left-0 p-4 flex items-center">
@@ -199,7 +201,7 @@ const VehicleManagerTableView = () => {
           showDropdown={showDropdown}
           handleUserClick={handleUserClick}
           handleLogout={handleLogout}
-          handleChangePassword={handleChangePassword}
+          // handleChangePassword={handleChangePassword}
           disableUserMenu={isModalVisible}
           closeDropdown={closeDropdown}
           language={language}

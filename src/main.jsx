@@ -17,7 +17,6 @@ import CarDetails from './components/CarDetails';
 import UserMenuDropdown from './components/UserMenuDropdown';
 import 'regenerator-runtime/runtime';
 
-
 const router = createBrowserRouter([
   {
     path: "/",
@@ -62,8 +61,8 @@ const router = createBrowserRouter([
     path: "/car-details",
     element: <CarDetails />,
   },
-    
-  {path: "/usermenudropdown",
+  {
+    path: "/usermenudropdown",
     element: <UserMenuDropdown />,
   },
   {

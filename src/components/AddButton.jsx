@@ -19,19 +19,12 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useTable } from "react-table";
 import { useNavigate } from "react-router-dom";
-import { useFileContext } from "../FileContext"; // Import the context hook
+import { CAR_MAKER, CAR_NAME, DAY_OF_THE_WEEK_JP } from "../variables/variable";
 
 const AddButton = () => {
   const maxLength = 20;
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const {
-    fileDetails,
-    addFile,
-    deleteFile,
-    addRow,
-    deleteRow,
-  } = useFileContext(); // Use context for file details management
 
   // State hooks
   const [language, setLanguage] = useState("jp");
@@ -62,41 +55,31 @@ const AddButton = () => {
   });
   const [isYearChanged, setIsYearChanged] = useState(false);
   const [isSavePressed, setIsSavePressed] = useState(false);
-  const [selectedCells, setSelectedCells] = useState([]);
-  const [selectedRowIndex, setSelectedRowIndex] = useState(null);
+  const [selectedCells, setSelectedCells] = useState([]); // Allows multiple cells to be selected
+  const [fileDetails, setFileDetails] = useState(() => {
+    const savedDetails = localStorage.getItem('fileDetails');
+    return savedDetails ? JSON.parse(savedDetails) : [{
+      compulsoryInsuranceCertificate: null,
+      vehicleInspectionCertificate: null,
+      date: null,
+    }];
+  });
+  
+  const fileInputRefs = useRef([]);  // Reference for multiple file inputs
 
-  const carNames = ["Toyota", "Honda", "Ford", "Chevrolet", "BMW"];
-  const currentYear = new Date().getFullYear();
-  const years = Array.from(
-    { length: currentYear - 1900 + 1 },
-    (_, i) => currentYear - i
-  );
-  const fileInputRefs = useRef({});
-
-  // useEffect to load saved language and files from localStorage
+  // useEffect to load saved language from localStorage
   useEffect(() => {
     const savedLanguage = localStorage.getItem("selectedLanguage");
     if (savedLanguage) {
       i18n.changeLanguage(savedLanguage);
       setLanguage(savedLanguage);
     }
-
-    const savedFiles = localStorage.getItem("fileDetails");
-    if (savedFiles) {
-      const parsedFiles = JSON.parse(savedFiles);
-      parsedFiles.sort((a, b) => {
-        if (a.date && b.date) {
-          return new Date(b.date) - new Date(a.date);
-        } else if (a.date) {
-          return -1;
-        } else if (b.date) {
-          return 1;
-        } else {
-          return 0;
-        }
-      });
-    }
   }, [i18n]);
+
+  //useEffect to save fileDetails to localStorage on change
+  useEffect(() => {
+    localStorage.setItem('fileDetails', JSON.stringify(fileDetails));
+  }, [fileDetails]);
 
   // This function handles language change
   const handleLanguageChange = (lang) => {
@@ -108,43 +91,93 @@ const AddButton = () => {
   // This function handles form submission (Add button)
   const handleAdd = (e) => {
     e.preventDefault();
+    if (selectedCells.length === 0) {
+      toast.error(t("pleaseSelectCell"));
+      return;
+    }
     setIsSavePressed(true);
-
-    const isFileDateMissing =
-      fileDetails.length > 0 && fileDetails.some((file) => !file.date);
-
-    const newValidation = {
-      carId: !!carDetails.carId,
-      carName: !!carDetails.carName,
-      carMaker: !!carDetails.carMaker,
-      carType: !!carDetails.carType,
-      date: isChecked ? !!carDetails.date : true,
-      fileDates: !isFileDateMissing,
-      year: !!carDetails.year,
-    };
-
-    setValidation(newValidation);
-
-    const isValid = Object.values(newValidation).every(Boolean);
-
-    if (isSavePressed && !isValid) {
-      toast.error(t("toastAddWarning"));
-      return;
-    }
-
-    if (isSavePressed && !isChecked) {
-      setValidation((prev) => ({ ...prev, date: false }));
-      toast.error(t("toastAddWarning"));
-      return;
-    }
-
-    toast.success(t("toastAddSuccessfulSaving"));
-    console.log({ carDetails, fileDetails });
+    console.log({ carDetails });
   };
 
   const handleCarMakerSelect = (maker) => {
     setSelectedCarMaker(maker);
     setShowCarMakers(false);
+  };
+
+   // This function deletes selected files
+  const deleteSelectedFiles = () => {
+    if (selectedCells.length === 0) {
+      toast.error(t("noDataInCell"));
+      return;
+    }
+    selectedCells.forEach((cellKey) => {
+      const [column, index] = cellKey.split("-");
+      deleteFile(Number(index), column);
+    });
+    setSelectedCells([]);
+    toast.success(t("toastDeleteSuccess"));
+  };
+
+  // This function adds a new row to the table
+  const handleAddRow = () => {
+    setFileDetails((prevDetails) => [
+      ...prevDetails,
+      {
+        compulsoryInsuranceCertificate: null,
+        vehicleInspectionCertificate: null,
+        date: null,
+      },
+    ]);
+  };
+
+  // When there are multiple rows but you want to delete one
+  const handleDeleteRowToggle = () => {
+    if (selectedCells.length > 0) {
+      const rowIndex = parseInt(selectedCells[0].split('-')[1]);
+      deleteRow(rowIndex);
+      setSelectedCells([]);
+    } else {
+      toast.error(t("toastSelectRow"));
+    }
+  };
+
+  // Delete a row
+  const deleteRow = (rowIndex) => {
+    console.log("Deleting row at index:", rowIndex);
+    setFileDetails((prevDetails) =>
+      prevDetails.filter((_, index) => index !== rowIndex)
+    );
+    toast.success(t("deleteRowMessage"));
+  };
+  
+
+  const handleFileChange = (e, rowIndex) => {
+    const files = e.target.files;
+    if (selectedCells.length > 0) { 
+      if (files && files.length > 0) {
+        setFileDetails((prevDetails) => {
+          const newDetails = [...prevDetails];
+          newDetails[rowIndex][column] = {
+            fileUrl: URL.createObjectURL(files[0]),
+            originalName: files[0].name,
+          };
+          return newDetails;
+        });
+        toast.success(`${files.length} file(s) selected`);
+      } else {
+        toast.error("No files selected");
+      }
+    } else {
+      toast.error("No cell selected"); // for when no cell is selected
+    }
+  };
+  
+
+  // Define the getRemainingColor function
+  const getRemainingColor = (remaining) => {
+    return remaining <= 10
+      ? "text-red-500 font-bold"
+      : "text-green-500 font-bold";
   };
 
   // This function handles car name selection from dropdown
@@ -175,18 +208,25 @@ const AddButton = () => {
     setShowCalendar(false);
   };
 
-  // This function deletes selected files
-  const deleteSelectedFiles = () => {
+  // This function handles file input click
+  const handleClick = () => {
     if (selectedCells.length === 0) {
-      toast.error(t("noDataInCell"));
+      toast.error(t("pleaseSelectCell"));
       return;
     }
-    selectedCells.forEach((cellKey) => {
-      const [column, index] = cellKey.split("-");
-      deleteFile(Number(index), column);
-    });
-    setSelectedCells([]);
-    toast.success(t("toastDeleteSuccess"));
+
+    // Get the first selected cell and the corresponding row index
+    const [column, index] = selectedCells[0]?.split("-");
+    
+    // // Trigger the click event on the corresponding file input element
+    // if (fileInputRefs.current[index]) {
+    //   fileInputRefs.current[index].click();
+    // }
+    if (column && fileInputRefs.current[index]){
+      fileInputRefs.current[index].click();
+    }else{
+      toast.error("Invalid cell selection.");
+    }
   };
 
   // This function increments year
@@ -225,7 +265,7 @@ const AddButton = () => {
     }
   };
 
-  // This function handles input blur for the last mileage field
+  // This function handles input focus for the last mileage field
   const handleFocus = (e) => {
     const { name } = e.target;
     if (name === "lastMileage") {
@@ -268,58 +308,13 @@ const AddButton = () => {
     navigate("/vehicle-manager");
   };
 
-  const handleFileChange = (e, index, column) => {
-    if (!e.target.files || e.target.files.length === 0) {
-      toast.error("No files selected");
-      return;
-    }
-
-    const file = e.target.files[0];
-    const newFileDetail = {
-      originalName: file.name,
-      fileUrl: URL.createObjectURL(file),
-      uploadTime: new Date().toLocaleString("ja-JP"),
-      date: null,
-    };
-
-    addFile(index, column, newFileDetail); // Use context function
-
-    // Reset selected cells after file upload
-    setSelectedCells([]);
-  };
-
-  const handleAddRow = () => {
-    addRow(); // Use context function
-    setSelectedRowIndex(fileDetails.length);
-  };
-
-  const handleDeleteRowToggle = () => {
-    if (selectedRowIndex !== null) {
-      deleteRow(selectedRowIndex); // Use context function
-      setSelectedRowIndex(null);
-      setSelectedCells([]);
-      toast.success(t("toastDeleteRowSuccess"));
-    } else {
-      toast.error(t("toastSelectRow"));
-    }
-  };
-
   // Cell single select
   const handleCellSelect = (column, index) => {
     const cellKey = `${column}-${index}`;
-
-    if (selectedRowIndex !== index) {
-      setSelectedCells([cellKey]);
-      setSelectedRowIndex(index);
-    } else {
-      if (selectedCells.includes(cellKey)) {
-        setSelectedCells(selectedCells.filter((key) => key !== cellKey));
-      } else {
-        setSelectedCells([...selectedCells, cellKey]);
-      }
-    }
+    
+    setSelectedCells([cellKey]); // Only allow one cell to be selected at a time
   };
-
+  
   const handleFileDateChange = (index, date) => {
     const updatedFileDetails = [...fileDetails];
     updatedFileDetails[index].date = date;
@@ -342,21 +337,10 @@ const AddButton = () => {
   const toggleFileCalendar = (index) => {
     setFileCalendars((prev) => ({ ...prev, [index]: !prev[index] }));
   };
+  
 
-  const getRemainingColor = (remaining) => {
-    return remaining <= 10
-      ? "text-red-500 font-bold"
-      : "text-green-500 font-bold";
-  };
-
-  const handleClick = (e) => {
-    e.preventDefault();
-    if (selectedCells.length === 0) {
-      toast.error(t("pleaseSelectCell"));
-      return;
-    }
-    fileInputRefs.current[selectedCells[0]].click();
-  };
+  // Update data to be based on fileDetails
+  const data = React.useMemo(() => fileDetails, [fileDetails]);
 
   const columns = React.useMemo(
     () => [
@@ -374,23 +358,12 @@ const AddButton = () => {
               {value.originalName}
             </a>
           ) : (
-            <div
-              className="w-full h-full"
-              onClick={() =>
-                handleCellSelect("compulsoryInsuranceCertificate", index)
-              }
-            >
+            <div className="w-full h-full">
               <input
                 type="file"
-                ref={(el) =>
-                  (fileInputRefs.current[
-                    `compulsoryInsuranceCertificate-${index}`
-                  ] = el)
-                }
+                ref={(el) => (fileInputRefs.current[index] = el)}
                 style={{ display: "none" }}
-                onChange={(e) =>
-                  handleFileChange(e, index, "Compulsory Insurance Certificate")
-                }
+                onChange={(e) => handleFileChange(e, index)}
               />
             </div>
           ),
@@ -409,23 +382,12 @@ const AddButton = () => {
               {value.originalName}
             </a>
           ) : (
-            <div
-              className="w-full h-full"
-              onClick={() =>
-                handleCellSelect("vehicleInspectionCertificate", index)
-              }
-            >
+            <div className="w-full h-full">
               <input
                 type="file"
-                ref={(el) =>
-                  (fileInputRefs.current[
-                    `vehicleInspectionCertificate-${index}`
-                  ] = el)
-                }
+                ref={(el) => (fileInputRefs.current[index] = el)}
                 style={{ display: "none" }}
-                onChange={(e) =>
-                  handleFileChange(e, index, "Vehicle Inspection Certificate")
-                }
+                onChange={(e) => handleFileChange(e, index)}
               />
             </div>
           ),
@@ -461,22 +423,7 @@ const AddButton = () => {
         ),
       },
     ],
-    [fileDetails, fileCalendars, t]
-  );
-
-  const data = React.useMemo(
-    () =>
-      fileDetails.map((file, index) => ({
-        ...file,
-        compulsoryInsuranceCertificate: file.compulsoryInsuranceCertificate
-          ? { ...file.compulsoryInsuranceCertificate, index }
-          : null,
-        vehicleInspectionCertificate: file.vehicleInspectionCertificate
-          ? { ...file.vehicleInspectionCertificate, index }
-          : null,
-        date: file.date,
-      })),
-    [fileDetails]
+    [fileCalendars, t]
   );
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
@@ -565,7 +512,7 @@ const AddButton = () => {
           </div>
           {showCarMakers && (
             <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto">
-              {["Toyota", "Honda", "Ford", "Chevrolet", "BMW"].map(
+              {CAR_MAKER.map(
                 (maker, index) => (
                   <li
                     key={index}
@@ -617,15 +564,17 @@ const AddButton = () => {
           </div>
           {showCarNames && (
             <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto">
-              {carNames.map((name, index) => (
-                <li
-                  key={index}
-                  onMouseDown={() => handleCarNameSelect(name)}
-                  className="px-4 py-2 cursor-pointer hover:bg-gray-200"
-                >
-                  {name}
-                </li>
-              ))}
+              {CAR_NAME.map(
+                (name, index) => (
+                  <li
+                    key={index}
+                    onMouseDown={() => handleCarNameSelect(name)}
+                    className="px-4 py-2 cursor-pointer hover:bg-gray-200"
+                  >
+                    {name}
+                  </li>
+                )
+              )}
             </ul>
           )}
         </div>
@@ -792,7 +741,7 @@ const AddButton = () => {
               locale="ja-JP"
               calendarType="gregory"
               formatShortWeekday={(locale, date) =>
-                ["日", "月", "火", "水", "木", "金", "土"][date.getDay()]
+                DAY_OF_THE_WEEK_JP[date.getDay()]
               }
               formatDay={(locale, date) => date.getDate()}
               className="border rounded-lg shadow-lg mt-2"
@@ -829,7 +778,7 @@ const AddButton = () => {
                     key={key}
                     {...rest}
                     className={`cursor-pointer ${
-                      selectedRowIndex === row.index ? "bg-blue-300" : ""
+                      selectedCells.some(cellKey => cellKey.endsWith(`-${row.index}`)) ? "bg-blue-300" : ""
                     }`}
                   >
                     {row.cells.map((cell) => {
@@ -843,7 +792,7 @@ const AddButton = () => {
                             selectedCells.includes(
                               `${cell.column.id}-${row.index}`
                             )
-                              ? "bg-slate-300 "
+                              ? " bg-slate-300 "
                               : ""
                           }`}
                           onClick={() =>
@@ -851,22 +800,6 @@ const AddButton = () => {
                           }
                         >
                           {cell.render("Cell")}
-                          <input
-                            type="file"
-                            ref={(el) =>
-                              (fileInputRefs.current[
-                                `${cell.column.id}-${row.index}`
-                              ] = el)
-                            }
-                            style={{ display: "none" }}
-                            onChange={(e) =>
-                              handleFileChange(
-                                e,
-                                row.index,
-                                cell.column.id
-                              )
-                            }
-                          />
                         </td>
                       );
                     })}
@@ -913,26 +846,18 @@ const AddButton = () => {
                 type="button"
                 onClick={handleDeleteRowToggle}
                 className={`${
-                  fileDetails.length > 0 && selectedCells.length > 0
+                  selectedCells.length > 0
                     ? "bg-red-500"
                     : "bg-red-400 cursor-not-allowed"
                 } text-white py-2 px-1 rounded`}
-                disabled={fileDetails.length === 0 || selectedCells.length === 0}
+                disabled={selectedCells.length === 0}
               >
                 <FontAwesomeIcon icon={faMinus} className="mr-2" />
                 {t("deleteRow")}
               </button>
             </div>
-            <input
-              type="file"
-              multiple
-              onChange={(e) => {
-                handleFileChange(e, selectedRowIndex, selectedCells[0]);
-              }}
-              ref={(el) => (fileInputRefs.current["bulkUpload"] = el)}
-              className="hidden"
-            />
           </div>
+
           <hr></hr>
         </div>
 

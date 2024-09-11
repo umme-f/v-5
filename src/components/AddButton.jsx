@@ -65,7 +65,8 @@ const AddButton = () => {
     }];
   });
   
-  const fileInputRefs = useRef([]);  // Reference for multiple file inputs
+  // Reference for multiple file inputs
+  const fileInputRefs = useRef([]);  
 
   // useEffect to load saved language from localStorage
   useEffect(() => {
@@ -96,7 +97,7 @@ const AddButton = () => {
       return;
     }
     setIsSavePressed(true);
-    console.log({ carDetails });
+    // console.log({ carDetails });
   };
 
   const handleCarMakerSelect = (maker) => {
@@ -153,24 +154,33 @@ const AddButton = () => {
 
   const handleFileChange = (e, rowIndex) => {
     const files = e.target.files;
-    if (selectedCells.length > 0) { 
+    if (selectedCells.length > 0) {
       if (files && files.length > 0) {
+        // Determine which column is being updated
+        const [column] = selectedCells[0]?.split("-");
+        const columnKey =
+          column === "compulsoryInsuranceCertificate"
+            ? "compulsoryInsuranceCertificate"
+            : "vehicleInspectionCertificate";
+  
         setFileDetails((prevDetails) => {
           const newDetails = [...prevDetails];
-          newDetails[rowIndex][column] = {
+          newDetails[rowIndex][columnKey] = {
             fileUrl: URL.createObjectURL(files[0]),
             originalName: files[0].name,
           };
           return newDetails;
         });
+  
         toast.success(`${files.length} file(s) selected`);
       } else {
         toast.error("No files selected");
       }
     } else {
-      toast.error("No cell selected"); // for when no cell is selected
+      toast.error("No cell selected");
     }
   };
+  
   
 
   // Define the getRemainingColor function
@@ -208,26 +218,24 @@ const AddButton = () => {
     setShowCalendar(false);
   };
 
-  // This function handles file input click
   const handleClick = () => {
     if (selectedCells.length === 0) {
       toast.error(t("pleaseSelectCell"));
       return;
     }
-
-    // Get the first selected cell and the corresponding row index
-    const [column, index] = selectedCells[0]?.split("-");
-    
-    // // Trigger the click event on the corresponding file input element
-    // if (fileInputRefs.current[index]) {
-    //   fileInputRefs.current[index].click();
-    // }
-    if (column && fileInputRefs.current[index]){
+  
+    // Get the row index from the selected cell
+    const [, index] = selectedCells[0]?.split("-");
+  
+    // Trigger the click event for the correct file input
+    if (fileInputRefs.current[index]) {
       fileInputRefs.current[index].click();
-    }else{
+    } else {
       toast.error("Invalid cell selection.");
     }
   };
+  
+  
 
   // This function increments year
   const incrementYear = () => {
@@ -311,9 +319,13 @@ const AddButton = () => {
   // Cell single select
   const handleCellSelect = (column, index) => {
     const cellKey = `${column}-${index}`;
-    
-    setSelectedCells([cellKey]); // Only allow one cell to be selected at a time
+  
+    // Prevent re-selecting the same cell and ensure only one cell is selected at a time
+    if (!selectedCells.includes(cellKey)) {
+      setSelectedCells([cellKey]); // Only allow one cell to be selected at a time
+    }
   };
+  
   
   const handleFileDateChange = (index, date) => {
     const updatedFileDetails = [...fileDetails];

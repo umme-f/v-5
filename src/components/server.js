@@ -1,37 +1,65 @@
-// const express = require('express');
+// server.js
+import express, { json } from 'express';
+import { connect, Schema, model } from 'mongoose';
+import { hash, compare } from 'bcryptjs';
+import { sign, verify } from 'jsonwebtoken';
+import cors from 'cors';
 
-// const app = express();
-  
-//   app.use((req, res,next)=>{
-//     res.status(200).json({
-//         message: "It is working"
-//     });    
-// });
-  
+const app = express();
+app.use(json());
+app.use(cors());  // Allows your frontend to communicate with the backend
 
-// // // API endpoint to fetch data
-// // app.get('/api/data', cors(corsOptions), async (req, res) => {
-// //   try {
-// //     // Connect to the SQL Server
-// //     await sql.connect(config);
+// Connect to MongoDB
+connect('mongodb://localhost:27017/CarManagement', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
-// //     // Query to retrieve data from a table (replace 'YourTableName' with your actual table name)
-// //     const result = await sql.query`SELECT * FROM car_demo`;
+// User schema and model
+const userSchema = new Schema({
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+});
 
-// //     // Close the connection
-// //     await sql.close();
+const User = model('User', userSchema);
 
-// //     // Send the retrieved data as a JSON response
-// //     res.json(result.recordset);
-// //   } catch (error) {
-// //     // If an error occurs, send an error response
-// //     console.error('Error fetching data:', error);
-// //     res.status(500).json({ error: 'Internal server error' });
-// //   }
-// // });
+// Register (for testing purposes)
+app.post('/register', async (req, res) => {
+  const { email, password } = req.body;
+  const hashedPassword = await hash(password, 10);
+  const newUser = new User({ email, password: hashedPassword });
+  await newUser.save();
+  res.status(201).send('User registered successfully');
+});
 
-// // // Start the server on port 5000
-// // const PORT = process.env.PORT || 5000;
-// // app.listen(PORT, () => {
-// //   console.log(`Server is running on port ${PORT}`);
-// // });
+// Login route
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  // Find user by email
+  const user = await User.findOne({ email });
+  if (!user) return res.status(400).json({ message: 'User not found' });
+
+  // Compare the password with the stored hashed password
+  const isPasswordValid = await compare(password, user.password);
+  if (!isPasswordValid) return res.status(400).json({ message: 'Invalid credentials' });
+
+  // Generate JWT token
+  const token = sign({ userId: user._id }, 'your_secret_key', { expiresIn: '1h' });
+  res.json({ token });
+});
+
+// Protected route example (after login)
+app.get('/vehicle-manager', (req, res) => {
+  const token = req.headers['authorization'].split(' ')[1];
+  if (!token) return res.status(401).send('Access denied');
+
+  verify(token, 'your_secret_key', (err, decoded) => {
+    if (err) return res.status(401).send('Invalid token');
+    res.send('Welcome to the vehicle manager page');
+  });
+});
+
+// Start the server
+const PORT = 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

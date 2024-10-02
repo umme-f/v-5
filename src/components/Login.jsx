@@ -6,6 +6,8 @@ import Footer from './Footer';
 function Login() {
   const { t, i18n } = useTranslation();
   const [language, setLanguage] = useState('jp');
+  const [selectedRow, setSelectedRow] = useState(null);
+
   const navigate = useNavigate();
 
   // Check if user is already logged in
@@ -43,18 +45,25 @@ function Login() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
+    // if(!email && !password){
+    //   alert("Enter email and password!");
+    //   return;
+    // }
+  
     // Mock login validation
-    if (email === 'pochi@example.com' || 'boku@example.com' && password === '123' ) {
-      // Save login state in localStorage
+    if ((email === 'pochi@example.com' || email === 'boku@example.com') && password === '123') {
+      // Save login state and user name in localStorage
       localStorage.setItem('loggedIn', 'true');
-
+      localStorage.setItem('loggedInUser', email === 'pochi@example.com' ? 'Pochi' : 'Boku');
+  
       // Redirect to the next page
       navigate('/vehicle-manager');
-      console.log("Login successful.")
+      console.log("Login successful.");
     } else {
       alert('Invalid email or password');
     }
   };
+  
 
   return (
     <div className="flex flex-col min-h-screen">

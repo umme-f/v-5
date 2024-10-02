@@ -77,6 +77,8 @@ i18n
           toastSelectCells: "Please select a cell.",
           upcomingUpdates: "Upcoming Updates",
           backToPreviousPage: "Back To previous page",
+          carmaker : "Car Maker Name",
+
         },
       },
       jp: {
@@ -150,7 +152,7 @@ i18n
           toastSelectCells: "セルを選択してください。",
           upcomingUpdates: "今後のアップデートのリスト",
           backToPreviousPage: "前のページに戻る",
-
+          carmaker : "自動車メーカー名",
         },
       },
     },

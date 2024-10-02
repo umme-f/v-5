@@ -25,14 +25,14 @@ const VehicleManagerTableView = () => {
   const navigate = useNavigate();
 
   const loggedInUser = {
-    name: 'A-san',
+    name: localStorage.getItem('loggedInUser') || 'Guest',
   };
 
   // Check if the user is logged in; if not, redirect to login page
   useEffect(() => {
     const loggedIn = localStorage.getItem('loggedIn');
     if (!loggedIn) {
-      navigate('/login');
+      navigate('/');
     }
   }, [navigate]);
 
@@ -170,6 +170,7 @@ const VehicleManagerTableView = () => {
   };
 
   const previousLoginPage = () => {
+    localStorage.clear();
     navigate('/');
   };
 
@@ -179,7 +180,7 @@ const VehicleManagerTableView = () => {
 
   const handleLogout = () => {
     // Remove logged-in state and redirect to login page
-    localStorage.removeItem('loggedIn');
+    localStorage.clear();
     navigate('/');
   };
 
@@ -190,7 +191,7 @@ const VehicleManagerTableView = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4 md:p-10">
       {/* Language button */}
-      <div className="absolute top-4 right-4 border border-black rounded">
+      <div className="absolute top-4 right-4 rounded">
         <button
           onClick={setJapaneseLanguage}
           className={`p-2 ${
@@ -225,12 +226,35 @@ const VehicleManagerTableView = () => {
         <UserMenuDropdown
           loggedInUser={loggedInUser}
           showDropdown={showDropdown}
-          handleUserClick={handleUserClick}
-          handleLogout={handleLogout}
+          handleUserClick={() => setShowDropdown(!showDropdown)}
+          handleLogout={() => {
+            localStorage.removeItem('loggedIn');
+            localStorage.removeItem('loggedInUser');
+            navigate('/');
+          }}
           disableUserMenu={isModalVisible}
-          closeDropdown={closeDropdown}
+          closeDropdown={() => setShowDropdown(false)}
           language={language}
         />
+      </div>
+
+      {/* Search box */}
+      <div className="w-full md:max-w-4xl">
+        <div className="flex flex-col md:flex-row items-center">
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={handleSearch}
+            className="border border-slate-200 rounded p-2 flex-grow mb-2 md:mb-0"
+          />
+          <button
+            onClick={handleSearch}
+            className="rounded p-2 bg-purple-500 text-white mb-2 md:mb-0 md:ml-2 mr-2 pr-2">
+            <FontAwesomeIcon icon={faMagnifyingGlass} className="pr-2" />
+            {t('search')}
+          </button>
+        </div>
       </div>
 
       {/* Table */}
@@ -249,6 +273,9 @@ const VehicleManagerTableView = () => {
                   </th>
                   <th className="py-2 px-4 border border-gray-300 text-center">
                     {t('carname')}
+                  </th>
+                  <th className="py-2 px-4 border border-gray-300 text-center">
+                    {t('carmaker')} {/* New Column Header */}
                   </th>
                   <th className="py-2 px-4 border border-gray-300 text-center">
                     {t('year')}
@@ -278,6 +305,9 @@ const VehicleManagerTableView = () => {
                       {row.carName}
                     </td>
                     <td className="py-2 px-4 border-r border-gray-300 text-center">
+                      {row.carMaker} 
+                    </td>
+                    <td className="py-2 px-4 border-r border-gray-300 text-center">
                       {row.year}
                     </td>
                     <td className="py-2 px-4 border-r border-gray-300 text-center">
@@ -297,45 +327,45 @@ const VehicleManagerTableView = () => {
           <button
             onClick={handlePreviousPage}
             disabled={currentPage === 0}
-            className="border border-slate-700 rounded p-4 bg-green-500 text-white rounded disabled:opacity-50"
+            className="rounded p-4 bg-green-500 text-white rounded disabled:opacity-50"
           >
             <FontAwesomeIcon icon={faChevronLeft} />
           </button>
           <button
             onClick={handleNextPage}
             disabled={currentPage >= pageCount - 1}
-            className="border border-slate-700 rounded p-4 bg-green-500 text-white rounded disabled:opacity-50"
+            className="rounded p-4 bg-green-500 text-white rounded disabled:opacity-50"
           >
             <FontAwesomeIcon icon={faChevronRight} />
           </button>
         </div>
 
-        {/*4 Buttons */}
+        {/* 4 Buttons */}
         <div className="flex space-x-4">
           <button
             onClick={addButtonClick}
-            className="border border-slate-700 rounded p-4 bg-blue-500 text-white rounded"
+            className="rounded p-4 bg-blue-500 text-white rounded"
           >
             <FontAwesomeIcon icon={faPlus} className="pr-2" />
             {t('add')}
           </button>
           <button
             onClick={editButtonClick}
-            className="border border-slate-700 rounded p-4 bg-yellow-500 text-white rounded"
+            className="rounded p-4 bg-yellow-500 text-white rounded"
           >
             <FontAwesomeIcon icon={faEdit} className="pr-2" />
             {t('edit')}
           </button>
           <button
             onClick={deleteButtonClick}
-            className="border border-slate-700 rounded p-4 bg-red-500 text-white rounded"
+            className="rounded p-4 bg-red-500 text-white rounded"
           >
             <FontAwesomeIcon icon={faTrashCan} className="pr-2" />
             {t('delete')}
           </button>
           <button
             onClick={previousLoginPage}
-            className="border border-slate-700 rounded p-4 bg-gray-500 text-white rounded"
+            className="rounded p-4 bg-gray-500 text-white rounded"
           >
             <FontAwesomeIcon icon={faCircleArrowLeft} className="pr-2" />
             {t('previousPage')}

@@ -44,6 +44,7 @@ const AddButton = () => {
   const [showCarMakers, setShowCarMakers] = useState(false);
   const [showCarNames, setShowCarNames] = useState(false);
   const [fileCalendars, setFileCalendars] = useState({});
+  const carMakerRef = useRef(null);
   const carNameRef = useRef(null);
   const [validation, setValidation] = useState({
     carId: true,
@@ -90,6 +91,22 @@ const AddButton = () => {
     localStorage.setItem("selectedLanguage", lang);
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (carMakerRef.current && !carMakerRef.current.contains(event.target)) {
+        setShowCarMakers(false);
+      }
+      if (carNameRef.current && !carNameRef.current.contains(event.target)) {
+        setShowCarNames(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
   // This function handles form submission (Add button)
   const handleAdd = (e) => {
     e.preventDefault();
@@ -300,12 +317,14 @@ const AddButton = () => {
   // This function shows the dropdown list of car maker
   const handleCarMakerButtonClick = () => {
     setShowCarMakers((prev) => !prev);
+    // setShowCarNames(false) --> This disables the other dropdown when this one os open
     setShowCarNames(false);
   };
 
   // This function shows the dropdown list of car name
   const handleCarNameButtonClick = () => {
     setShowCarNames((prev) => !prev);
+    // setShowCarMakers(false) --> This disables the other dropdown when this one os open
     setShowCarMakers(false);
   };
 
@@ -497,7 +516,7 @@ const AddButton = () => {
         </div>
 
         {/* Car Maker Name */}
-        <div className="mb-4 relative">
+        <div className="mb-4 relative" ref={carMakerRef}>
           <label
             className={`after:content-['*'] after:ml-0.5 after:text-red-500 block text-gray-700 text-sm font-bold mb-2 ${
               !validation.carName ? "text-red-500" : ""
@@ -543,7 +562,7 @@ const AddButton = () => {
         </div>
 
         {/* Car Name */}
-        <div className="mb-4 relative">
+        <div className="mb-4 relative" ref={carNameRef}>
           <label
             className={`block text-gray-700 text-sm font-bold mb-2 after:content-['*'] after:ml-0.5 after:text-red-500 block ${
               !validation.carName ? "text-red-500" : ""

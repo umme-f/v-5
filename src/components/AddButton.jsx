@@ -44,8 +44,11 @@ const AddButton = () => {
   const [showCarMakers, setShowCarMakers] = useState(false);
   const [showCarNames, setShowCarNames] = useState(false);
   const [fileCalendars, setFileCalendars] = useState({});
+  const [showFirstCalendar, setShowFirstCalendar] = useState(false);
+  const [showSecondCalendar, setShowSecondCalendar] = useState(false);
   const carMakerRef = useRef(null);
   const carNameRef = useRef(null);
+  const calendarRef = useRef(null);
   const [validation, setValidation] = useState({
     carId: true,
     carName: true,
@@ -107,6 +110,31 @@ const AddButton = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  // Click out side scenario for the calendars
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (calendarRef.current && !calendarRef.current.contains(event.target)) {
+        setShowCalendar(false);
+      }
+    };
+
+    // Add event listener when the calendar is open
+    if (showCalendar) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    // Cleanup listener on unmount
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showCalendar]);
+
+  
+  
+
   // This function handles form submission (Add button)
   const handleAdd = (e) => {
     e.preventDefault();
@@ -199,7 +227,17 @@ const AddButton = () => {
     }
   };
   
-  
+   // Toggle first calendar
+  //  const toggleFirstCalendar = () => {
+  //   setShowFirstCalendar(!showFirstCalendar);
+  //   setShowSecondCalendar(false); // Close second calendar if open
+  // };
+
+  // // Toggle second calendar
+  // const toggleSecondCalendar = () => {
+  //   setShowSecondCalendar(!showSecondCalendar);
+  //   setShowFirstCalendar(false); // Close first calendar if open
+  // };
 
   // Define the getRemainingColor function
   const getRemainingColor = (remaining) => {
@@ -443,7 +481,7 @@ const AddButton = () => {
               </button>
             </div>
             {fileCalendars[index] && (
-              <div className="absolute left-0 mt-2 z-20">
+              <div className="absolute left-0 mt-2 z-20" ref={calendarRef}> 
                 <Calendar
                   onChange={(date) => handleFileDateChange(index, date)}
                   value={value ? new Date(value) : new Date()}
@@ -451,6 +489,7 @@ const AddButton = () => {
                   calendarType="gregory"
                   // The "formatDay={(locale, date) => date.getDate()}" removes the day kanji from the calender
                   formatDay={(locale, date) => date.getDate()}
+                  
                   className="border rounded-lg shadow-lg"
                 />
               </div>
@@ -727,7 +766,7 @@ const AddButton = () => {
         </div>
 
         {/* Next Update Date */}
-        <div className="mb-4 relative">
+        <div className="mb-4 relative" ref={calendarRef}>
           <div className="mb-4 flex items-center">
             <input
               type="checkbox"

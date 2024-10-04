@@ -449,6 +449,8 @@ const AddButton = () => {
                   value={value ? new Date(value) : new Date()}
                   locale="ja-JP"
                   calendarType="gregory"
+                  // The "formatDay={(locale, date) => date.getDate()}" removes the day kanji from the calender
+                  formatDay={(locale, date) => date.getDate()}
                   className="border rounded-lg shadow-lg"
                 />
               </div>

@@ -19,10 +19,10 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useTable } from "react-table";
 import { useNavigate } from "react-router-dom";
-import { CAR_MAKER, CAR_NAME, DAY_OF_THE_WEEK_JP } from "../variables/variable";
+import { CAR_MAKER, CAR_NAME, maxLength } from "../variables/variable";
 
 const AddButton = () => {
-  const maxLength = 20;
+  // const maxLength = 20;
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
@@ -48,7 +48,10 @@ const AddButton = () => {
   const [showSecondCalendar, setShowSecondCalendar] = useState(false);
   const carMakerRef = useRef(null);
   const carNameRef = useRef(null);
-  const calendarRef = useRef(null);
+  const fileCalendarRef = useRef({}); // Ref for file calendars
+   // Reference for multiple file inputs
+   const fileInputRefs = useRef([]);
+
   const [validation, setValidation] = useState({
     carId: true,
     carName: true,
@@ -70,8 +73,7 @@ const AddButton = () => {
     }];
   });
   
-  // Reference for multiple file inputs
-  const fileInputRefs = useRef([]);  
+
 
   // useEffect to load saved language from localStorage
   useEffect(() => {
@@ -114,23 +116,29 @@ const AddButton = () => {
   // Click out side scenario for the calendars
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (calendarRef.current && !calendarRef.current.contains(event.target)) {
+      if (fileCalendarRef.current && !fileCalendarRef.current.contains(event.target)) {
         setShowCalendar(false);
       }
+
+      // Handle clicks outside file calendars
+      Object.keys(fileCalendarRef.current).forEach((index) => {
+        if (
+          fileCalendarRef.current[index] &&
+          !fileCalendarRef.current[index].contains(event.target)
+        ) {
+          setFileCalendars((prev) => ({
+            ...prev,
+            [index]: false,
+          }));
+        }
+      });
     };
 
-    // Add event listener when the calendar is open
-    if (showCalendar) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-
-    // Cleanup listener on unmount
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showCalendar]);
+  }, []);
 
   
   
@@ -261,7 +269,11 @@ const AddButton = () => {
   const toggleCalendar = () => {
     setShowCalendar(!showCalendar);
   };
-
+  // Toggles file calendar
+  const toggleFileCalendar = (index) => {
+    setFileCalendars((prev) => ({ ...prev, [index]: !prev[index] }));
+  };
+  
   // This function handles date selection from the calendar
   const handleDateChange = (date) => {
     setCarDetails((prevDetails) => ({ ...prevDetails, date }));
@@ -405,10 +417,7 @@ const AddButton = () => {
     localStorage.setItem("fileDetails", JSON.stringify(updatedFileDetails));
   };
 
-  // Toggle calendar
-  const toggleFileCalendar = (index) => {
-    setFileCalendars((prev) => ({ ...prev, [index]: !prev[index] }));
-  };
+
   
 
   // Update data to be based on fileDetails
@@ -481,7 +490,7 @@ const AddButton = () => {
               </button>
             </div>
             {fileCalendars[index] && (
-              <div className="absolute left-0 mt-2 z-20" ref={calendarRef}> 
+              <div className="absolute left-0 mt-2 z-20" ref={(el)=>(fileCalendarRef.current[index] = el)}> 
                 <Calendar
                   onChange={(date) => handleFileDateChange(index, date)}
                   value={value ? new Date(value) : new Date()}
@@ -766,7 +775,7 @@ const AddButton = () => {
         </div>
 
         {/* Next Update Date */}
-        <div className="mb-4 relative" ref={calendarRef}>
+        <div className="mb-4 relative" ref={fileCalendarRef}>
           <div className="mb-4 flex items-center">
             <input
               type="checkbox"
@@ -815,9 +824,7 @@ const AddButton = () => {
               value={carDetails.date}
               locale="ja-JP"
               calendarType="gregory"
-              formatShortWeekday={(locale, date) =>
-                DAY_OF_THE_WEEK_JP[date.getDay()]
-              }
+              
               formatDay={(locale, date) => date.getDate()}
               className="border rounded-lg shadow-lg mt-2"
             />
@@ -826,58 +833,28 @@ const AddButton = () => {
 
         {/* Table */}
         <div className="mt-4 border-2 border-gray-300 rounded p-4 mb-2">
-          <table {...getTableProps()} className="w-full">
+        <table {...getTableProps()} className="w-full">
             <thead>
-              {headerGroups.map((headerGroup) => {
-                const { key, ...rest } = headerGroup.getHeaderGroupProps();
-                return (
-                  <tr key={key} {...rest}>
-                    {headerGroup.headers.map((column) => {
-                      const { key, ...rest } = column.getHeaderProps();
-                      return (
-                        <th key={key} {...rest} className="border p-2">
-                          {column.render("Header")}
-                        </th>
-                      );
-                    })}
-                  </tr>
-                );
-              })}
+              {headerGroups.map((headerGroup) => (
+                <tr {...headerGroup.getHeaderGroupProps()}>
+                  {headerGroup.headers.map((column) => (
+                    <th {...column.getHeaderProps()} className="border p-2">
+                      {column.render("Header")}
+                    </th>
+                  ))}
+                </tr>
+              ))}
             </thead>
             <tbody {...getTableBodyProps()}>
               {rows.map((row) => {
                 prepareRow(row);
-                const { key, ...rest } = row.getRowProps();
                 return (
-                  <tr
-                    key={key}
-                    {...rest}
-                    className={`cursor-pointer ${
-                      selectedCells.some(cellKey => cellKey.endsWith(`-${row.index}`)) ? "bg-blue-300" : ""
-                    }`}
-                  >
-                    {row.cells.map((cell) => {
-                      let cellProps = { ...cell.getCellProps() };
-                      const { key, ...rest } = cellProps;
-                      return (
-                        <td
-                          key={key}
-                          {...rest}
-                          className={`border p-2 bg-gray-200${
-                            selectedCells.includes(
-                              `${cell.column.id}-${row.index}`
-                            )
-                              ? " bg-slate-300 "
-                              : ""
-                          }`}
-                          onClick={() =>
-                            handleCellSelect(cell.column.id, row.index)
-                          }
-                        >
-                          {cell.render("Cell")}
-                        </td>
-                      );
-                    })}
+                  <tr {...row.getRowProps()} className={`cursor-pointer ${selectedCells.some(cellKey => cellKey.endsWith(`-${row.index}`)) ? "bg-blue-300" : ""}`}>
+                    {row.cells.map((cell) => (
+                      <td {...cell.getCellProps()} className={`border p-2 bg-gray-200${selectedCells.includes(`${cell.column.id}-${row.index}`) ? " bg-slate-300 " : ""}`} onClick={() => handleCellSelect(cell.column.id, row.index)}>
+                        {cell.render("Cell")}
+                      </td>
+                    ))}
                   </tr>
                 );
               })}

@@ -15,6 +15,7 @@ import EditButton from './components/EditButton';
 import CarNotification from './components/CarNotification';
 import CarDetails from './components/CarDetails';
 import UserMenuDropdown from './components/UserMenuDropdown';
+import MoreInformation from './components/moreInformation';
 import 'regenerator-runtime/runtime';
 
 const router = createBrowserRouter([
@@ -64,6 +65,10 @@ const router = createBrowserRouter([
   {
     path: "/usermenudropdown",
     element: <UserMenuDropdown />,
+  },
+  {
+    path: "/more-information",
+    element: <MoreInformation />,
   },
   {
     path: "*",

@@ -40,29 +40,50 @@ function Login() {
   };
 
   // Handle login
-  const handleSuccessfulLogin = async (event) => {
-    event.preventDefault();
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+  // Handle login
+const handleSuccessfulLogin = async (event) => {
+  event.preventDefault();
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
 
-    // if(!email && !password){
-    //   alert("Enter email and password!");
-    //   return;
-    // }
-  
-    // Mock login validation
-    if ((email === 'pochi@example.com' || email === 'boku@example.com') && password === '123') {
-      // Save login state and user name in localStorage
+  try {
+    // Make a POST request to the /auth/token endpoint
+    const response = await fetch('http://192.168.1.171:8000/auth/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        grant_type: 'password',  // Depending on your API, grant_type might be optional
+        username: email,
+        password: password,
+        // Optionally include client_id, client_secret, and scope if required by your API
+        client_id: 'your-client-id',
+        client_secret: 'your-client-secret',
+        scope: '',  // if required, otherwise remove it
+      }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      // Save the token (you could store it in localStorage or a secure cookie)
+      localStorage.setItem('token', data.access_token);
+      
+      // Save login state
       localStorage.setItem('loggedIn', 'true');
       localStorage.setItem('loggedInUser', email === 'pochi@example.com' ? 'Pochi' : 'Boku');
-  
+      
       // Redirect to the next page
       navigate('/vehicle-manager');
-      console.log("Login successful.");
     } else {
-      alert('Invalid email or password');
+      alert('Invalid login credentials.');
     }
-  };
+  } catch (error) {
+    console.error('Error during login:', error);
+    alert('There was an error with the login process.');
+  }
+};
+
   
 
   return (

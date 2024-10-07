@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faChevronRight, faPlus, faEdit, faTrashCan, faMagnifyingGlass, faCircleArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faChevronLeft, faChevronRight, faPlus, faEdit, faTrashCan, faMagnifyingGlass, faCircleInfo } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import data from './data.json';
 import CarNotification from './CarNotification';
@@ -169,9 +169,11 @@ const VehicleManagerTableView = () => {
     localStorage.setItem('selectedLanguage', 'en');
   };
 
-  const previousLoginPage = () => {
-    localStorage.clear();
-    navigate('/');
+  /**
+   * To a new page with details
+   */
+  const moreInformation = () => {
+    navigate('/more-information');
   };
 
   const handleUserClick = () => {
@@ -364,11 +366,11 @@ const VehicleManagerTableView = () => {
             {t('delete')}
           </button>
           <button
-            onClick={previousLoginPage}
+            onClick={moreInformation}
             className="rounded p-4 bg-gray-500 text-white rounded"
           >
-            <FontAwesomeIcon icon={faCircleArrowLeft} className="pr-2" />
-            {t('previousPage')}
+            <FontAwesomeIcon icon={faCircleInfo} className="pr-2" />
+            {t('moreInformation')}
           </button>
         </div>
       </div>

@@ -20,7 +20,7 @@ i18n
           edit: "Edit",
           delete: "Delete",
           role: "Role",
-          previousPage: "Previous Page",
+          moreInformation: "More Information",
           editcar: "Edit Car",
           carID: " Car ID",
           carname: "Car Name",
@@ -78,7 +78,8 @@ i18n
           upcomingUpdates: "Upcoming Updates",
           backToPreviousPage: "Back To previous page",
           carmaker : "Car Maker Name",
-
+          VehicleDetails: "Vehicle Details",
+          ReadMore: "Read More",
         },
       },
       jp: {
@@ -94,7 +95,7 @@ i18n
           add: "車を追加",
           edit: "編集する",
           delete: "デリート",
-          previousPage: "前のページ",
+          moreInformation: "詳細情報",
           editcar: "車を編集",
           carID: " 車のID",
           carname: "車名",
@@ -153,6 +154,9 @@ i18n
           upcomingUpdates: "今後のアップデートのリスト",
           backToPreviousPage: "前のページに戻る",
           carmaker : "自動車メーカー名",
+          VehicleDetails: "車両の詳細",
+          ReadMore: "続きを読む",
+
         },
       },
     },

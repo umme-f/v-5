@@ -4,6 +4,7 @@ import { faFloppyDisk, faBan, faTimes, faAngleDown, faCaretUp, faCaretDown } fro
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Calendar from 'react-calendar';
 import { useTranslation } from 'react-i18next';
+import {CAR_NAME} from '../variables/variable'
 import 'react-calendar/dist/Calendar.css';
 import './customCalendar.css'; // Import the custom CSS file
 
@@ -227,7 +228,7 @@ const setEnglishLanguage = () => {
             </div>
             {showCarMakers && (
               <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto">
-                {['Toyota', 'Honda', 'Ford', 'Chevrolet', 'BMW'].map((maker, index) => (
+                {CAR_NAME.map((maker, index) => (
                   <li
                     key={index}
                     onMouseDown={() => handleCarMakerSelect(maker)}

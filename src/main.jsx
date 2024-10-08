@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { I18nextProvider } from 'react-i18next';
+import 'regenerator-runtime/runtime';
 import i18n from './i18n';  // Import i18n configuration
 import Login from './components/Login';
 import AfterLogin from './components/AfterLogin';
@@ -16,7 +17,7 @@ import CarNotification from './components/CarNotification';
 import CarDetails from './components/CarDetails';
 import UserMenuDropdown from './components/UserMenuDropdown';
 import MoreInformation from './components/moreInformation';
-import 'regenerator-runtime/runtime';
+import VehicleDetails from './components/VehicleDetails';
 
 const router = createBrowserRouter([
   {
@@ -69,6 +70,10 @@ const router = createBrowserRouter([
   {
     path: "/more-information",
     element: <MoreInformation />,
+  },
+  {
+    path: "/vehicle-details",
+    element: <VehicleDetails />,
   },
   {
     path: "*",

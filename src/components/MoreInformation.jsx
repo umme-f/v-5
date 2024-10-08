@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next"; //useTranslation hook
+import { Navigate, useNavigate } from 'react-router-dom';
+
 
 const MoreInformation = () => {
   const { t, i18n } = useTranslation();
   const [language, setLanguage] = useState("jp");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem("selectedLanguage");
@@ -24,6 +27,9 @@ const MoreInformation = () => {
     i18n.changeLanguage("en");
     setLanguage("en");
     localStorage.setItem("selectedLanguage", "en");
+  };
+  const toVehicleDetails = () =>{
+    navigate('/vehicle-details');
   };
 
   return (
@@ -50,11 +56,11 @@ const MoreInformation = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Vehicle details */}
         <div className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-          <a href="#">
-            <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white p-5">
+          
+            <button className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white p-5" onClick={toVehicleDetails}>
               {t("VehicleDetails")}
-            </h5>
-          </a>
+            </button>
+          
           {/* Center the button */}
           <div className="flex justify-center">
             <a

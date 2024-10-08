@@ -44,8 +44,6 @@ const AddButton = () => {
   const [showCarMakers, setShowCarMakers] = useState(false);
   const [showCarNames, setShowCarNames] = useState(false);
   const [fileCalendars, setFileCalendars] = useState({});
-  const [showFirstCalendar, setShowFirstCalendar] = useState(false);
-  const [showSecondCalendar, setShowSecondCalendar] = useState(false);
   const carMakerRef = useRef(null);
   const carNameRef = useRef(null);
   const fileCalendarRef = useRef({}); // Ref for file calendars

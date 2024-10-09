@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -12,7 +13,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Your routes go here
-@app.post("http://192.168.1.171:8000/api/load_vehicle")
+# Define the request body model based on the expected schema
+class VehicleApp(BaseModel):
+    vehicle_no: int
+    vehicle_license: str
+    supplier_no: int
+
+# Define the API endpoint
+@app.post("/api/load_vehicle")
 async def load_vehicle(vehicle: VehicleApp):
-    return {"message": "Vehicle loaded successfully!"}
+    return {"message": f"Vehicle {vehicle.vehicle_license} loaded successfully!"}

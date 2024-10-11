@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next"; // Localization hook
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 
 const VehicleDetails = () => {
   const { t } = useTranslation();
@@ -8,19 +10,20 @@ const VehicleDetails = () => {
   const [formData, setFormData] = useState({
     vehicle_no: "",
     vehicle_license: "",
-    supplier_no: ""
+    supplier_no: "",
   });
 
-  // State for response messages
+  // State for response messages and vehicle data
   const [responseMessage, setResponseMessage] = useState(null);
   const [vehicleData, setVehicleData] = useState([]); // For displaying vehicle data
+  const [searchTerm, setSearchTerm] = useState(""); // State for search term
 
   // Handle form input change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value
+      [name]: value,
     });
   };
 
@@ -28,23 +31,17 @@ const VehicleDetails = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Ensure that vehicle_no and supplier_no are valid and non-zero
     const vehicleData = {
       vehicle_no: parseInt(formData.vehicle_no, 10),
       vehicle_license: formData.vehicle_license,
       supplier_no: parseInt(formData.supplier_no, 10),
     };
 
-    // Validate vehicle_no and supplier_no before sending
     if (vehicleData.vehicle_no === 0 || vehicleData.supplier_no === 0) {
       setResponseMessage("Vehicle No and Supplier No cannot be 0.");
       return;
     }
 
-    // Log the data to verify before submitting
-    console.log("Data being sent:", vehicleData);
-
-    // POST request to FastAPI backend
     fetch("http://localhost:8000/api/load_vehicle", {
       method: "POST",
       headers: {
@@ -55,17 +52,20 @@ const VehicleDetails = () => {
       .then((response) => {
         if (!response.ok) {
           return response.json().then((data) => {
-            throw new Error(`HTTP error! Status: ${response.status} - ${data.detail}`);
+            throw new Error(
+              `HTTP error! Status: ${response.status} - ${data.detail}`
+            );
           });
         }
         return response.json();
       })
       .then((data) => {
-        setResponseMessage(`Vehicle loaded successfully: ${JSON.stringify(data)}`);
+        setResponseMessage(
+          `Vehicle loaded successfully: ${JSON.stringify(data)}`
+        );
         fetchVehicleData(); // Fetch the updated vehicle data after submission
       })
       .catch((error) => {
-        console.error("Error in submission:", error);
         setResponseMessage(`Error: ${error.message}`);
       });
   };
@@ -82,19 +82,61 @@ const VehicleDetails = () => {
       });
   };
 
-  // Fetch the vehicle data when the component mounts
   useEffect(() => {
     fetchVehicleData();
   }, []);
 
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  // Check if a row matches the search term
+  const isRowMatching = (vehicle) => {
+    // Only return true if searchTerm is not empty and a match is found
+    if (!searchTerm.trim()) return false; // If searchTerm is empty, no rows should be highlighted
+
+    return (
+      vehicle.vehicle_no.toString().includes(searchTerm) ||
+      vehicle.vehicle_license
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      vehicle.supplier_no.toString().includes(searchTerm)
+    );
+  };
+
   return (
     <div className="container mx-auto p-4">
-      <h2 className="text-xl font-bold mb-4">{t("Load Vehicle Form")}</h2>
+      <div className="flex flex-col md:flex-row md:justify-between items-center gap-5">
+        <h2 className="text-2xl font-bold mb-4 md:mb-0">
+          {t("Load Vehicle Form")}
+        </h2>
+
+        {/* Search box */}
+        <div className="w-full md:max-w-4xl md:w-auto">
+          <div className="flex gap-5">
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+              className="border border-slate-200 rounded p-2 flex-grow mb-2 md:mb-0"
+            />
+            <button className="rounded p-2 bg-purple-500 text-white mb-2 md:mb-0">
+              <FontAwesomeIcon icon={faMagnifyingGlass} className="pr-2" />
+              {t("search")}
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* Form */}
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="vehicle_no">
+          <label
+            className="block text-gray-700 text-sm font-bold mb-2"
+            htmlFor="vehicle_no"
+          >
             {t("Vehicle No")}
           </label>
           <input
@@ -109,7 +151,10 @@ const VehicleDetails = () => {
         </div>
 
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="vehicle_license">
+          <label
+            className="block text-gray-700 text-sm font-bold mb-2"
+            htmlFor="vehicle_license"
+          >
             {t("Vehicle License")}
           </label>
           <input
@@ -124,7 +169,10 @@ const VehicleDetails = () => {
         </div>
 
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="supplier_no">
+          <label
+            className="block text-gray-700 text-sm font-bold mb-2"
+            htmlFor="supplier_no"
+          >
             {t("Supplier No")}
           </label>
           <input
@@ -152,6 +200,7 @@ const VehicleDetails = () => {
           {responseMessage}
         </div>
       )}
+
       <hr className="w-48 h-1 mx-auto my-4 bg-gray-100 border-0 rounded md:my-10 dark:bg-gray-700"></hr>
 
       {/* Display vehicle data */}
@@ -168,9 +217,16 @@ const VehicleDetails = () => {
             </thead>
             <tbody>
               {vehicleData.map((vehicle, index) => (
-                <tr key={index} className="bg-gray-100">
+                <tr
+                  key={index}
+                  className={
+                    isRowMatching(vehicle) ? "bg-yellow-200" : "bg-gray-100"
+                  }
+                >
                   <td className="border px-4 py-2">{vehicle.vehicle_no}</td>
-                  <td className="border px-4 py-2">{vehicle.vehicle_license}</td>
+                  <td className="border px-4 py-2">
+                    {vehicle.vehicle_license}
+                  </td>
                   <td className="border px-4 py-2">{vehicle.supplier_no}</td>
                 </tr>
               ))}

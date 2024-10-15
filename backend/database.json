@@ -1,0 +1,75 @@
+{
+    "vehicles": [
+      {
+        "vehicle_id": 1,
+        "vehicle_no": "12345",
+        "license_plate": "ABC-123",
+        "supplier_id": 111,
+        "maker_id": 201,
+        "car_name": "Toyota Prius",
+        "shape": "Sedan",
+        "spec": "Hybrid",
+        "introduce_type": "purchase",  
+        "purchase_date": "2022-01-15",
+        "lease_start_date": null,
+        "lease_end_date": null,
+        "first_inspection_date": "2023-01-15",
+        "registration_date": "2022-01-16",
+        "next_inspection_date": "2024-01-15",
+        "etc_card_no": "1234567890",
+        "fuel_card_no_TOKO": "TOKO123456",
+        "fuel_card_no_eneos": "ENEOS789456",
+        "last_maintenance_milage": 30000,
+        "last_maintenance_date": "2023-07-15",
+        "maintenance_interval_milage": 10000,
+        "maintenance_interval_month": 12,
+        "last_driving_date": "2023-08-01",
+        "last_milage": 32000
+      }
+    ],
+    "vehicle_managers": [
+      {
+        "vehicle_id": 1,
+        "company_id": 301,
+        "employee_id": 501,
+        "start_date": "2023-01-01",
+        "end_date": null
+      }
+    ],
+    "suppliers": [
+      {
+        "supplier_id": 111,
+        "supplier_name": "Toyota Supplier Co.",
+        "receptionist": "John Doe",
+        "tel_no": "555-123-4567"
+      }
+    ],
+    "inspections": [
+      {
+        "vehicle_id": 1,
+        "inspection_date": "2023-01-15",
+        "compulsory_insurance_certificate": "cert123456",
+        "vehicle_inspection_certificate": "inspec789101"
+      }
+    ],
+    "vehicle_repairs": [
+      {
+        "vehicle_id": 1,
+        "repair_date": "2023-06-20",
+        "repair_cost": 500,
+        "repair_reason": "Engine malfunction",
+        "repair_content": "Replaced engine components",
+        "receipt": "receipt_001"
+      }
+    ],
+    "vehicle_maintenance": [
+      {
+        "vehicle_id": 1,
+        "maintenance_date": "2023-07-15",
+        "maintenance_cost": 200,
+        "content": "Oil change and tire rotation",
+        "receipt": "receipt_002"
+      }
+    ]
+  }
+  

@@ -38,7 +38,7 @@ const VehicleDetails = () => {
     };
 
     if (vehicleData.vehicle_no === 0 || vehicleData.supplier_no === 0) {
-      setResponseMessage("Vehicle No and Supplier No cannot be 0.");
+      setResponseMessage("Vehicle No. and Supplier No cannot be 0.");
       return;
     }
 

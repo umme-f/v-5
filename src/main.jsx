@@ -18,6 +18,7 @@ import CarDetails from './components/CarDetails';
 import UserMenuDropdown from './components/UserMenuDropdown';
 import MoreInformation from './components/moreInformation';
 import VehicleDetails from './components/VehicleDetails';
+import SupplierDetails from './components/SupplierDetails';
 
 const router = createBrowserRouter([
   {
@@ -74,6 +75,10 @@ const router = createBrowserRouter([
   {
     path: "/vehicle-details",
     element: <VehicleDetails />,
+  },
+  {
+    path: "/supplier-details",
+    element: <SupplierDetails />,
   },
   {
     path: "*",

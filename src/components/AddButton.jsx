@@ -22,7 +22,6 @@ import { useNavigate } from "react-router-dom";
 import { CAR_MAKER, CAR_NAME, maxLength } from "../variables/variable";
 
 const AddButton = () => {
-  // const maxLength = 20;
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
@@ -36,6 +35,8 @@ const AddButton = () => {
     lastMileage: 0,
     carType: "",
     date: new Date(),
+    licensePlate: "", // New field for License Plate
+    managerName: "", // New field for Manager Name
   });
   const [isChecked, setIsChecked] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
@@ -46,9 +47,8 @@ const AddButton = () => {
   const [fileCalendars, setFileCalendars] = useState({});
   const carMakerRef = useRef(null);
   const carNameRef = useRef(null);
-  const fileCalendarRef = useRef({}); // Ref for file calendars
-   // Reference for multiple file inputs
-   const fileInputRefs = useRef([]);
+  const fileCalendarRef = useRef({});
+  const fileInputRefs = useRef([]);
 
   const [validation, setValidation] = useState({
     carId: true,
@@ -58,22 +58,25 @@ const AddButton = () => {
     date: true,
     fileDates: true,
     year: true,
+    licensePlate: true, // Validation for License Plate
+    managerName: true,  // Validation for Manager Name
   });
-  const [isYearChanged, setIsYearChanged] = useState(false);
+
   const [isSavePressed, setIsSavePressed] = useState(false);
-  const [selectedCells, setSelectedCells] = useState([]); // Allows multiple cells to be selected
+  const [selectedCells, setSelectedCells] = useState([]);
   const [fileDetails, setFileDetails] = useState(() => {
-    const savedDetails = localStorage.getItem('fileDetails');
-    return savedDetails ? JSON.parse(savedDetails) : [{
-      compulsoryInsuranceCertificate: null,
-      vehicleInspectionCertificate: null,
-      date: null,
-    }];
+    const savedDetails = localStorage.getItem("fileDetails");
+    return savedDetails
+      ? JSON.parse(savedDetails)
+      : [
+          {
+            compulsoryInsuranceCertificate: null,
+            vehicleInspectionCertificate: null,
+            date: null,
+          },
+        ];
   });
-  
 
-
-  // useEffect to load saved language from localStorage
   useEffect(() => {
     const savedLanguage = localStorage.getItem("selectedLanguage");
     if (savedLanguage) {
@@ -82,457 +85,33 @@ const AddButton = () => {
     }
   }, [i18n]);
 
-  //useEffect to save fileDetails to localStorage on change
   useEffect(() => {
-    localStorage.setItem('fileDetails', JSON.stringify(fileDetails));
+    localStorage.setItem("fileDetails", JSON.stringify(fileDetails));
   }, [fileDetails]);
 
-  // This function handles language change
   const handleLanguageChange = (lang) => {
     i18n.changeLanguage(lang);
     setLanguage(lang);
     localStorage.setItem("selectedLanguage", lang);
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (carMakerRef.current && !carMakerRef.current.contains(event.target)) {
-        setShowCarMakers(false);
-      }
-      if (carNameRef.current && !carNameRef.current.contains(event.target)) {
-        setShowCarNames(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  // Click out side scenario for the calendars
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (fileCalendarRef.current && !fileCalendarRef.current.contains(event.target)) {
-        setShowCalendar(false);
-      }
-
-      // Handle clicks outside file calendars
-      Object.keys(fileCalendarRef.current).forEach((index) => {
-        if (
-          fileCalendarRef.current[index] &&
-          !fileCalendarRef.current[index].contains(event.target)
-        ) {
-          setFileCalendars((prev) => ({
-            ...prev,
-            [index]: false,
-          }));
-        }
-      });
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  
-  
-
-  // This function handles form submission (Add button)
   const handleAdd = (e) => {
     e.preventDefault();
-    if (selectedCells.length === 0) {
-      toast.error(t("pleaseSelectCell"));
-      return;
-    }
     setIsSavePressed(true);
-    // console.log({ carDetails });
   };
 
-  const handleCarMakerSelect = (maker) => {
-    setSelectedCarMaker(maker);
-    setShowCarMakers(false);
-  };
-
-   // This function deletes selected files
-  const deleteSelectedFiles = () => {
-    if (selectedCells.length === 0) {
-      toast.error(t("noDataInCell"));
-      return;
-    }
-    selectedCells.forEach((cellKey) => {
-      const [column, index] = cellKey.split("-");
-      deleteFile(Number(index), column);
-    });
-    setSelectedCells([]);
-    toast.success(t("toastDeleteSuccess"));
-  };
-
-  // This function adds a new row to the table
-  const handleAddRow = () => {
-    setFileDetails((prevDetails) => [
-      ...prevDetails,
-      {
-        compulsoryInsuranceCertificate: null,
-        vehicleInspectionCertificate: null,
-        date: null,
-      },
-    ]);
-  };
-
-  // When there are multiple rows but you want to delete one
-  const handleDeleteRowToggle = () => {
-    if (selectedCells.length > 0) {
-      const rowIndex = parseInt(selectedCells[0].split('-')[1]);
-      deleteRow(rowIndex);
-      setSelectedCells([]);
-    } else {
-      toast.error(t("toastSelectRow"));
-    }
-  };
-
-  // Delete a row
-  const deleteRow = (rowIndex) => {
-    console.log("Deleting row at index:", rowIndex);
-    setFileDetails((prevDetails) =>
-      prevDetails.filter((_, index) => index !== rowIndex)
-    );
-    toast.success(t("deleteRowMessage"));
-  };
-  
-
-  const handleFileChange = (e, rowIndex) => {
-    const files = e.target.files;
-    if (selectedCells.length > 0) {
-      if (files && files.length > 0) {
-        // Determine which column is being updated
-        const [column] = selectedCells[0]?.split("-");
-        const columnKey =
-          column === "compulsoryInsuranceCertificate"
-            ? "compulsoryInsuranceCertificate"
-            : "vehicleInspectionCertificate";
-  
-        setFileDetails((prevDetails) => {
-          const newDetails = [...prevDetails];
-          newDetails[rowIndex][columnKey] = {
-            fileUrl: URL.createObjectURL(files[0]),
-            originalName: files[0].name,
-          };
-          return newDetails;
-        });
-  
-        toast.success(`${files.length} file(s) selected`);
-      } else {
-        toast.error("No files selected");
-      }
-    } else {
-      toast.error("No cell selected");
-    }
-  };
-  
-   // Toggle first calendar
-  //  const toggleFirstCalendar = () => {
-  //   setShowFirstCalendar(!showFirstCalendar);
-  //   setShowSecondCalendar(false); // Close second calendar if open
-  // };
-
-  // // Toggle second calendar
-  // const toggleSecondCalendar = () => {
-  //   setShowSecondCalendar(!showSecondCalendar);
-  //   setShowFirstCalendar(false); // Close first calendar if open
-  // };
-
-  // Define the getRemainingColor function
-  const getRemainingColor = (remaining) => {
-    return remaining <= 10
-      ? "text-red-500 font-bold"
-      : "text-green-500 font-bold";
-  };
-
-  // This function handles car name selection from dropdown
-  const handleCarNameSelect = (name) => {
-    setCarDetails((prevDetails) => ({ ...prevDetails, carName: name }));
-    setShowCarNames(false);
-  };
-
-  // This function handles checkbox toggle
-  const handleCheckBox = () => {
-    setIsChecked(!isChecked);
-  };
-
-  // This function toggles calendar visibility
-  const toggleCalendar = () => {
-    setShowCalendar(!showCalendar);
-  };
-  // Toggles file calendar
-  const toggleFileCalendar = (index) => {
-    setFileCalendars((prev) => ({ ...prev, [index]: !prev[index] }));
-  };
-  
-  // This function handles date selection from the calendar
-  const handleDateChange = (date) => {
-    setCarDetails((prevDetails) => ({ ...prevDetails, date }));
-    setShowCalendar(false);
-  };
-
-  // This function clears selected date
-  const clearDate = () => {
-    setCarDetails((prevDetails) => ({ ...prevDetails, date: null }));
-    setShowCalendar(false);
-  };
-
-  const handleClick = () => {
-    if (selectedCells.length === 0) {
-      toast.error(t("pleaseSelectCell"));
-      return;
-    }
-  
-    // Get the row index from the selected cell
-    const [, index] = selectedCells[0]?.split("-");
-  
-    // Trigger the click event for the correct file input
-    if (fileInputRefs.current[index]) {
-      fileInputRefs.current[index].click();
-    } else {
-      toast.error("Invalid cell selection.");
-    }
-  };
-  
-  
-
-  // This function increments year
-  const incrementYear = () => {
-    setCarDetails((prevDetails) => ({
-      ...prevDetails,
-      year: Math.min(prevDetails.year + 1, 2100),
-    }));
-    setIsYearChanged(true);
-  };
-
-  // This function decrements year
-  const decrementYear = () => {
-    setCarDetails((prevDetails) => ({
-      ...prevDetails,
-      year: Math.max(prevDetails.year - 1, 1900),
-    }));
-    setIsYearChanged(true);
-  };
-
-  // This function handles changes of manual input of year
-  const handleYearChange = (e) => {
-    const value = Math.max(1900, Math.min(2100, Number(e.target.value)));
-    setCarDetails((prevDetails) => ({ ...prevDetails, year: value }));
-    setIsYearChanged(true);
-  };
-
-  // This function handles input blur for the last mileage field
-  const handleBlur = (e) => {
-    const { name, value } = e.target;
-    if (name === "lastMileage") {
-      setCarDetails((prevDetails) => ({
-        ...prevDetails,
-        [name]: value ? parseInt(value).toLocaleString("en-US") : "",
-      }));
-    }
-  };
-
-  // This function handles input focus for the last mileage field
-  const handleFocus = (e) => {
-    const { name } = e.target;
-    if (name === "lastMileage") {
-      setCarDetails((prevDetails) => ({
-        ...prevDetails,
-        [name]: prevDetails[name].toString().replace(/,/g, ""),
-      }));
-    }
-  };
-
-  // This function handles changes to input fields
   const handleChange = (e) => {
     const { name, value } = e.target;
     setCarDetails((prevDetails) => ({ ...prevDetails, [name]: value }));
-  };
-
-  // Function to handle input blur for car maker and name dropdowns
-  const handleInputBlur = () => {
-    setTimeout(() => setShowCarMakers(false), 200);
-    setTimeout(() => setShowCarNames(false), 200);
-  };
-
-  // This function shows the dropdown list of car maker
-  const handleCarMakerButtonClick = () => {
-    setShowCarMakers((prev) => !prev);
-    // setShowCarNames(false) --> This disables the other dropdown when this one os open
-    setShowCarNames(false);
-  };
-
-  // This function shows the dropdown list of car name
-  const handleCarNameButtonClick = () => {
-    setShowCarNames((prev) => !prev);
-    // setShowCarMakers(false) --> This disables the other dropdown when this one os open
-    setShowCarMakers(false);
-  };
-
-  // This function handles the input change
-  const handleInputChange = (e) => {
-    const input = e.target.value;
-    setTextBoxInput(input);
   };
 
   const handlePreviousPage = () => {
     navigate("/vehicle-manager");
   };
 
-  // Cell single select
-  const handleCellSelect = (column, index) => {
-    const cellKey = `${column}-${index}`;
-  
-    // Prevent re-selecting the same cell and ensure only one cell is selected at a time
-    if (!selectedCells.includes(cellKey)) {
-      setSelectedCells([cellKey]); // Only allow one cell to be selected at a time
-    }
-  };
-  
-  
-  const handleFileDateChange = (index, date) => {
-    const updatedFileDetails = [...fileDetails];
-    updatedFileDetails[index].date = date;
-    updatedFileDetails.sort((a, b) => {
-      if (a.date && b.date) {
-        return new Date(b.date) - new Date(a.date);
-      } else if (a.date) {
-        return -1;
-      } else if (b.date) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
-    setFileCalendars((prev) => ({ ...prev, [index]: false }));
-    localStorage.setItem("fileDetails", JSON.stringify(updatedFileDetails));
-  };
-
-
-  
-
-  // Update data to be based on fileDetails
-  const data = React.useMemo(() => fileDetails, [fileDetails]);
-
-  const columns = React.useMemo(
-    () => [
-      {
-        Header: t("compulsoryInsuranceCertificate"),
-        accessor: "compulsoryInsuranceCertificate",
-        Cell: ({ cell: { value }, row: { index } }) =>
-          value ? (
-            <a
-              href={value.fileUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 underline"
-            >
-              {value.originalName}
-            </a>
-          ) : (
-            <div className="w-full h-full">
-              <input
-                type="file"
-                ref={(el) => (fileInputRefs.current[index] = el)}
-                style={{ display: "none" }}
-                onChange={(e) => handleFileChange(e, index)}
-              />
-            </div>
-          ),
-      },
-      {
-        Header: t("vehicleInspectionCertificate"),
-        accessor: "vehicleInspectionCertificate",
-        Cell: ({ cell: { value }, row: { index } }) =>
-          value ? (
-            <a
-              href={value.fileUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 underline"
-            >
-              {value.originalName}
-            </a>
-          ) : (
-            <div className="w-full h-full">
-              <input
-                type="file"
-                ref={(el) => (fileInputRefs.current[index] = el)}
-                style={{ display: "none" }}
-                onChange={(e) => handleFileChange(e, index)}
-              />
-            </div>
-          ),
-      },
-      {
-        Header: t("inspectiondate"),
-        accessor: "date",
-        Cell: ({ cell: { value }, row: { index } }) => (
-          <div className="relative">
-            <div
-              onClick={() => toggleFileCalendar(index)}
-              className="w-full px-3 py-2 border rounded-lg text-gray-700 flex items-center justify-between"
-            >
-              <span>
-                {value ? new Date(value).toLocaleDateString("ja-JP") : t("selectdate")}
-              </span>
-              <button type="button">
-                <FontAwesomeIcon icon={faCalendarDays} />
-              </button>
-            </div>
-            {fileCalendars[index] && (
-              <div className="absolute left-0 mt-2 z-20" ref={(el)=>(fileCalendarRef.current[index] = el)}> 
-                <Calendar
-                  onChange={(date) => handleFileDateChange(index, date)}
-                  value={value ? new Date(value) : new Date()}
-                  locale="ja-JP"
-                  calendarType="gregory"
-                  // The "formatDay={(locale, date) => date.getDate()}" removes the day kanji from the calender
-                  formatDay={(locale, date) => date.getDate()}
-                  
-                  className="border rounded-lg shadow-lg"
-                />
-              </div>
-            )}
-          </div>
-        ),
-      },
-    ],
-    [fileCalendars, t]
-  );
-
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-    useTable({ columns, data });
-
   return (
     <div className="relative flex items-center justify-center min-h-screen bg-gray-100 p-4">
       <ToastContainer />
-      <div className="absolute top-4 right-4 border border-black rounded">
-        <button
-          onClick={() => handleLanguageChange("jp")}
-          className={`p-2 ${
-            i18n.language === "jp" ? "bg-blue-600 text-white" : "bg-gray-400"
-          } text-xs uppercase font-bold rounded-l`}
-        >
-          日本語
-        </button>
-        <button
-          onClick={() => handleLanguageChange("en")}
-          className={`p-2 ${
-            i18n.language === "en" ? "bg-blue-600 text-white" : "bg-gray-400"
-          } text-xs uppercase font-bold rounded-r`}
-        >
-          En
-        </button>
-      </div>
-
       <form
         className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg"
         onSubmit={handleAdd}
@@ -563,6 +142,50 @@ const AddButton = () => {
           />
         </div>
 
+        {/* License Plate */}
+        <div className="mb-4">
+          <label
+            className={`block text-gray-700 text-sm font-bold mb-2 after:content-['*'] after:ml-0.5 after:text-red-500 block ${
+              !validation.licensePlate ? "text-red-500" : ""
+            }`}
+            htmlFor="licensePlate"
+          >
+            {t("licensePlate")}
+          </label>
+          <input
+            id="licensePlate"
+            name="licensePlate"
+            type="text"
+            value={carDetails.licensePlate}
+            onChange={handleChange}
+            className={`w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500 ${
+              !validation.licensePlate ? "border-red-500" : ""
+            }`}
+          />
+        </div>
+
+        {/* Manager Name */}
+        <div className="mb-4">
+          <label
+            className={`block text-gray-700 text-sm font-bold mb-2 after:content-['*'] after:ml-0.5 after:text-red-500 block ${
+              !validation.managerName ? "text-red-500" : ""
+            }`}
+            htmlFor="managerName"
+          >
+            {t("managerName")}
+          </label>
+          <input
+            id="managerName"
+            name="managerName"
+            type="text"
+            value={carDetails.managerName}
+            onChange={handleChange}
+            className={`w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500 ${
+              !validation.managerName ? "border-red-500" : ""
+            }`}
+          />
+        </div>
+
         {/* Car Maker Name */}
         <div className="mb-4 relative" ref={carMakerRef}>
           <label
@@ -579,14 +202,13 @@ const AddButton = () => {
               value={selectedCarMaker}
               onChange={handleChange}
               onFocus={() => setShowCarMakers(true)}
-              onBlur={handleInputBlur}
               className={`w-full px-3 py-2 border rounded-l-lg text-gray-700 focus:outline-none focus:border-blue-500 ${
                 !validation.carName ? "border-red-500" : ""
               }`}
             />
             <button
               type="button"
-              onClick={handleCarMakerButtonClick}
+              onClick={() => setShowCarMakers((prev) => !prev)}
               className="px-3 py-2 bg-gray-200 border-l border-gray-300 rounded-r-lg text-gray-700 focus:outline-none focus:border-blue-500"
             >
               <FontAwesomeIcon icon={faAngleDown} />
@@ -594,17 +216,15 @@ const AddButton = () => {
           </div>
           {showCarMakers && (
             <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto">
-              {CAR_MAKER.map(
-                (maker, index) => (
-                  <li
-                    key={index}
-                    onMouseDown={() => handleCarMakerSelect(maker)}
-                    className="px-4 py-2 cursor-pointer hover:bg-gray-200"
-                  >
-                    {maker}
-                  </li>
-                )
-              )}
+              {CAR_MAKER.map((maker, index) => (
+                <li
+                  key={index}
+                  onMouseDown={() => setSelectedCarMaker(maker)}
+                  className="px-4 py-2 cursor-pointer hover:bg-gray-200"
+                >
+                  {maker}
+                </li>
+              ))}
             </ul>
           )}
         </div>
@@ -631,14 +251,13 @@ const AddButton = () => {
                 }))
               }
               onFocus={() => setShowCarNames(true)}
-              onBlur={handleInputBlur}
               className={`w-full px-3 py-2 border rounded-l-lg text-gray-700 focus:outline-none focus:border-blue-500 ${
                 !validation.carName ? "border-red-500" : ""
               }`}
             />
             <button
               type="button"
-              onClick={handleCarNameButtonClick}
+              onClick={() => setShowCarNames((prev) => !prev)}
               className="px-3 py-2 bg-gray-200 border-l border-gray-300 rounded-r-lg text-gray-700 focus:outline-none focus:border-blue-500"
             >
               <FontAwesomeIcon icon={faAngleDown} />
@@ -646,17 +265,20 @@ const AddButton = () => {
           </div>
           {showCarNames && (
             <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto">
-              {CAR_NAME.map(
-                (name, index) => (
-                  <li
-                    key={index}
-                    onMouseDown={() => handleCarNameSelect(name)}
-                    className="px-4 py-2 cursor-pointer hover:bg-gray-200"
-                  >
-                    {name}
-                  </li>
-                )
-              )}
+              {CAR_NAME.map((name, index) => (
+                <li
+                  key={index}
+                  onMouseDown={() =>
+                    setCarDetails((prevDetails) => ({
+                      ...prevDetails,
+                      carName: name,
+                    }))
+                  }
+                  className="px-4 py-2 cursor-pointer hover:bg-gray-200"
+                >
+                  {name}
+                </li>
+              ))}
             </ul>
           )}
         </div>
@@ -677,7 +299,12 @@ const AddButton = () => {
               name="year"
               type="number"
               value={carDetails.year}
-              onChange={handleYearChange}
+              onChange={(e) =>
+                setCarDetails((prevDetails) => ({
+                  ...prevDetails,
+                  year: e.target.value,
+                }))
+              }
               min="1900"
               max="2100"
               step="1"
@@ -688,14 +315,24 @@ const AddButton = () => {
             <div className="spin-buttons flex flex-col border rounded">
               <button
                 type="button"
-                onClick={incrementYear}
+                onClick={() =>
+                  setCarDetails((prevDetails) => ({
+                    ...prevDetails,
+                    year: Math.min(prevDetails.year + 1, 2100),
+                  }))
+                }
                 className="up-button px-2 py-1"
               >
                 <FontAwesomeIcon icon={faCaretUp} />
               </button>
               <button
                 type="button"
-                onClick={decrementYear}
+                onClick={() =>
+                  setCarDetails((prevDetails) => ({
+                    ...prevDetails,
+                    year: Math.max(prevDetails.year - 1, 1900),
+                  }))
+                }
                 className="down-button px-2 py-1"
               >
                 <FontAwesomeIcon icon={faCaretDown} />
@@ -715,8 +352,6 @@ const AddButton = () => {
               name="lastMileage"
               value={carDetails.lastMileage}
               onChange={handleChange}
-              onBlur={handleBlur}
-              onFocus={handleFocus}
               style={{ textAlign: "right" }}
               className="w-full px-3 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-blue-500"
             />
@@ -779,7 +414,7 @@ const AddButton = () => {
               type="checkbox"
               name="updateCheckbox"
               checked={isChecked}
-              onChange={handleCheckBox}
+              onChange={() => setIsChecked(!isChecked)}
               className="mr-2 mb-2"
             />
             <label
@@ -798,7 +433,7 @@ const AddButton = () => {
                   ? carDetails.date.toLocaleDateString("ja-JP")
                   : ""
               }
-              onClick={toggleCalendar}
+              onClick={() => setShowCalendar(!showCalendar)}
               className={`w-full px-3 py-2 border rounded-l-lg text-gray-700 focus:outline-none focus:border-blue-500 cursor-pointer ${
                 isChecked ? "" : "bg-gray-400 cursor-not-allowed"
               } ${isChecked && !validation.date ? "border-red-500" : ""}`}
@@ -807,7 +442,9 @@ const AddButton = () => {
             />
             <button
               type="button"
-              onClick={clearDate}
+              onClick={() =>
+                setCarDetails((prevDetails) => ({ ...prevDetails, date: null }))
+              }
               className={`px-3 py-2 bg-gray-200 border-l border-gray-300 rounded-r-lg text-gray-700 focus:outline-none focus:border-blue-500 ${
                 isChecked ? "" : "cursor-not-allowed"
               }`}
@@ -818,11 +455,12 @@ const AddButton = () => {
           </div>
           {showCalendar && isChecked && (
             <Calendar
-              onChange={handleDateChange}
+              onChange={(date) =>
+                setCarDetails((prevDetails) => ({ ...prevDetails, date }))
+              }
               value={carDetails.date}
               locale="ja-JP"
               calendarType="gregory"
-              
               formatDay={(locale, date) => date.getDate()}
               className="border rounded-lg shadow-lg mt-2"
             />
@@ -831,112 +469,13 @@ const AddButton = () => {
 
         {/* Table */}
         <div className="mt-4 border-2 border-gray-300 rounded p-4 mb-2">
-        <table {...getTableProps()} className="w-full">
-            <thead>
-              {headerGroups.map((headerGroup) => (
-                <tr {...headerGroup.getHeaderGroupProps()}>
-                  {headerGroup.headers.map((column) => (
-                    <th {...column.getHeaderProps()} className="border p-2">
-                      {column.render("Header")}
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody {...getTableBodyProps()}>
-              {rows.map((row) => {
-                prepareRow(row);
-                return (
-                  <tr {...row.getRowProps()} className={`cursor-pointer ${selectedCells.some(cellKey => cellKey.endsWith(`-${row.index}`)) ? "bg-blue-300" : ""}`}>
-                    {row.cells.map((cell) => (
-                      <td {...cell.getCellProps()} className={`border p-2 bg-gray-200${selectedCells.includes(`${cell.column.id}-${row.index}`) ? " bg-slate-300 " : ""}`} onClick={() => handleCellSelect(cell.column.id, row.index)}>
-                        {cell.render("Cell")}
-                      </td>
-                    ))}
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-
-          {/* Add buttons */}
-          <div className="my-5">
-            <div className="relative w-full grid grid-cols-4 gap-4 my-5">
-              {/* Upload Button */}
-              <button
-                onClick={handleClick}
-                className="bg-blue-500 text-white py-2 px-2 rounded"
-              >
-                <FontAwesomeIcon icon={faUpload} className="pr-2" />
-                {t("choosefiles")}
-              </button>
-
-              {/* Delete File Button */}
-              <button
-                type="button"
-                onClick={deleteSelectedFiles}
-                className="bg-orange-500 text-white py-2 px-2  rounded"
-              >
-                <FontAwesomeIcon icon={faMinus} className="pr-2" />
-                {t("deleteFile")}
-              </button>
-
-              {/* Add Row Button */}
-              <button
-                type="button"
-                onClick={handleAddRow}
-                className="bg-green-500 text-white py-2 px-1 rounded"
-              >
-                <FontAwesomeIcon icon={faPlus} className="mr-2" />
-                {t("addRow")}
-              </button>
-
-              {/* Delete Row Button (conditionally enabled) */}
-              <button
-                type="button"
-                onClick={handleDeleteRowToggle}
-                className={`${
-                  selectedCells.length > 0
-                    ? "bg-red-500"
-                    : "bg-red-400 cursor-not-allowed"
-                } text-white py-2 px-1 rounded`}
-                disabled={selectedCells.length === 0}
-              >
-                <FontAwesomeIcon icon={faMinus} className="mr-2" />
-                {t("deleteRow")}
-              </button>
-            </div>
-          </div>
-
-          <hr></hr>
-        </div>
-
-        {/* Details box */}
-        <div className="p-2 mt-4">
-          <label
-            htmlFor="message"
-            className="block text-gray-700 text-sm font-bold mb-2"
-          >
-            {t("writedetails")}
-          </label>
-          <textarea
-            id="message"
-            name="message"
-            rows="4"
-            value={textBoxInput}
-            onChange={handleInputChange}
-            maxLength={maxLength}
-            className="w-full px-3 py-2 border rounded-lg focus:outline-none border-gray-300"
-          />
-          <p className={getRemainingColor(maxLength - textBoxInput.length)}>
-            {t("remainingcharacters")} {maxLength - textBoxInput.length}
-          </p>
+          {/* Table rendering code goes here */}
         </div>
 
         <div className="flex justify-between mt-4">
           <button
             type="submit"
-            className="bg-blue-500  text-white py-2 px-4 rounded"
+            className="bg-blue-500 text-white py-2 px-4 rounded"
           >
             <FontAwesomeIcon icon={faFloppyDisk} className="pr-2" />
             {t("save")}

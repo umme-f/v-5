@@ -1,32 +1,21 @@
 import json
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
-from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-# Allow CORS for frontend running on specific port (e.g., 5173 for React)
+# Add CORS middleware to allow your frontend to access the backend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["http://localhost:5173"],  # React frontend origin
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],  # Allow all methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allow all headers
 )
 
-# Load data from your JSON file
-with open('database.json', 'r') as file:
-    database = json.load(file)
-
-vehicles = database["vehicles"]
-vehicle_managers = database["vehicle_managers"]
-suppliers = database["suppliers"]
-inspections = database["inspections"]
-vehicle_repairs = database["vehicle_repairs"]
-vehicle_maintenance = database["vehicle_maintenance"]
-
-# Pydantic models for validation
+# Define Pydantic models for input validation
 class Vehicle(BaseModel):
     vehicle_id: int
     vehicle_no: str
@@ -37,53 +26,79 @@ class Vehicle(BaseModel):
     shape: str
     spec: str
     introduce_type: str
-    purchase_date: Optional[str]
-    lease_start_date: Optional[str]
-    lease_end_date: Optional[str]
-    first_inspection_date: Optional[str]
-    registration_date: Optional[str]
-    next_inspection_date: Optional[str]
-    etc_card_no: Optional[str]
-    fuel_card_no_TOKO: Optional[str]
-    fuel_card_no_eneos: Optional[str]
-    last_maintenance_milage: Optional[int]
-    last_maintenance_date: Optional[str]
-    maintenance_interval_milage: Optional[int]
-    maintenance_interval_month: Optional[int]
-    last_driving_date: Optional[str]
-    last_milage: Optional[int]
+    purchase_date: str
+    lease_start_date: Optional[str] = None
+    lease_end_date: Optional[str] = None
+    first_inspection_date: str
+    registration_date: str
+    next_inspection_date: str
+    etc_card_no: str
+    fuel_card_no_TOKO: str
+    fuel_card_no_eneos: str
+    last_maintenance_milage: int
+    last_maintenance_date: str
+    maintenance_interval_milage: int
+    maintenance_interval_month: int
+    last_driving_date: str
+    last_milage: int
 
-# Sample Endpoint to Get All Vehicles
-@app.get("/vehicles", response_model=List[Vehicle])
+# Function to read from the JSON file
+def read_database():
+    with open('database.json', 'r') as file:
+        return json.load(file)
+
+# Function to write to the JSON file
+def write_database(data):
+    with open('database.json', 'w') as file:
+        json.dump(data, file, indent=4)
+
+# Endpoint to get all vehicles
+@app.get("/api/vehicles/")
 async def get_vehicles():
-    return vehicles
+    data = read_database()
+    return {"vehicles": data["vehicles"]}
 
-# Get a single vehicle by ID
-@app.get("/vehicles/{vehicle_id}", response_model=Vehicle)
+# Endpoint to get a vehicle by its ID
+@app.get("/api/vehicles/{vehicle_id}")
 async def get_vehicle(vehicle_id: int):
-    vehicle = next((v for v in vehicles if v['vehicle_id'] == vehicle_id), None)
-    if vehicle is None:
-        raise HTTPException(status_code=404, detail="Vehicle not found")
-    return vehicle
-
-# Add a new vehicle
-@app.post("/vehicles", response_model=Vehicle)
-async def add_vehicle(vehicle: Vehicle):
-    vehicles.append(vehicle.dict())
-    return vehicle
-
-# Update a vehicle by ID
-@app.put("/vehicles/{vehicle_id}", response_model=Vehicle)
-async def update_vehicle(vehicle_id: int, updated_vehicle: Vehicle):
-    for index, vehicle in enumerate(vehicles):
+    data = read_database()
+    for vehicle in data["vehicles"]:
         if vehicle["vehicle_id"] == vehicle_id:
-            vehicles[index] = updated_vehicle.dict()
+            return vehicle
+    raise HTTPException(status_code=404, detail="Vehicle not found")
+
+# Endpoint to add a new vehicle
+@app.post("/api/vehicles/")
+async def add_vehicle(vehicle: Vehicle):
+    data = read_database()
+    data["vehicles"].append(vehicle.dict())  # Add the new vehicle to the list
+    write_database(data)  # Save the updated data back to the JSON file
+    return vehicle
+
+# Endpoint to update an existing vehicle by ID
+@app.put("/api/vehicles/{vehicle_id}")
+async def update_vehicle(vehicle_id: int, updated_vehicle: Vehicle):
+    data = read_database()
+    for index, vehicle in enumerate(data["vehicles"]):
+        if vehicle["vehicle_id"] == vehicle_id:
+            data["vehicles"][index] = updated_vehicle.dict()  # Update the vehicle
+            write_database(data)  # Save the updated data back to the JSON file
             return updated_vehicle
     raise HTTPException(status_code=404, detail="Vehicle not found")
 
-# Delete a vehicle by ID
-@app.delete("/vehicles/{vehicle_id}")
+# Endpoint to delete a vehicle by ID
+@app.delete("/api/vehicles/{vehicle_id}")
 async def delete_vehicle(vehicle_id: int):
-    global vehicles
-    vehicles = [v for v in vehicles if v["vehicle_id"] != vehicle_id]
-    return {"status": "Vehicle deleted successfully"}
+    data = read_database()
+    for index, vehicle in enumerate(data["vehicles"]):
+        if vehicle["vehicle_id"] == vehicle_id:
+            del data["vehicles"][index]  # Remove the vehicle from the list
+            write_database(data)  # Save the updated data back to the JSON file
+            return {"message": f"Vehicle {vehicle_id} deleted successfully"}
+    raise HTTPException(status_code=404, detail="Vehicle not found")
+
+# Endpoint to get all suppliers
+@app.get("/api/suppliers/")
+async def get_suppliers():
+    data = read_database()
+    return {"suppliers": data["suppliers"]}

@@ -42,6 +42,12 @@
         "supplier_name": "Toyota Supplier Co.",
         "receptionist": "John Doe",
         "tel_no": "555-123-4567"
+      },
+      {
+        "supplier_id": 112,
+        "supplier_name": "Honda",
+        "receptionist": "Mary Doe",
+        "tel_no": "555-123-44444"
       }
     ],
     "inspections": [

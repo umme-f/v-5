@@ -1,6 +1,8 @@
 import json
+import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import List, Optional
 
@@ -44,14 +46,25 @@ class Vehicle(BaseModel):
 
 # Function to read from the JSON file
 def read_database():
-    with open('database.json', 'r') as file:
-        return json.load(file)
+    if os.path.exists('database.json'):
+        with open('database.json', 'r') as file:
+            return json.load(file)
+    else:
+        return {"vehicles": [], "suppliers": []}
 
 # Function to write to the JSON file
 def write_database(data):
-    with open('database.json', 'w') as file:
-        json.dump(data, file, indent=4)
+    try:
+        with open('database.json', 'w') as file:
+            json.dump(data, file, indent=4)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to write data: {e}")
 
+favicon_path = 'favicon.ico'  # Adjust path to file
+
+@app.get('/favicon.ico', include_in_schema=False)
+async def favicon():
+    return FileResponse(favicon_path)
 # Endpoint to get all vehicles
 @app.get("/api/vehicles/")
 async def get_vehicles():
@@ -68,9 +81,15 @@ async def get_vehicle(vehicle_id: int):
     raise HTTPException(status_code=404, detail="Vehicle not found")
 
 # Endpoint to add a new vehicle
-@app.post("/api/vehicles/")
+@app.post("/api/load_vehicle/")
 async def add_vehicle(vehicle: Vehicle):
     data = read_database()
+
+    # Check if vehicle_id already exists
+    for v in data["vehicles"]:
+        if v["vehicle_id"] == vehicle.vehicle_id:
+            raise HTTPException(status_code=400, detail="Vehicle ID already exists.")
+
     data["vehicles"].append(vehicle.dict())  # Add the new vehicle to the list
     write_database(data)  # Save the updated data back to the JSON file
     return vehicle
@@ -102,3 +121,13 @@ async def delete_vehicle(vehicle_id: int):
 async def get_suppliers():
     data = read_database()
     return {"suppliers": data["suppliers"]}
+
+# Endpoint to get vehicles by supplier ID
+@app.get("/api/vehicles_by_supplier/{supplier_id}")
+async def get_vehicles_by_supplier(supplier_id: int):
+    data = read_database()
+    vehicles = [v for v in data["vehicles"] if v["supplier_id"] == supplier_id]
+    if vehicles:
+        return vehicles
+    else:
+        raise HTTPException(status_code=404, detail="No vehicles found for the supplier")

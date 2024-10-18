@@ -48,6 +48,7 @@ const AddButton = () => {
   });
 
   const [showCalendar, setShowCalendar] = useState({});
+  const [filePreviewURL, setFilePreviewURL] = useState(null); // To store the URL for the uploaded file preview
 
   const handleCalendarToggle = (field) => {
     setShowCalendar((prev) => ({
@@ -65,30 +66,41 @@ const AddButton = () => {
     const { name, value } = e.target;
     setCarDetails((prevDetails) => ({ ...prevDetails, [name]: value }));
   };
+
   const handleFileChange = (e) => {
     const { name, files } = e.target; // Get the input field name and files array
+    const file = files[0]; // Use the first selected file
+
     setCarDetails((prevDetails) => ({
       ...prevDetails,
-      [name]: files[0], // Store the first file selected in the corresponding state field
+      [name]: file, // Store the file in the state
     }));
+
+    // Create a preview URL for the uploaded file
+    if (name === "vehicleInspectionCertificate") {
+      const objectURL = URL.createObjectURL(file);
+      setFilePreviewURL(objectURL);
+    }
   };
+
   const handleFileDrop = (e, fieldName) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
+
     setCarDetails((prevDetails) => ({
       ...prevDetails,
       [fieldName]: file, // Store the dropped file
     }));
+
+    // Create a preview URL for the uploaded file
+    if (fieldName === "vehicleInspectionCertificate") {
+      const objectURL = URL.createObjectURL(file);
+      setFilePreviewURL(objectURL);
+    }
   };
 
   const handleDragOver = (e) => {
     e.preventDefault();
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Add your form submission logic here
-    toast.success("Vehicle data saved successfully");
   };
 
   const handleAdd = (e) => {
@@ -305,7 +317,7 @@ const AddButton = () => {
               onClick={() => handleCalendarToggle("leaseStartDate")}
               className="w-full px-3 py-2 border rounded-lg text-gray-700 cursor-pointer"
               readOnly
-            />{" "}
+            />
             <FontAwesomeIcon
               icon={faCalendarDays}
               className="text-gray-500 cursor-pointer ml-2 pt-2"
@@ -337,7 +349,7 @@ const AddButton = () => {
               onClick={() => handleCalendarToggle("leaseEndDate")}
               className="w-full px-3 py-2 border rounded-lg text-gray-700 cursor-pointer"
               readOnly
-            />{" "}
+            />
             <FontAwesomeIcon
               icon={faCalendarDays}
               className="text-gray-500 cursor-pointer ml-2 pt-2"
@@ -578,6 +590,7 @@ const AddButton = () => {
             <h1 className="pl-2 pt-2 font-bold">km</h1>
           </div>
         </div>
+
         {/* File upload- Open folder or Drag and drop */}
         {/* Compulsory Insurance Certificate */}
         <div className="mb-4">
@@ -629,13 +642,21 @@ const AddButton = () => {
               <FontAwesomeIcon icon={faUpload} className="text-gray-500" />
               <p>Drag and drop or click to upload</p>
             </label>
-            {carDetails.vehicleInspectionCertificate && (
-              <p className="text-green-500 mt-2">
+
+            {/* Show the uploaded file name with a preview link */}
+            {carDetails.vehicleInspectionCertificate instanceof File && filePreviewURL && (
+              <a
+                href={filePreviewURL}
+                className="text-green-500 mt-2"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 {carDetails.vehicleInspectionCertificate.name} uploaded
-              </p>
+              </a>
             )}
           </div>
         </div>
+
         {/* Add notes */}
         <div className="grid">
           <label className="block text-gray-700 text-sm font-bold mb-2">

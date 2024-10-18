@@ -48,7 +48,6 @@ const AddButton = () => {
   });
 
   const [showCalendar, setShowCalendar] = useState({});
-  const [filePreviewURL, setFilePreviewURL] = useState(null); // To store the URL for the uploaded file preview
 
   const handleCalendarToggle = (field) => {
     setShowCalendar((prev) => ({
@@ -66,46 +65,84 @@ const AddButton = () => {
     const { name, value } = e.target;
     setCarDetails((prevDetails) => ({ ...prevDetails, [name]: value }));
   };
-
   const handleFileChange = (e) => {
     const { name, files } = e.target; // Get the input field name and files array
-    const file = files[0]; // Use the first selected file
-
     setCarDetails((prevDetails) => ({
       ...prevDetails,
-      [name]: file, // Store the file in the state
+      [name]: files[0], // Store the first file selected in the corresponding state field
     }));
-
-    // Create a preview URL for the uploaded file
-    if (name === "vehicleInspectionCertificate") {
-      const objectURL = URL.createObjectURL(file);
-      setFilePreviewURL(objectURL);
-    }
   };
-
   const handleFileDrop = (e, fieldName) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
-
     setCarDetails((prevDetails) => ({
       ...prevDetails,
       [fieldName]: file, // Store the dropped file
     }));
-
-    // Create a preview URL for the uploaded file
-    if (fieldName === "vehicleInspectionCertificate") {
-      const objectURL = URL.createObjectURL(file);
-      setFilePreviewURL(objectURL);
-    }
   };
 
   const handleDragOver = (e) => {
     e.preventDefault();
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+    // Prepare the data to send to the backend
+    const vehicleData = {
+      vehicle_id: parseInt(carDetails.vehicleId),  // Make sure this is an integer
+      vehicle_no: carDetails.vehicleNo,
+      license_plate: carDetails.licensePlate,
+      supplier_id: parseInt(carDetails.supplierId),  // Make sure this is an integer
+      maker_id: parseInt(carDetails.makerId),  // Make sure this is an integer
+      car_name: carDetails.carName,
+      shape: carDetails.shape,
+      spec: carDetails.spec,
+      introduce_type: carDetails.introduceType,
+      purchase_date: carDetails.purchaseDate.toISOString().slice(0, 10),  // Format as YYYY-MM-DD
+      lease_start_date: carDetails.leaseStartDate ? carDetails.leaseStartDate.toISOString().slice(0, 10) : null,
+      lease_end_date: carDetails.leaseEndDate ? carDetails.leaseEndDate.toISOString().slice(0, 10) : null,
+      first_inspection_date: carDetails.firstInspectionDate.toISOString().slice(0, 10),
+      registration_date: carDetails.registrationDate.toISOString().slice(0, 10),
+      next_inspection_date: carDetails.nextInspectionDate.toISOString().slice(0, 10),
+      etc_card_no: carDetails.etcCardNo,
+      fuel_card_no_TOKO: carDetails.fuelCardNoTOKO,
+      fuel_card_no_eneos: carDetails.fuelCardNoEneos,
+      last_maintenance_milage: parseInt(carDetails.lastMaintenanceMilage),  // Ensure integer
+      last_maintenance_date: carDetails.lastMaintenanceDate.toISOString().slice(0, 10),
+      maintenance_interval_milage: parseInt(carDetails.maintenanceIntervalMilage),
+      maintenance_interval_month: parseInt(carDetails.maintenanceIntervalMonth),
+      last_driving_date: carDetails.lastDrivingDate.toISOString().slice(0, 10),
+      last_milage: parseInt(carDetails.lastMilage),
+    };
+  
+    try {
+      const response = await fetch("http://localhost:8000/api/vehicles/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(vehicleData),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
+      // Show success toast notification
+      toast.success("Vehicle data saved successfully!");
+  
+      // Clear div or handle success
+    } catch (error) {
+      console.error("Error saving vehicle data:", error);
+      toast.error("Failed to save vehicle data.");
+    }
+  };
+  
+
   const handleAdd = (e) => {
     e.preventDefault();
-    // Add your form submission logic here
+    // Add your div submission logic here
     toast.success("Vehicle data saved successfully");
   };
 
@@ -114,10 +151,10 @@ const AddButton = () => {
   };
 
   return (
-    <div className="relative flex items-center justify-center min-h-screen bg-gray-100 p-4">
+    <div className="relative flex items-center justify-center min-h-screen bg-gray-100 p-5">
       <ToastContainer />
-      <form
-        className="w-full max-w-lg bg-white p-8 rounded-lg shadow-lg"
+      <div
+        className="w-full p-8"
         onSubmit={handleAdd}
       >
         <h2 className="text-2xl font-bold mb-6 text-center">
@@ -317,7 +354,7 @@ const AddButton = () => {
               onClick={() => handleCalendarToggle("leaseStartDate")}
               className="w-full px-3 py-2 border rounded-lg text-gray-700 cursor-pointer"
               readOnly
-            />
+            />{" "}
             <FontAwesomeIcon
               icon={faCalendarDays}
               className="text-gray-500 cursor-pointer ml-2 pt-2"
@@ -349,7 +386,7 @@ const AddButton = () => {
               onClick={() => handleCalendarToggle("leaseEndDate")}
               className="w-full px-3 py-2 border rounded-lg text-gray-700 cursor-pointer"
               readOnly
-            />
+            />{" "}
             <FontAwesomeIcon
               icon={faCalendarDays}
               className="text-gray-500 cursor-pointer ml-2 pt-2"
@@ -590,7 +627,6 @@ const AddButton = () => {
             <h1 className="pl-2 pt-2 font-bold">km</h1>
           </div>
         </div>
-
         {/* File upload- Open folder or Drag and drop */}
         {/* Compulsory Insurance Certificate */}
         <div className="mb-4">
@@ -642,11 +678,11 @@ const AddButton = () => {
               <FontAwesomeIcon icon={faUpload} className="text-gray-500" />
               <p>Drag and drop or click to upload</p>
             </label>
-
-            {/* Show the uploaded file name with a preview link */}
-            {carDetails.vehicleInspectionCertificate instanceof File && filePreviewURL && (
+            {carDetails.vehicleInspectionCertificate instanceof File && (
               <a
-                href={filePreviewURL}
+                href={URL.createObjectURL(
+                  carDetails.vehicleInspectionCertificate
+                )}
                 className="text-green-500 mt-2"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -656,7 +692,6 @@ const AddButton = () => {
             )}
           </div>
         </div>
-
         {/* Add notes */}
         <div className="grid">
           <label className="block text-gray-700 text-sm font-bold mb-2">
@@ -668,7 +703,8 @@ const AddButton = () => {
         {/* Save & Back Buttons */}
         <div className="flex justify-between mt-4">
           <button
-            type="submit"
+            // type="submit"
+            onClick={handleSubmit}
             className="bg-blue-500 text-white py-2 px-4 rounded"
           >
             <FontAwesomeIcon icon={faFloppyDisk} className="pr-2" />
@@ -683,7 +719,7 @@ const AddButton = () => {
             Back to Previous Page
           </button>
         </div>
-      </form>
+      </div>
     </div>
   );
 };

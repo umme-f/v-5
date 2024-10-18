@@ -60,11 +60,20 @@ def write_database(data):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to write data: {e}")
 
-favicon_path = 'favicon.ico'  # Adjust path to file
-
+# Adjust path to file
+favicon_path = 'favicon.ico'  
 @app.get('/favicon.ico', include_in_schema=False)
 async def favicon():
     return FileResponse(favicon_path)
+
+# POST endpoint to save new vehicle data
+@app.post("/api/vehicles/")
+async def add_vehicle(vehicle: Vehicle):
+    data = read_database()
+    data["vehicles"].append(vehicle.dict())  # Add the new vehicle to the list
+    write_database(data)  # Save the updated data back to the JSON file
+    return vehicle
+
 # Endpoint to get all vehicles
 @app.get("/api/vehicles/")
 async def get_vehicles():
@@ -85,13 +94,15 @@ async def get_vehicle(vehicle_id: int):
 async def add_vehicle(vehicle: Vehicle):
     data = read_database()
 
-    # Check if vehicle_id already exists
+    # Check if vehicle_id already exists or not
     for v in data["vehicles"]:
         if v["vehicle_id"] == vehicle.vehicle_id:
             raise HTTPException(status_code=400, detail="Vehicle ID already exists.")
 
-    data["vehicles"].append(vehicle.dict())  # Add the new vehicle to the list
-    write_database(data)  # Save the updated data back to the JSON file
+# Add the new vehicle to the list
+    data["vehicles"].append(vehicle.dict())  
+    # Save the updated data back to the JSON file
+    write_database(data)  
     return vehicle
 
 # Endpoint to update an existing vehicle by ID
@@ -131,3 +142,4 @@ async def get_vehicles_by_supplier(supplier_id: int):
         return vehicles
     else:
         raise HTTPException(status_code=404, detail="No vehicles found for the supplier")
+

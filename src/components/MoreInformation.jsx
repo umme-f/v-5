@@ -73,12 +73,22 @@ const MoreInformation = () => {
           </div>
         </div>
 
+<<<<<<< HEAD
         {/* Supplier Details */}
         <div className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
           <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white p-4">
             {t("Supplier Details")}
           </h5>
 
+=======
+        {/* Supplier details */}
+        <div className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+          <a href="#">
+            <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white p-5">
+              {t("Supplier Details")}
+            </h5>
+          </a>
+>>>>>>> 91bc56d8c2d990cc47e5196fc285740c0e77138a
           {/* Center the button */}
           <div className="flex justify-center">
             <button

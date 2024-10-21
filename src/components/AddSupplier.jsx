@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBroom, faFloppyDisk, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faFloppyDisk, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from 'react-router-dom';
 
 const AddSupplier = () => {
+    const navigate = useNavigate();
+
     // State to hold input values
     const [supplierData, setSupplierData] = useState({
         supplier_no: '',
@@ -20,6 +23,7 @@ const AddSupplier = () => {
             [name]: value
         });
     };
+
     // When clear button is pressed 
     const handleClearData = () => {
         setSupplierData({
@@ -32,18 +36,14 @@ const AddSupplier = () => {
 
     // Handle form submission
     const handleSubmit = async (e) => {
-        e.preventDefault();
+        e.preventDefault();  // Prevent default form submission behavior
         try {
             // Make POST request to add supplier
             await axios.post('http://localhost:8000/api/load_supplier/', supplierData);
-            alert('Supplier added successfully!');
-            // Reset the form
-            setSupplierData({
-                supplier_no: '',
-                supplier_name: '',
-                receptionist: '',
-                tel_no: ''
-            });
+            // alert('Supplier added successfully!');
+
+            // After successful addition, navigate back to the Supplier Details page
+            navigate("/supplier-details");
         } catch (error) {
             console.error('Error adding supplier:', error);
             alert('Failed to add supplier.');
@@ -118,20 +118,20 @@ const AddSupplier = () => {
                     />
                 </div>
 
-                {/* Submit Button */}
+                {/* Submit and Clear Buttons */}
                 <div className='flex gap-3'>
                     <button 
-                        type="submit"
+                        type="submit"  // This triggers form submission to save data and navigate
                         className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
                     >
                        <FontAwesomeIcon icon={faFloppyDisk} className='pr-2'/> Save Supplier
                     </button>
                     <button
-                        type="submit"
+                        type="button"  // Clear button should be type="button" to avoid form submission
                         onClick={handleClearData}
                         className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
                     >
-                       <FontAwesomeIcon icon={faTrash}/> Clear
+                       <FontAwesomeIcon icon={faTrash} className="pr-2" /> Clear
                     </button>
                 </div>
             </form>

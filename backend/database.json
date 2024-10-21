@@ -62,7 +62,14 @@
             "end_date": null
         }
     ],
-    "suppliers": [],
+    "suppliers": [
+        {
+            "supplier_no": 1234,
+            "supplier_name": "abc1234",
+            "receptionist": "abc222134",
+            "tel_no": "123"
+        }
+    ],
     "inspections": [
         {
             "vehicle_id": 1,

@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import Optional
 
 app = FastAPI()
 
@@ -17,32 +17,12 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
-# Define Pydantic models for input validation
-class Vehicle(BaseModel):
-    vehicle_id: int
-    vehicle_no: str
-    license_plate: str
-    supplier_id: int
-    maker_id: int
-    car_name: str
-    shape: str
-    spec: str
-    introduce_type: str
-    purchase_date: str
-    lease_start_date: Optional[str] = None
-    lease_end_date: Optional[str] = None
-    first_inspection_date: str
-    registration_date: str
-    next_inspection_date: str
-    etc_card_no: str
-    fuel_card_no_TOKO: str
-    fuel_card_no_eneos: str
-    last_maintenance_milage: int
-    last_maintenance_date: str
-    maintenance_interval_milage: int
-    maintenance_interval_month: int
-    last_driving_date: str
-    last_milage: int
+# Define Pydantic model for Supplier
+class Supplier(BaseModel):
+    supplier_no: int
+    supplier_name: str
+    receptionist_name: str
+    telephone_number: str
 
 # Function to read from the JSON file
 def read_database():
@@ -60,72 +40,23 @@ def write_database(data):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to write data: {e}")
 
-# Adjust path to file
-favicon_path = 'favicon.ico'  
-@app.get('/favicon.ico', include_in_schema=False)
-async def favicon():
-    return FileResponse(favicon_path)
-
-# POST endpoint to save new vehicle data
-@app.post("/api/vehicles/")
-async def add_vehicle(vehicle: Vehicle):
-    data = read_database()
-    data["vehicles"].append(vehicle.dict())  # Add the new vehicle to the list
-    write_database(data)  # Save the updated data back to the JSON file
-    return vehicle
-
-# Endpoint to get all vehicles
-@app.get("/api/vehicles/")
-async def get_vehicles():
-    data = read_database()
-    return {"vehicles": data["vehicles"]}
-
-# Endpoint to get a vehicle by its ID
-@app.get("/api/vehicles/{vehicle_id}")
-async def get_vehicle(vehicle_id: int):
-    data = read_database()
-    for vehicle in data["vehicles"]:
-        if vehicle["vehicle_id"] == vehicle_id:
-            return vehicle
-    raise HTTPException(status_code=404, detail="Vehicle not found")
-
-# Endpoint to add a new vehicle
-@app.post("/api/load_vehicle/")
-async def add_vehicle(vehicle: Vehicle):
+# Endpoint to load supplier data
+@app.post("/api/load_supplier/")
+async def add_supplier(supplier: Supplier):
     data = read_database()
 
-    # Check if vehicle_id already exists or not
-    for v in data["vehicles"]:
-        if v["vehicle_id"] == vehicle.vehicle_id:
-            raise HTTPException(status_code=400, detail="Vehicle ID already exists.")
-
-# Add the new vehicle to the list
-    data["vehicles"].append(vehicle.dict())  
+    # Check if supplier_no already exists or not
+    for s in data["suppliers"]:
+        if s["supplier_no"] == supplier.supplier_no:
+            raise HTTPException(status_code=400, detail="Supplier number already exists.")
+    
+    # Add the new supplier to the list
+    data["suppliers"].append(supplier.dict())  
+    
     # Save the updated data back to the JSON file
     write_database(data)  
-    return vehicle
-
-# Endpoint to update an existing vehicle by ID
-@app.put("/api/vehicles/{vehicle_id}")
-async def update_vehicle(vehicle_id: int, updated_vehicle: Vehicle):
-    data = read_database()
-    for index, vehicle in enumerate(data["vehicles"]):
-        if vehicle["vehicle_id"] == vehicle_id:
-            data["vehicles"][index] = updated_vehicle.dict()  # Update the vehicle
-            write_database(data)  # Save the updated data back to the JSON file
-            return updated_vehicle
-    raise HTTPException(status_code=404, detail="Vehicle not found")
-
-# Endpoint to delete a vehicle by ID
-@app.delete("/api/vehicles/{vehicle_id}")
-async def delete_vehicle(vehicle_id: int):
-    data = read_database()
-    for index, vehicle in enumerate(data["vehicles"]):
-        if vehicle["vehicle_id"] == vehicle_id:
-            del data["vehicles"][index]  # Remove the vehicle from the list
-            write_database(data)  # Save the updated data back to the JSON file
-            return {"message": f"Vehicle {vehicle_id} deleted successfully"}
-    raise HTTPException(status_code=404, detail="Vehicle not found")
+    
+    return supplier
 
 # Endpoint to get all suppliers
 @app.get("/api/suppliers/")
@@ -133,13 +64,33 @@ async def get_suppliers():
     data = read_database()
     return {"suppliers": data["suppliers"]}
 
-# Endpoint to get vehicles by supplier ID
-@app.get("/api/vehicles_by_supplier/{supplier_id}")
-async def get_vehicles_by_supplier(supplier_id: int):
+# Endpoint to get supplier by supplier number
+@app.get("/api/suppliers/{supplier_no}")
+async def get_supplier(supplier_no: int):
     data = read_database()
-    vehicles = [v for v in data["vehicles"] if v["supplier_id"] == supplier_id]
-    if vehicles:
-        return vehicles
-    else:
-        raise HTTPException(status_code=404, detail="No vehicles found for the supplier")
+    for supplier in data["suppliers"]:
+        if supplier["supplier_no"] == supplier_no:
+            return supplier
+    raise HTTPException(status_code=404, detail="Supplier not found")
 
+# Endpoint to update supplier by supplier number
+@app.put("/api/suppliers/{supplier_no}")
+async def update_supplier(supplier_no: int, updated_supplier: Supplier):
+    data = read_database()
+    for index, supplier in enumerate(data["suppliers"]):
+        if supplier["supplier_no"] == supplier_no:
+            data["suppliers"][index] = updated_supplier.dict()  # Update the supplier
+            write_database(data)  # Save the updated data back to the JSON file
+            return updated_supplier
+    raise HTTPException(status_code=404, detail="Supplier not found")
+
+# Endpoint to delete a supplier by supplier number
+@app.delete("/api/suppliers/{supplier_no}")
+async def delete_supplier(supplier_no: int):
+    data = read_database()
+    for index, supplier in enumerate(data["suppliers"]):
+        if supplier["supplier_no"] == supplier_no:
+            del data["suppliers"][index]  # Remove the supplier from the list
+            write_database(data)  # Save the updated data back to the JSON file
+            return {"message": f"Supplier {supplier_no} deleted successfully"}
+    raise HTTPException(status_code=404, detail="Supplier not found")

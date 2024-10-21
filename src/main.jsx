@@ -19,6 +19,7 @@ import UserMenuDropdown from './components/UserMenuDropdown';
 import MoreInformation from './components/moreInformation';
 import VehicleDetails from './components/VehicleDetails';
 import SupplierDetails from './components/SupplierDetails';
+import AddSupplier from './components/AddSupplier';
 
 const router = createBrowserRouter([
   {
@@ -79,6 +80,10 @@ const router = createBrowserRouter([
   {
     path: "/supplier-details",
     element: <SupplierDetails />,
+  },
+  {
+    path: "/add-supplier",
+    element: <AddSupplier />,
   },
   {
     path: "*",

@@ -68,6 +68,12 @@
             "supplier_name": "abc1234",
             "receptionist": "abc222134",
             "tel_no": "123"
+        },
+        {
+            "supplier_no": 345,
+            "supplier_name": "abc",
+            "receptionist": "abc222",
+            "tel_no": "111"
         }
     ],
     "inspections": [

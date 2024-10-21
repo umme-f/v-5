@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next"; //useTranslation hook
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const MoreInformation = () => {
   const { t, i18n } = useTranslation();
@@ -33,6 +33,9 @@ const MoreInformation = () => {
   const toSupplierDetails = () => {
     navigate("/supplier-details");
   };
+  const toVehicleManagerDetails = () => {
+    navigate("/vehicle-manager-details");
+  };
 
   return (
     <div className="flex justify-center items-center min-h-screen">
@@ -55,18 +58,17 @@ const MoreInformation = () => {
           En
         </button>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="container mx-auto grid grid-cols-1 p-6 md:grid-cols-3 gap-6">
         {/* Vehicle details */}
-        <div className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-          <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white p-5">
+        <div className="w-full max-w-full md:max-w-none p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+          <h5 className="mb-4 text-2xl font-bold tracking-tight text-gray-900 dark:text-white text-left">
             {t("VehicleDetails")}
           </h5>
-
-          {/* Center the button */}
-          <div className="flex justify-center">
+          {/* Align button to left */}
+          <div className="flex justify-start">
             <button
               onClick={toVehicleDetails}
-              className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              className="inline-flex items-center px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
             >
               {t("ReadMore")}
             </button>
@@ -74,37 +76,49 @@ const MoreInformation = () => {
         </div>
 
         {/* Supplier details */}
-        <div className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-          <div>
-            <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white p-5">
-              {t("Supplier Details")}
-            </h5>
-          </div>
-          {/* Center the button */}
-          <div className="flex justify-center">
+        <div className="w-full max-w-full md:max-w-none p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+          <h5 className="mb-4 text-2xl font-bold tracking-tight text-gray-900 dark:text-white text-left">
+            {t("Supplier Details")}
+          </h5>
+          {/* Align button to left */}
+          <div className="flex justify-start">
             <button
               onClick={toSupplierDetails}
-              className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              className="inline-flex items-center px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
             >
-              {t("Read more")}
+              {t("ReadMore")}
             </button>
           </div>
         </div>
 
         {/* User details */}
-        <div className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-          <div>
-            <h5 className="flex justify-center mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white p-5">
-              {t("User Details")}
-            </h5>
-          </div>
-          {/* Center the button */}
-          <div className="flex justify-center">
+        <div className="w-full max-w-full md:max-w-none p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+          <h5 className="mb-4 text-2xl font-bold tracking-tight text-gray-900 dark:text-white text-left">
+            {t("User Details")}
+          </h5>
+          {/* Align button to left */}
+          <div className="flex justify-start">
             <button
               href="#"
-              className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              className="inline-flex items-center px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
             >
-              {t("Read more")}
+              {t("ReadMore")}
+            </button>
+          </div>
+        </div>
+
+        {/* Vehicle Manager details */}
+        <div className="w-full max-w-full md:max-w-none p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+          <h5 className="mb-4 text-2xl font-bold tracking-tight text-gray-900 dark:text-white text-left">
+            {t("Vehicle Manager Details")}
+          </h5>
+          {/* Align button to left */}
+          <div className="flex justify-start">
+            <button
+              onClick={toVehicleManagerDetails}
+              className="inline-flex items-center px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            >
+              {t("ReadMore")}
             </button>
           </div>
         </div>

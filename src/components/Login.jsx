@@ -6,7 +6,6 @@ import Footer from './Footer';
 function Login() {
   const { t, i18n } = useTranslation();
   const [language, setLanguage] = useState('jp');
-  const [selectedRow, setSelectedRow] = useState(null);
 
   const navigate = useNavigate();
 
@@ -39,52 +38,24 @@ function Login() {
     localStorage.setItem('selectedLanguage', 'jp');
   };
 
-  // Handle login
-  // Handle login
-const handleSuccessfulLogin = async (event) => {
-  event.preventDefault();
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
+  // Handle login without API
+  const handleSuccessfulLogin = (event) => {
+    event.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
 
-  try {
-    // Make a POST request to the /auth/token endpoint
-    const response = await fetch('http://192.168.1.171:8000/auth/token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        grant_type: 'password',  // Depending on your API, grant_type might be optional
-        username: email,
-        password: password,
-        // Optionally include client_id, client_secret, and scope if required by your API
-        client_id: 'your-client-id',
-        client_secret: 'your-client-secret',
-        scope: '',  // if required, otherwise remove it
-      }),
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      // Save the token (you could store it in localStorage or a secure cookie)
-      localStorage.setItem('token', data.access_token);
-      
-      // Save login state
+    // Simulate successful login without making any API call
+    if (email && password) {
+      // Save login state in localStorage
       localStorage.setItem('loggedIn', 'true');
       localStorage.setItem('loggedInUser', email === 'pochi@example.com' ? 'Pochi' : 'Boku');
       
       // Redirect to the next page
-      navigate('/vehicle-manager');
+      navigate('/vehicle-manager-view');
     } else {
-      alert('Invalid login credentials.');
+      alert('Please enter valid credentials.');
     }
-  } catch (error) {
-    console.error('Error during login:', error);
-    alert('There was an error with the login process.');
-  }
-};
-
-  
+  };
 
   return (
     <div className="flex flex-col min-h-screen">

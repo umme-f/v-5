@@ -20,6 +20,7 @@ import MoreInformation from './components/moreInformation';
 import VehicleDetails from './components/VehicleDetails';
 import SupplierDetails from './components/SupplierDetails';
 import AddSupplier from './components/AddSupplier';
+import VehicleManagerDetails from './components/VehicleManagerDetails';
 
 const router = createBrowserRouter([
   {
@@ -38,8 +39,12 @@ const router = createBrowserRouter([
     element: <AfterLogin />,
   },
   {
-    path: "/vehicle-manager",
+    path: "/vehicle-manager-view",
     element: <VehicleManagerTableView />,
+  },
+  {
+    path: "/vehicle-manager-details",
+    element: <VehicleManagerDetails />,
   },
   {
     path: "/user-table",

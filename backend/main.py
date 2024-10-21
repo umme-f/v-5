@@ -21,8 +21,8 @@ app.add_middleware(
 class Supplier(BaseModel):
     supplier_no: int
     supplier_name: str
-    receptionist_name: str
-    telephone_number: str
+    receptionist: str
+    tel_no: str
 
 # Function to read from the JSON file
 def read_database():
@@ -88,9 +88,12 @@ async def update_supplier(supplier_no: int, updated_supplier: Supplier):
 @app.delete("/api/suppliers/{supplier_no}")
 async def delete_supplier(supplier_no: int):
     data = read_database()
-    for index, supplier in enumerate(data["suppliers"]):
-        if supplier["supplier_no"] == supplier_no:
-            del data["suppliers"][index]  # Remove the supplier from the list
-            write_database(data)  # Save the updated data back to the JSON file
-            return {"message": f"Supplier {supplier_no} deleted successfully"}
-    raise HTTPException(status_code=404, detail="Supplier not found")
+
+    # Find the supplier by supplier_no
+    data["suppliers"] = [supplier for supplier in data["suppliers"] if supplier["supplier_no"] != supplier_no]
+
+    # Write the updated data back to the JSON file
+    write_database(data)
+
+    return {"message": "Supplier deleted successfully"}
+

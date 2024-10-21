@@ -8,8 +8,8 @@ const AddSupplier = () => {
     const [supplierData, setSupplierData] = useState({
         supplier_no: '',
         supplier_name: '',
-        receptionist_name: '',
-        telephone_number: ''
+        receptionist: '',
+        tel_no: ''
     });
 
     // Handle input change
@@ -25,8 +25,8 @@ const AddSupplier = () => {
         setSupplierData({
             supplier_no: '',
             supplier_name: '',
-            receptionist_name: '',
-            telephone_number: ''
+            receptionist: '',
+            tel_no: ''
         });
     };
 
@@ -41,8 +41,8 @@ const AddSupplier = () => {
             setSupplierData({
                 supplier_no: '',
                 supplier_name: '',
-                receptionist_name: '',
-                telephone_number: ''
+                receptionist: '',
+                tel_no: ''
             });
         } catch (error) {
             console.error('Error adding supplier:', error);
@@ -88,14 +88,14 @@ const AddSupplier = () => {
 
                 {/* Receptionist Name */}
                 <div>
-                    <label htmlFor="receptionist_name" className="block text-sm font-medium">
+                    <label htmlFor="receptionist" className="block text-sm font-medium">
                         Receptionist Name
                     </label>
                     <input
                         type="text"
-                        id="receptionist_name"
-                        name="receptionist_name"
-                        value={supplierData.receptionist_name}
+                        id="receptionist"
+                        name="receptionist"
+                        value={supplierData.receptionist}
                         onChange={handleInputChange}
                         required
                         className="border border-gray-300 rounded-lg p-2 w-full"
@@ -104,14 +104,14 @@ const AddSupplier = () => {
 
                 {/* Telephone Number */}
                 <div>
-                    <label htmlFor="telephone_number" className="block text-sm font-medium">
+                    <label htmlFor="tel_no" className="block text-sm font-medium">
                         Telephone Number
                     </label>
                     <input
                         type="text"
-                        id="telephone_number"
-                        name="telephone_number"
-                        value={supplierData.telephone_number}
+                        id="tel_no"
+                        name="tel_no"
+                        value={supplierData.tel_no}
                         onChange={handleInputChange}
                         required
                         className="border border-gray-300 rounded-lg p-2 w-full"

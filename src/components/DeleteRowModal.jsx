@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import { useTranslation } from "react-i18next";
 
-const DeleteRow = ({ isDeleteDialogOpen, confirmDelete, cancelDelete }) => {
+const DeleteRowModal = ({ isDeleteDialogOpen, confirmDelete, cancelDelete }) => {
   const { t } = useTranslation(); // translates
 
   if (!isDeleteDialogOpen) return null;
@@ -29,4 +29,4 @@ const DeleteRow = ({ isDeleteDialogOpen, confirmDelete, cancelDelete }) => {
   );
 };
 
-export default DeleteRow;
+export default DeleteRowModal;

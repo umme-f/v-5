@@ -62,26 +62,7 @@
             "end_date": null
         }
     ],
-    "suppliers": [
-        {
-            "supplier_no": 111,
-            "supplier_name": "Toyota Supplier Co.",
-            "receptionist": "John Doe",
-            "tel_no": "555-123-4567"
-        },
-        {
-            "supplier_no": 112,
-            "supplier_name": "Honda",
-            "receptionist": "Mary Doe",
-            "tel_no": "555-123-44444"
-        },
-        {
-            "supplier_no": 222,
-            "supplier_name": "abc2",
-            "receptionist_name": "abc2",
-            "telephone_number": "234567890"
-        }
-    ],
+    "suppliers": [],
     "inspections": [
         {
             "vehicle_id": 1,

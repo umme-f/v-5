@@ -1,9 +1,140 @@
-import React from 'react';
+import React, { useState } from 'react';
+import axios from 'axios';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBroom, faFloppyDisk, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 const AddSupplier = () => {
+    // State to hold input values
+    const [supplierData, setSupplierData] = useState({
+        supplier_no: '',
+        supplier_name: '',
+        receptionist_name: '',
+        telephone_number: ''
+    });
+
+    // Handle input change
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setSupplierData({
+            ...supplierData,
+            [name]: value
+        });
+    };
+    // When clear button is pressed 
+    const handleClearData = () => {
+        setSupplierData({
+            supplier_no: '',
+            supplier_name: '',
+            receptionist_name: '',
+            telephone_number: ''
+        });
+    };
+
+    // Handle form submission
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            // Make POST request to add supplier
+            await axios.post('http://localhost:8000/api/load_supplier/', supplierData);
+            alert('Supplier added successfully!');
+            // Reset the form
+            setSupplierData({
+                supplier_no: '',
+                supplier_name: '',
+                receptionist_name: '',
+                telephone_number: ''
+            });
+        } catch (error) {
+            console.error('Error adding supplier:', error);
+            alert('Failed to add supplier.');
+        }
+    };
+
     return (
-        <div>
-            Hello
+        <div className="container mx-auto p-6">
+            <h2 className="text-2xl font-bold mb-4">Add Supplier</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Supplier Number */}
+                <div>
+                    <label htmlFor="supplier_no" className="block text-sm font-medium">
+                        Supplier Number
+                    </label>
+                    <input
+                        type="number"
+                        id="supplier_no"
+                        name="supplier_no"
+                        value={supplierData.supplier_no}
+                        onChange={handleInputChange}
+                        required
+                        className="border border-gray-300 rounded-lg p-2 w-full"
+                    />
+                </div>
+
+                {/* Supplier Name */}
+                <div>
+                    <label htmlFor="supplier_name" className="block text-sm font-medium">
+                        Supplier Name
+                    </label>
+                    <input
+                        type="text"
+                        id="supplier_name"
+                        name="supplier_name"
+                        value={supplierData.supplier_name}
+                        onChange={handleInputChange}
+                        required
+                        className="border border-gray-300 rounded-lg p-2 w-full"
+                    />
+                </div>
+
+                {/* Receptionist Name */}
+                <div>
+                    <label htmlFor="receptionist_name" className="block text-sm font-medium">
+                        Receptionist Name
+                    </label>
+                    <input
+                        type="text"
+                        id="receptionist_name"
+                        name="receptionist_name"
+                        value={supplierData.receptionist_name}
+                        onChange={handleInputChange}
+                        required
+                        className="border border-gray-300 rounded-lg p-2 w-full"
+                    />
+                </div>
+
+                {/* Telephone Number */}
+                <div>
+                    <label htmlFor="telephone_number" className="block text-sm font-medium">
+                        Telephone Number
+                    </label>
+                    <input
+                        type="text"
+                        id="telephone_number"
+                        name="telephone_number"
+                        value={supplierData.telephone_number}
+                        onChange={handleInputChange}
+                        required
+                        className="border border-gray-300 rounded-lg p-2 w-full"
+                    />
+                </div>
+
+                {/* Submit Button */}
+                <div className='flex gap-3'>
+                    <button 
+                        type="submit"
+                        className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                    >
+                       <FontAwesomeIcon icon={faFloppyDisk} className='pr-2'/> Save Supplier
+                    </button>
+                    <button
+                        type="submit"
+                        onClick={handleClearData}
+                        className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                    >
+                       <FontAwesomeIcon icon={faTrash}/> Clear
+                    </button>
+                </div>
+            </form>
         </div>
     );
 };

@@ -45,17 +45,17 @@ def write_database(data):
 async def add_supplier(supplier: Supplier):
     data = read_database()
 
-    # Check if supplier_no already exists or not
-    for s in data["suppliers"]:
-        if s["supplier_no"] == supplier.supplier_no:
-            raise HTTPException(status_code=400, detail="Supplier number already exists.")
-    
+    # Check if supplier_id already exists
+    for existing_supplier in data["suppliers"]:
+        if existing_supplier["supplier_no"] == supplier.supplier_no:
+            raise HTTPException(status_code=400, detail="Supplier ID already exists.")
+
     # Add the new supplier to the list
-    data["suppliers"].append(supplier.dict())  
-    
-    # Save the updated data back to the JSON file
-    write_database(data)  
-    
+    data["suppliers"].append(supplier.dict())
+
+    # Write the updated data back to the JSON file
+    write_database(data)
+
     return supplier
 
 # Endpoint to get all suppliers

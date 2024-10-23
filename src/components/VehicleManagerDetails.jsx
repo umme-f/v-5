@@ -1,6 +1,7 @@
-import { faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faChevronUp, faCalendarDays } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useState, useEffect } from "react";
+import Calendar from "react-calendar";
 
 const VehicleManagerDetails = () => {
   const [vehicleManagerData, setVehicleManagerData] = useState({
@@ -14,6 +15,27 @@ const VehicleManagerDetails = () => {
 
   const [vehicleManagers, setVehicleManagers] = useState([]); // Keep local copy of vehicle managers
   const [vehicles, setVehicles] = useState([]); // Keep vehicle data for the dropdown
+  const [showCalendar, setShowCalendar] = useState({});
+
+  const handleCalendarToggle = (field) => {
+    // Close all calendars before opening the current one
+    setShowCalendar({
+      start_date: false,
+      end_date: false,
+      [field]: !showCalendar[field], // Only toggle the selected calendar
+    });
+  };
+
+  const handleDateChange = (field, date) => {
+    setVehicleManagerData((prev) => ({
+      ...prev,
+      [field]: date.toISOString().split("T")[0], // Store date in YYYY-MM-DD format
+    }));
+    setShowCalendar((prev) => ({
+      ...prev,
+      [field]: false, // Close the calendar after selecting the date
+    }));
+  };
 
   // Fetch vehicles and managers from the backend (i.e., database.json in public folder)
   useEffect(() => {
@@ -201,34 +223,79 @@ const VehicleManagerDetails = () => {
         </div>
 
         {/* Start Date */}
-        <div>
-          <label htmlFor="start_date" className="block text-sm font-medium">
-            Start Date
+        <div className="mb-4 relative">
+          <label className="block text-gray-700 text-sm font-bold mb-2">
+            Lease Start Date
           </label>
-          <input
-            type="date"
-            id="start_date"
-            name="start_date"
-            value={vehicleManagerData.start_date}
-            onChange={handleInputChange}
-            required
-            className="border border-gray-300 rounded-lg p-2 w-full"
-          />
+          <div className="flex">
+            <input
+              type="text"
+              value={
+                vehicleManagerData.start_date
+                  ? new Date(vehicleManagerData.start_date).toLocaleDateString("ja-JP")
+                  : ""
+              }
+              onClick={() => handleCalendarToggle("start_date")}
+              className="w-full px-3 py-2 border rounded-lg text-gray-700 cursor-pointer"
+              readOnly
+            />
+            <FontAwesomeIcon
+              icon={faCalendarDays}
+              className="text-gray-500 cursor-pointer ml-2 pt-2"
+              onClick={() => handleCalendarToggle("start_date")}
+            />
+          </div>
+          {showCalendar.start_date && (
+            <Calendar
+              onChange={(date) => handleDateChange("start_date", date)}
+              value={vehicleManagerData.start_date ? new Date(vehicleManagerData.start_date) : new Date()}
+              locale="ja"
+              calendarType="gregory"
+              formatShortWeekday={(locale, date) =>
+                ["日", "月", "火", "水", "木", "金", "土"][date.getDay()]
+              }
+              formatDay={(locale, date) => date.getDate()}
+              className="border rounded-lg shadow-lg mt-2"
+            />
+          )}
         </div>
 
         {/* End Date */}
-        <div>
-          <label htmlFor="end_date" className="block text-sm font-medium">
-            End Date
+        <div className="mb-4 relative">
+          <label className="block text-gray-700 text-sm font-bold mb-2">
+            Lease End Date
           </label>
-          <input
-            type="date"
-            id="end_date"
-            name="end_date"
-            value={vehicleManagerData.end_date}
-            onChange={handleInputChange}
-            className="border border-gray-300 rounded-lg p-2 w-full"
-          />
+          <div className="flex">
+            <input
+              type="text"
+              value={
+                vehicleManagerData.end_date
+                  ? new Date(vehicleManagerData.end_date).toLocaleDateString("ja-JP")
+                  : ""
+              }
+              onClick={() => handleCalendarToggle("end_date")}
+              className="w-full px-3 py-2 border rounded-lg text-gray-700 cursor-pointer"
+              readOnly
+            />
+            <FontAwesomeIcon
+              icon={faCalendarDays}
+              className="text-gray-500 cursor-pointer ml-2 pt-2"
+              onClick={() => handleCalendarToggle("end_date")}
+            />
+          </div>
+          {showCalendar.end_date && (
+            <Calendar
+              onChange={(date) => handleDateChange("end_date", date)}
+              value={vehicleManagerData.end_date ? new Date(vehicleManagerData.end_date) : new Date()}
+              locale="ja"
+              calendarType="gregory"
+              formatShortWeekday={(locale, date) =>
+                ["日", "月", "火", "水", "木", "金", "土"][date.getDay()]
+              }
+              formatDay={(locale, date) => date.getDate()}
+              className="border rounded-lg shadow-lg mt-2"
+            />
+          )}
         </div>
 
         {/* Submit Button */}

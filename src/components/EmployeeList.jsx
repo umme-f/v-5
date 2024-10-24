@@ -88,7 +88,7 @@ const EmployeeList = () => {
 
           {/* Delete Button */}
           <button
-            // You can add delete logic here if necessary
+            // delete logic here 
             className="rounded p-2 bg-red-500 text-white"
           >
             <FontAwesomeIcon icon={faTrash} className="pr-2" />

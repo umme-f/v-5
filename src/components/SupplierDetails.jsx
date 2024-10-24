@@ -5,6 +5,7 @@ import {
   faAdd,
   faTrash,
   faMagnifyingGlass,
+  faPenToSquare,
 } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import DeleteRowModal from "./DeleteRowModal"; // Importing the DeleteRow modal component
@@ -142,7 +143,7 @@ const SupplierDetails = () => {
       <hr className="h-1 mx-auto my-4 bg-gray-200 border-0 rounded md:my-10 dark:bg-gray-700"></hr>
 
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-bold mb-4">Supplier Data</h3>
+        <h3 className="text-lg font-bold mb-4">Existing Supplier Data</h3>
         {/* Add/Delete Supplier Buttons */}
         <div className="flex gap-3">
           <button
@@ -151,6 +152,13 @@ const SupplierDetails = () => {
           >
             <FontAwesomeIcon icon={faAdd} className="pr-2" />
             Add Supplier
+          </button>
+          <button
+            onClick={() => navigate("/edit-supplier")}
+            className="rounded p-2 bg-orange-500 text-white"
+          >
+            <FontAwesomeIcon icon={faPenToSquare} className="pr-2" />
+            Edit Supplier
           </button>
           <button
             onClick={handleDeleteSupplierClick} // Handle delete click (open confirmation modal)
@@ -178,9 +186,10 @@ const SupplierDetails = () => {
               {filteredSuppliers.map((supplier) => (
                 <tr
                 key={supplier.supplier_no}
-                className={`text-center bg-gray-50 ${String(selectedSupplier?.supplier_no) === String(supplier.supplier_no) ? 'bg-blue-200' : ''}`} 
+                className={selectedSupplier?.supplier_no === supplier.supplier_no ? 'bg-blue-200' : ''}
                 onClick={() => handleRowClick(supplier)} 
               >
+              
               
                   <td className="border px-4 py-2">{supplier.supplier_no}</td>
                   <td className="border px-4 py-2">{supplier.supplier_name}</td>

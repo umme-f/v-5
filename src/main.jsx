@@ -20,6 +20,7 @@ import MoreInformation from './components/moreInformation';
 import VehicleDetails from './components/VehicleDetails';
 import SupplierDetails from './components/SupplierDetails';
 import AddSupplier from './components/AddSupplier';
+import EditSupplier from './components/EditSupplier';
 import VehicleManagerDetails from './components/VehicleManagerDetails';
 import AddVehicleManager from './components/AddVehicleManager';
 import EditManagerDetails from './components/EditManagerDetails';
@@ -94,6 +95,10 @@ const router = createBrowserRouter([
   {
     path: "/add-supplier",
     element: <AddSupplier />,
+  },
+  {
+    path: "/edit-supplier",
+    element: <EditSupplier />,
   },
   {
     path: "/add-vehicleManager",

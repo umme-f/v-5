@@ -70,6 +70,30 @@
             "supplier_name": "Toyota",
             "receptionist_name": "Taro",
             "telephone_number": "123-456-7890"
+        },
+        {
+            "supplier_no": 124,
+            "supplier_name": "Mazda",
+            "receptionist_name": "Mira",
+            "telephone_number": "234-567-8901"
+        },
+        {
+            "supplier_no": 126,
+            "supplier_name": "Nissan",
+            "receptionist_name": "Boku",
+            "telephone_number": "567-890-1234"
+        },
+        {
+            "supplier_no": 506,
+            "supplier_name": "Daihatsu",
+            "receptionist_name": "Sakura",
+            "telephone_number": "123-456-7899"
+        },
+        {
+            "supplier_no": 509,
+            "supplier_name": "Tokyo",
+            "receptionist_name": "Tori",
+            "telephone_number": "234-567-8911"
         }
     ],
     "inspections": [

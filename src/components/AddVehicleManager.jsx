@@ -1,12 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronDown,
   faChevronUp,
   faCalendarDays,
+  faArrowLeft,
 } from "@fortawesome/free-solid-svg-icons";
 import Calendar from "react-calendar";
+import { useNavigate } from "react-router-dom";
 const AddVehicleManager = () => {
+  const navigate = useNavigate();
   const [vehicleManagerData, setVehicleManagerData] = useState({
     vehicle_no: "",
     company_id: "",
@@ -16,7 +19,6 @@ const AddVehicleManager = () => {
     end_date: "",
   });
 
-  
   const [vehicles, setVehicles] = useState([]); // Keep vehicle data for the dropdown
   const [showCalendar, setShowCalendar] = useState({});
 
@@ -59,7 +61,7 @@ const AddVehicleManager = () => {
 
       alert("Vehicle manager added successfully!");
       setVehicleManagerData({
-        manager_id:"",
+        manager_id: "",
         vehicle_no: "",
         company_id: "",
         company_name: "",
@@ -72,6 +74,25 @@ const AddVehicleManager = () => {
       alert("Failed to add vehicle manager.");
     }
   };
+
+  const handleBackClick = () => {
+    navigate("/vehicle-manager-details");
+  };
+
+  //----!!! Fetch vehicles using new API: http://localhost:8000/api/vehicles/
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/api/vehicles/");
+        const data = await response.json();
+        setVehicles(data.vehicles);
+      } catch (error) {
+        console.error("Error fetching vehicles: ", error);
+      }
+    };
+    fetchVehicles();
+  }, []);
+
   return (
     <div className="p-8 ">
       {/* Form to Add Vehicle Manager */}
@@ -79,27 +100,27 @@ const AddVehicleManager = () => {
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Vehicle Number Dropdown */}
         <div>
-          <label htmlFor="vehicle_no" className="block text-sm font-medium">
-            Vehicle Number
-          </label>
-          <select
-            id="vehicle_no"
-            name="vehicle_no"
-            value={vehicleManagerData.vehicle_no}
-            onChange={handleInputChange}
-            required
-            className="border border-gray-300 rounded-lg p-2 w-full"
-          >
-            <option value="" disabled>
-              Select Vehicle
-            </option>
-            {vehicles.map((vehicle) => (
-              <option key={vehicle.vehicle_no} value={vehicle.vehicle_no}>
-                {vehicle.vehicle_no}
+            <label htmlFor="vehicle_no" className="block text-sm font-medium">
+              Vehicle No
+            </label>
+            <select
+              id="vehicle_no"
+              name="vehicle_no"
+              value={vehicleManagerData.vehicle_no}
+              onChange={handleInputChange}
+              required
+              className="border border-gray-300 rounded-lg p-2 w-full"
+            >
+              <option value="" disabled>
+                ---Select Vehicle---
               </option>
-            ))}
-          </select>
-        </div>
+              {vehicles.map((vehicle) => (
+                <option key={vehicle.vehicle_no} value={vehicle.vehicle_no}>
+                  {vehicle.vehicle_no}
+                </option>
+              ))}
+            </select>
+          </div>
 
         {/* Company ID with Spin Button */}
         <div>
@@ -250,14 +271,24 @@ const AddVehicleManager = () => {
             />
           )}
         </div>
-
-        {/* Submit Button */}
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-        >
-          Save Vehicle Manager
-        </button>
+        <div className="flex justify-between">
+          {/* Submit Button */}
+          <button
+            type="submit"
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+          >
+            Save Vehicle Manager
+          </button>
+          {/* Back Button */}
+          <button
+            type="button"
+            onClick={handleBackClick}
+            className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
+          >
+            <FontAwesomeIcon icon={faArrowLeft} className="pr-2" />
+            Back
+          </button>
+        </div>
       </form>
     </div>
   );

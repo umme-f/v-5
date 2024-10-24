@@ -82,19 +82,19 @@ const EditManagerDetails = () => {
     }
   };
 
-// Fetch vehicles using new API
-  useEffect(()=>{
-    const fetchVehicles = async ()=>{
-      try{
+  //----!!! Fetch vehicles using new API: http://localhost:8000/api/vehicles/
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      try {
         const response = await fetch("http://localhost:8000/api/vehicles/");
         const data = await response.json();
         setVehicles(data.vehicles);
-      }catch(error){
+      } catch (error) {
         console.error("Error fetching vehicles: ", error);
       }
     };
     fetchVehicles();
-  },[]);
+  }, []);
 
   return (
     <div>
@@ -289,7 +289,8 @@ const EditManagerDetails = () => {
             )}
           </div>
 
-          <div className="flex gap-5">
+          {/*---- The Buttons for submit and back to previous page ---- */}
+          <div className="flex justify-between">
             {/* Submit Button */}
             <button
               type="button"

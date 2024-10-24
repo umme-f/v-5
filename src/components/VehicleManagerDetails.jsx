@@ -1,88 +1,125 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faAdd, faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { useNavigate } from "react-router-dom";
 
-const EditManagerDetails = () => {
+const VehicleManagerDetails = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { manager } = location.state; // Get passed manager data
+  const [vehicleManagers, setVehicleManagers] = useState([]); // Keep local copy of vehicle managers
+  const [selectedManager, setSelectedManager] = useState(null); // Track selected manager
 
-  const [vehicleManagerData, setVehicleManagerData] = useState(manager); // Pre-fill data
-  const [vehicles, setVehicles] = useState([]); // Keep vehicle data for the dropdown
-
-  // Fetch vehicles data from backend API
+  // Fetch vehicles and managers from the backend API
   useEffect(() => {
-    const fetchVehicles = async () => {
-      try {
-        const response = await fetch("http://localhost:8000/api/vehicles/");
-        const data = await response.json();
-        setVehicles(data.vehicles); // Set fetched vehicles data
-      } catch (error) {
-        console.error("Error fetching vehicles:", error);
-      }
-    };
+    fetch("http://localhost:8000/api/vehicle_managers/")
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! Status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then((data) => {
+        setVehicleManagers(data.vehicle_managers || []);
+      })
+      .catch((error) => {
+        console.error("Unable to fetch data:", error);
+      });
+  }, []);
+   // Empty dependency array ensures this runs once on component mount
 
-    fetchVehicles();
-  }, []); // Runs only once when component mounts
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setVehicleManagerData({
-      ...vehicleManagerData,
-      [name]: value,
-    });
+  // Function to handle row click and store the selected manager
+  const handleRowClick = (manager) => {
+    setSelectedManager(manager); // Store the clicked manager
   };
 
-  const handleSaveClick = async () => {
-    try {
-      const response = await fetch(`/api/vehicle_managers/${vehicleManagerData.manager_id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(vehicleManagerData),
-      });
-
-      if (response.ok) {
-        alert("Vehicle manager updated successfully!");
-        navigate("/vehicle-managers");
-      } else {
-        alert("Failed to update vehicle manager.");
-      }
-    } catch (error) {
-      console.error("Error updating vehicle manager:", error);
+  // Function to handle the Edit button click
+  const handleEditClick = () => {
+    if (selectedManager) {
+      navigate("/edit-vehicleManagerDetails", { state: { manager: selectedManager } });
+    } else {
+      alert("Please select a manager to edit.");
     }
   };
 
   return (
-    <div>
-      <h2>Edit Vehicle Manager</h2>
-      <form>
-        <div>
-          <label>Vehicle No</label>
-          <select
-            id="vehicle_no"
-            name="vehicle_no"
-            value={vehicleManagerData.vehicle_no}
-            onChange={handleInputChange}
-            required
-          >
-            <option value="" disabled>
-              ---Select Vehicle---
-            </option>
-            {vehicles.map((vehicle) => (
-              <option key={vehicle.vehicle_id} value={vehicle.vehicle_no}>
-                {vehicle.vehicle_no}
-              </option>
-            ))}
-          </select>
+    <div className="container mx-auto p-6">
+      {/* Header */}
+      <h2 className="text-2xl font-bold mb-4">Vehicle Manager Details</h2>
+
+      {/* Existing Vehicle Managers Table */}
+
+      <div className="flex justify-between">
+        <h3 className="text-lg font-bold mb-2">Existing Vehicle Managers</h3>
+        <div className="flex items-center justify-between mb-6">
+          {/* Add Button */}
+          <div className="flex gap-3">
+            <button
+              onClick={() => navigate("/add-vehicleManager")}
+              className="rounded p-2 bg-blue-500 text-white"
+            >
+              <FontAwesomeIcon icon={faAdd} className="pr-2" />
+              Add Manager
+            </button>
+            {/* Edit button */}
+            <button
+              onClick={handleEditClick} // Navigate to edit page with selected manager data
+              className="rounded p-2 bg-orange-500 text-white"
+            >
+              <FontAwesomeIcon icon={faPenToSquare} className="pr-2" />
+              Edit Manager Details
+            </button>
+            <button
+              // onClick={handleDeleteSupplierClick} // Handle delete click (open confirmation modal)
+              className="rounded p-2 bg-red-500 text-white"
+            >
+              <FontAwesomeIcon icon={faTrash} className="pr-2" />
+              Delete Manager
+            </button>
+          </div>
         </div>
-        {/* Other input fields */}
-        <button type="button" onClick={handleSaveClick}>
-          Save Vehicle Manager
-        </button>
-      </form>
+      </div>
+
+      <div className="overflow-x-auto mb-6">
+        <table className="min-w-full bg-white border border-gray-300">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="px-4 py-2 border">Manager ID</th>
+              <th className="px-4 py-2 border">Vehicle No</th>
+              <th className="px-4 py-2 border">Company ID</th>
+              <th className="px-4 py-2 border">Company Name</th>
+              <th className="px-4 py-2 border">Employee No</th>
+              <th className="px-4 py-2 border">Start Date</th>
+              <th className="px-4 py-2 border">End Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {vehicleManagers.length > 0 ? (
+              vehicleManagers.map((manager, index) => (
+                <tr
+                  key={index}
+                  className={`text-center ${selectedManager === manager ? "bg-blue-200 border" : ""}`}
+                  onClick={() => handleRowClick(manager)} // Select manager on row click
+                >
+                  <td className="border px-4 py-2">{manager.manager_id}</td>
+                  <td className="border px-4 py-2">{manager.vehicle_no}</td>
+                  <td className="border px-4 py-2">{manager.company_id}</td>
+                  <td className="border px-4 py-2">{manager.company_name}</td>
+                  <td className="border px-4 py-2">{manager.employee_no}</td>
+                  <td className="border px-4 py-2">{manager.start_date}</td>
+                  <td className="border px-4 py-2">{manager.end_date || "N/A"}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="7" className="text-center py-2">
+                  No vehicle managers found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
 
-export default EditManagerDetails;
+export default VehicleManagerDetails;

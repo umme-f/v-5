@@ -55,7 +55,7 @@
     ],
     "vehicle_managers": [
         {
-            "manager_id":1,
+            "manager_id": 1,
             "vehicle_no": 1,
             "company_id": 301,
             "company_name": "ar",
@@ -66,16 +66,10 @@
     ],
     "suppliers": [
         {
-            "supplier_no": 1234,
-            "supplier_name": "abc1234",
-            "receptionist": "abc222134",
-            "tel_no": "123"
-        },
-        {
-            "supplier_no": 345,
-            "supplier_name": "abc",
-            "receptionist": "abc222",
-            "tel_no": "111"
+            "supplier_no": 123,
+            "supplier_name": "Toyota",
+            "receptionist_name": "Taro",
+            "telephone_number": "123-456-7890"
         }
     ],
     "inspections": [
@@ -103,6 +97,22 @@
             "maintenance_cost": 200,
             "content": "Oil change and tire rotation",
             "receipt": "receipt_002"
+        }
+    ],
+    "employee": [
+        {
+            "employee_no": 1,
+            "firstname": "John",
+            "lastname": "Doe",
+            "department": "Survey",
+            "license": "2"
+        },
+        {
+            "employee_no": 2,
+            "firstname": "Mary",
+            "lastname": "Jane",
+            "department": "KSC",
+            "license": "3"
         }
     ]
 }

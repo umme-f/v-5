@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAdd, faTrash, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import {
+  faAdd,
+  faTrash,
+  faMagnifyingGlass,
+} from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
-import DeleteRowModal from "./DeleteRowModal"; // Import the DeleteRow component
+import DeleteRowModal from "./DeleteRowModal"; // Importing the DeleteRow modal component
 
 const SupplierDetails = () => {
   const [suppliers, setSuppliers] = useState([]);
@@ -27,6 +31,11 @@ const SupplierDetails = () => {
       });
   }, []);
 
+  useEffect(() => {
+    console.log("Selected Supplier Updated:", selectedSupplier);
+  }, [selectedSupplier]);
+  
+
   // Handle search input changes
   const handleSearchChange = (e) => {
     const searchValue = e.target.value;
@@ -41,22 +50,24 @@ const SupplierDetails = () => {
       return;
     }
 
+    // Filter if the input is lowercase or uppercase
     const filtered = suppliers.filter(
       (supplier) =>
         supplier.supplier_name
           .toLowerCase()
           .includes(searchValue.toLowerCase()) ||
         supplier.supplier_no.toString().includes(searchValue) ||
-        supplier.receptionist
+        supplier.receptionist_name
           .toLowerCase()
           .includes(searchValue.toLowerCase()) ||
-        supplier.tel_no.includes(searchValue)
+        supplier.telephone_number.includes(searchValue)
     );
     setFilteredSuppliers(filtered);
   };
 
   // Handle row selection
   const handleRowClick = (supplier) => {
+    console.log("Clicked supplier:", supplier);
     setSelectedSupplier(supplier); // Store the selected supplier in the state
   };
 
@@ -66,10 +77,15 @@ const SupplierDetails = () => {
     setIsDeleteDialogOpen(false);
 
     // Proceed with deletion
-    axios.delete(`http://localhost:8000/api/suppliers/${selectedSupplier.supplier_no}`)
+    axios
+      .delete(
+        `http://localhost:8000/api/suppliers/${selectedSupplier.supplier_no}`
+      )
       .then(() => {
         // Remove the supplier from the table locally
-        const updatedSuppliers = suppliers.filter(supplier => supplier.supplier_no !== selectedSupplier.supplier_no);
+        const updatedSuppliers = suppliers.filter(
+          (supplier) => supplier.supplier_no !== selectedSupplier.supplier_no
+        );
         setSuppliers(updatedSuppliers);
         setFilteredSuppliers(updatedSuppliers); // Update the filtered suppliers as well
         setSelectedSupplier(null); // Clear the selection
@@ -78,7 +94,7 @@ const SupplierDetails = () => {
         console.log("Supplier deleted successfully.");
       })
       .catch((error) => {
-        console.error('Error deleting supplier:', error);
+        console.error("Error deleting supplier:", error);
       });
   };
 
@@ -154,21 +170,26 @@ const SupplierDetails = () => {
               <tr>
                 <th className="px-4 py-2 border">Supplier No</th>
                 <th className="px-4 py-2 border">Supplier Name</th>
-                <th className="px-4 py-2 border">Receptionist</th>
-                <th className="px-4 py-2 border">Phone</th>
+                <th className="px-4 py-2 border">Receptionist Name</th>
+                <th className="px-4 py-2 border">Telephone Number</th>
               </tr>
             </thead>
             <tbody>
               {filteredSuppliers.map((supplier) => (
                 <tr
-                  key={supplier.supplier_no}
-                  className={`text-center bg-gray-50 ${selectedSupplier?.supplier_no === supplier.supplier_no ? 'bg-blue-200' : ''}`} // Highlight selected row
-                  onClick={() => handleRowClick(supplier)} // Select the row when clicked
-                >
+                key={supplier.supplier_no}
+                className={`text-center bg-gray-50 ${String(selectedSupplier?.supplier_no) === String(supplier.supplier_no) ? 'bg-blue-200' : ''}`} 
+                onClick={() => handleRowClick(supplier)} 
+              >
+              
                   <td className="border px-4 py-2">{supplier.supplier_no}</td>
                   <td className="border px-4 py-2">{supplier.supplier_name}</td>
-                  <td className="border px-4 py-2">{supplier.receptionist}</td>
-                  <td className="border px-4 py-2">{supplier.tel_no}</td>
+                  <td className="border px-4 py-2">
+                    {supplier.receptionist_name}
+                  </td>
+                  <td className="border px-4 py-2">
+                    {supplier.telephone_number}
+                  </td>
                 </tr>
               ))}
             </tbody>

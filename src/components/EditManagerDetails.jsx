@@ -2,9 +2,6 @@ import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCalendarDays,
-  faChevronUp,
-  faChevronDown,
-  faBackward,
   faArrowLeft,
   faFloppyDisk,
 } from "@fortawesome/free-solid-svg-icons";
@@ -18,6 +15,7 @@ const EditManagerDetails = () => {
 
   const [vehicleManagerData, setVehicleManagerData] = useState(manager); // Pre-fill data
   const [vehicles, setVehicles] = useState([]); // Keep vehicle data for the dropdown
+  const [employees, setEmployees] = useState([]); // Initialize as an empty array
   const [showCalendar, setShowCalendar] = useState({});
 
   const handleInputChange = (e) => {
@@ -48,7 +46,7 @@ const EditManagerDetails = () => {
   };
 
   const handleSaveClick = () => {
-    // Show warning modal before saving (implement this logic)
+    // Show warning modal before saving
     if (window.confirm("Are you sure you want to save changes?")) {
       handleConfirmSave();
     }
@@ -62,38 +60,64 @@ const EditManagerDetails = () => {
     // API call to update manager data
     try {
       const response = await fetch(
-        `/api/vehicle_manager/${vehicleManagerData.manager_id}`,
+        `http://localhost:8000/api/vehicle_manager/${vehicleManagerData.manager_id}`, // API endpoint for updating the vehicle manager
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(vehicleManagerData),
+          body: JSON.stringify(vehicleManagerData), // Send the updated data
         }
       );
+  
       if (response.ok) {
         alert("Vehicle manager updated successfully!");
-        navigate("/vehicle-managers");
+        navigate("/vehicle-managers"); // Navigate back after successful update
       } else {
-        alert("Failed to update vehicle manager.");
+        const errorData = await response.json();
+        alert(`Failed to update vehicle manager: ${errorData.detail}`);
+        console.error("Error:", errorData);
       }
     } catch (error) {
       console.error("Error updating vehicle manager:", error);
     }
   };
+  
 
-  //----!!! Fetch vehicles using new API: http://localhost:8000/api/vehicles/
+  // Fetch vehicles using the API
   useEffect(() => {
     const fetchVehicles = async () => {
       try {
         const response = await fetch("http://localhost:8000/api/vehicles/");
         const data = await response.json();
-        setVehicles(data.vehicles);
+        setVehicles(data.vehicles || []); // Ensure it's an array
       } catch (error) {
         console.error("Error fetching vehicles: ", error);
       }
     };
     fetchVehicles();
+  }, []);
+
+  // Fetch employee data using the correct endpoint
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        // Example employee numbers (adjust to your real logic)
+        const employeeNumbers = [1, 2, 3]; // Replace with logic to get employee numbers
+        const employeeData = await Promise.all(
+          employeeNumbers.map(async (employee_no) => {
+            const response = await fetch(
+              `http://localhost:8000/api/get_employee/${employee_no}`
+            );
+            return await response.json();
+          })
+        );
+        setEmployees(employeeData || []); // Ensure employees are set correctly
+      } catch (error) {
+        console.error("Error fetching employees: ", error);
+      }
+    };
+    fetchEmployees();
   }, []);
 
   return (
@@ -105,8 +129,8 @@ const EditManagerDetails = () => {
             Manager ID
             <input
               type="number"
-              id="company_id"
-              name="company_id"
+              id="manager_id"
+              name="manager_id"
               value={vehicleManagerData.manager_id}
               onChange={handleInputChange}
               required
@@ -115,6 +139,7 @@ const EditManagerDetails = () => {
               step="1"
             />
           </div>
+
           {/* Vehicle Number Dropdown */}
           <div>
             <label htmlFor="vehicle_no" className="block text-sm font-medium">
@@ -139,69 +164,36 @@ const EditManagerDetails = () => {
             </select>
           </div>
 
-          {/* Company ID with Spin Button */}
-          <div>
-            <label htmlFor="company_id" className="block text-sm font-medium">
-              Company ID
-            </label>
-            <div className="flex justify-between">
-              <input
-                type="number"
-                id="company_id"
-                name="company_id"
-                value={vehicleManagerData.company_id}
-                onChange={handleInputChange}
-                required
-                className="border border-gray-300 rounded-lg p-2 w-full"
-                min="1"
-                step="1"
-              />
-              <div className="pl-2">
-                <FontAwesomeIcon
-                  icon={faChevronUp}
-                  className="bg-gray-300 p-1 rounded"
-                />
-                <FontAwesomeIcon
-                  icon={faChevronDown}
-                  className="bg-gray-300 p-1 rounded"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Company Name */}
-          <div>
-            <label htmlFor="company_name" className="block text-sm font-medium">
-              Company Name
-            </label>
-            <input
-              type="text"
-              id="company_name"
-              name="company_name"
-              value={vehicleManagerData.company_name}
-              onChange={handleInputChange}
-              required
-              className="border border-gray-300 rounded-lg p-2 w-full"
-            />
-          </div>
-
-          {/* Employee Number */}
+          {/* Employee Number Dropdown */}
           <div>
             <label htmlFor="employee_no" className="block text-sm font-medium">
               Employee Number
             </label>
-            <input
-              type="number"
+            <select
               id="employee_no"
               name="employee_no"
               value={vehicleManagerData.employee_no}
               onChange={handleInputChange}
               required
               className="border border-gray-300 rounded-lg p-2 w-full"
-            />
+            >
+              <option value="" disabled>
+                ---Select Employee---
+              </option>
+              {employees
+              // ---!!! filter(employee => employee.employee_no && employee.firstname && employee.lastname) ensures that only employees with a valid employee_no, firstname, and lastname are displayed. This removes any blank or undefined entries.
+              .filter(employee => employee.employee_no && employee.firstname && employee.lastname)
+              .map((employee) => (
+
+                //  ---!!! Using employee.employee_no as the key ensures each entry is unique, preventing React warnings about missing keys.
+                <option key={employee.employee_no} value={employee.employee_no}>
+                  {employee.employee_no}
+                </option>
+              ))}
+            </select>
           </div>
 
-          {/* Start Date */}
+          {/* Lease Start Date */}
           <div className="mb-4 relative">
             <label className="block text-gray-700 text-sm font-bold mb-2">
               Lease Start Date
@@ -211,9 +203,7 @@ const EditManagerDetails = () => {
                 type="text"
                 value={
                   vehicleManagerData.start_date
-                    ? new Date(
-                        vehicleManagerData.start_date
-                      ).toLocaleDateString("ja-JP")
+                    ? new Date(vehicleManagerData.start_date).toLocaleDateString("ja-JP")
                     : ""
                 }
                 onClick={() => handleCalendarToggle("start_date")}
@@ -245,7 +235,7 @@ const EditManagerDetails = () => {
             )}
           </div>
 
-          {/* End Date */}
+          {/* Lease End Date */}
           <div className="mb-4 relative">
             <label className="block text-gray-700 text-sm font-bold mb-2">
               Lease End Date
@@ -255,9 +245,7 @@ const EditManagerDetails = () => {
                 type="text"
                 value={
                   vehicleManagerData.end_date
-                    ? new Date(vehicleManagerData.end_date).toLocaleDateString(
-                        "ja-JP"
-                      )
+                    ? new Date(vehicleManagerData.end_date).toLocaleDateString("ja-JP")
                     : ""
                 }
                 onClick={() => handleCalendarToggle("end_date")}
@@ -289,7 +277,7 @@ const EditManagerDetails = () => {
             )}
           </div>
 
-          {/*---- The Buttons for submit and back to previous page ---- */}
+          {/* The Buttons for submit and back to previous page */}
           <div className="flex justify-between">
             {/* Submit Button */}
             <button

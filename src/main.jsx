@@ -23,6 +23,9 @@ import AddSupplier from './components/AddSupplier';
 import VehicleManagerDetails from './components/VehicleManagerDetails';
 import AddVehicleManager from './components/AddVehicleManager';
 import EditManagerDetails from './components/EditManagerDetails';
+import EmployeeList from './components/EmployeeList';
+import AddEmployee from './components/AddEmployee';
+import EditEmployee from './components/EditEmployee';
 
 const router = createBrowserRouter([
   {
@@ -99,6 +102,18 @@ const router = createBrowserRouter([
   {
     path: "/edit-vehicleManagerDetails",
     element: <EditManagerDetails />,
+  },
+  {
+    path: "/employeelist",
+    element: <EmployeeList />,
+  },
+  {
+    path: "/add-employee",
+    element: <AddEmployee />,
+  },
+  {
+    path: "/edit-employee",
+    element: <EditEmployee />,
   },
   {
     path: "*",

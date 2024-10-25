@@ -69,7 +69,7 @@ const EditManagerDetails = () => {
           body: JSON.stringify(vehicleManagerData), // Send the updated data
         }
       );
-  
+
       if (response.ok) {
         alert("Vehicle manager updated successfully!");
         navigate("/vehicle-managers"); // Navigate back after successful update
@@ -82,7 +82,6 @@ const EditManagerDetails = () => {
       console.error("Error updating vehicle manager:", error);
     }
   };
-  
 
   // Fetch vehicles using the API
   useEffect(() => {
@@ -98,33 +97,48 @@ const EditManagerDetails = () => {
     fetchVehicles();
   }, []);
 
-  // Fetch employee data using the correct endpoint
+  // Fetch employee data using the correct endpoint---could use another API endpoints for retrieving all employee data
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        // Example employee numbers (adjust to your real logic)
-        const employeeNumbers = [1, 2, 3]; // Replace with logic to get employee numbers
-        const employeeData = await Promise.all(
-          employeeNumbers.map(async (employee_no) => {
-            const response = await fetch(
-              `http://localhost:8000/api/get_employee/${employee_no}`
-            );
-            return await response.json();
-          })
-        );
-        setEmployees(employeeData || []); // Ensure employees are set correctly
+        const response = await fetch('./backend/database.json');
+        if (!response.ok) {
+          throw new Error('Failed to fetch employee data');
+        }
+  
+        const data = await response.json();
+        console.log('Employee Data:', data);
+  
+        // Check if the data is an array
+        if (Array.isArray(data.employee)) {
+          setEmployees(data.employee);  // Set employees as the array
+        } 
+        // Check if the data is an object (single employee)
+        else if (typeof data.employee === 'object' && data.employee !== null) {
+          setEmployees([data.employee]);  // Convert the object to an array
+        } 
+        // Handle unexpected format
+        else {
+          console.error('Unexpected employee data format');
+          setEmployees([]);  // Fallback to an empty array
+        }
       } catch (error) {
-        console.error("Error fetching employees: ", error);
+        console.error('Error fetching employees:', error);
       }
     };
+  
     fetchEmployees();
   }, []);
+  
+  
+  
 
   return (
     <div>
       <div className="p-8 ">
         <h2 className="text-2xl font-bold mb-4">Edit Vehicle Manager</h2>
         <form className="space-y-4">
+          {/* Manager ID */}
           <div className="block text-sm font-medium">
             Manager ID
             <input
@@ -137,6 +151,7 @@ const EditManagerDetails = () => {
               className="border border-gray-300 rounded-lg p-2 w-full"
               min="1"
               step="1"
+              readOnly
             />
           </div>
 
@@ -148,7 +163,7 @@ const EditManagerDetails = () => {
             <select
               id="vehicle_no"
               name="vehicle_no"
-              value={vehicleManagerData.vehicle_no}
+              value={vehicleManagerData.vehicle_no} // Set the default to the selected vehicle
               onChange={handleInputChange}
               required
               className="border border-gray-300 rounded-lg p-2 w-full"
@@ -181,15 +196,20 @@ const EditManagerDetails = () => {
                 ---Select Employee---
               </option>
               {employees
-              // ---!!! filter(employee => employee.employee_no && employee.firstname && employee.lastname) ensures that only employees with a valid employee_no, firstname, and lastname are displayed. This removes any blank or undefined entries.
-              .filter(employee => employee.employee_no && employee.firstname && employee.lastname)
-              .map((employee) => (
-
-                //  ---!!! Using employee.employee_no as the key ensures each entry is unique, preventing React warnings about missing keys.
-                <option key={employee.employee_no} value={employee.employee_no}>
-                  {employee.employee_no}
-                </option>
-              ))}
+                .filter(
+                  (employee) =>
+                    employee.employee_no &&
+                    employee.firstname &&
+                    employee.lastname
+                )
+                .map((employee) => (
+                  <option
+                    key={employee.employee_no}
+                    value={employee.employee_no}
+                  >
+                    {employee.employee_no} 
+                  </option>
+                ))}
             </select>
           </div>
 
@@ -203,7 +223,9 @@ const EditManagerDetails = () => {
                 type="text"
                 value={
                   vehicleManagerData.start_date
-                    ? new Date(vehicleManagerData.start_date).toLocaleDateString("ja-JP")
+                    ? new Date(
+                        vehicleManagerData.start_date
+                      ).toLocaleDateString("ja-JP")
                     : ""
                 }
                 onClick={() => handleCalendarToggle("start_date")}
@@ -245,7 +267,9 @@ const EditManagerDetails = () => {
                 type="text"
                 value={
                   vehicleManagerData.end_date
-                    ? new Date(vehicleManagerData.end_date).toLocaleDateString("ja-JP")
+                    ? new Date(vehicleManagerData.end_date).toLocaleDateString(
+                        "ja-JP"
+                      )
                     : ""
                 }
                 onClick={() => handleCalendarToggle("end_date")}

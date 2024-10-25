@@ -48,6 +48,7 @@ class Employee(BaseModel):
     department: str
     license: str
 
+
 # Function to read from the JSON file
 def read_database():
     if os.path.exists('database.json'):
@@ -63,6 +64,15 @@ def write_database(data):
             json.dump(data, file, indent=4)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to write data: {e}")
+
+# Endpoint to get all employees
+@app.get("/api/employees")
+async def get_all_employees():
+    data = read_database()  # Assuming you are reading from 'database.json'
+    if "employees" in data:
+        return {"employees": data["employees"]}
+    else:
+        raise HTTPException(status_code=404, detail="Employees data not found")
 
 
 
@@ -150,6 +160,25 @@ async def get_all_employees():
     else:
         raise HTTPException(status_code=404, detail="Employee data not found")
 
+# Endpoint to load employee
+@app.post("/api/load_employees")
+async def add_employee(employee: Employee):
+    data = read_database()
+
+    # Check if employee_no already exists
+    for existing_employee in data["employees"]:
+        if existing_employee["employee_no"] == employee.employee_no:
+            raise HTTPException(status_code=400, detail="Employee ID already exists.")
+
+    # Add the new employee to the list
+    data["employees"].append(employee.dict())
+
+    # Write the updated data back to the JSON file
+    write_database(data)
+
+    return employee
+
+
 # Endpoint to get a single employee by employee_no
 @app.get("/api/get_employee/{employee_no}")
 async def get_employee(employee_no: int):
@@ -186,6 +215,15 @@ async def add_vehicle_manager(manager: VehicleManager):
     write_database(data)
 
     return manager
+
+@app.get("/api/vehicles/")
+async def get_vehicles():
+    data = read_database()
+    if "vehicles" in data:
+        return {"vehicles": data["vehicles"]}
+    else:
+        raise HTTPException(status_code=404, detail="Vehicle data not found")
+
 
 # Endpoint to fetch all vehicle managers
 @app.get("/api/vehicle_managers/")

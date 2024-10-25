@@ -103,7 +103,7 @@ const VehicleManagerDetails = () => {
                   <td className="border px-4 py-2">{manager.vehicle_no}</td>
                   <td className="border px-4 py-2">{manager.company_id}</td>
                   <td className="border px-4 py-2">{manager.company_name}</td>
-                  <td className="border px-4 py-2">{manager.employee_no}</td>
+                  <td className="border px-4 py-2">{manager.employee_id}</td>
                   <td className="border px-4 py-2">{manager.start_date}</td>
                   <td className="border px-4 py-2">{manager.end_date || "N/A"}</td>
                 </tr>

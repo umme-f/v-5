@@ -15,6 +15,8 @@ const AddVehicleManager = () => {
     company_id: "",
     company_name: "",
     employee_no: "",
+    employee_name: "",
+    vehicle_number_plate: "",
     start_date: "",
     end_date: "",
   });
@@ -41,34 +43,61 @@ const AddVehicleManager = () => {
   };
 
   const handleDateChange = (field, date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    const formattedDate = `${year}-${month}-${day}`;
+
     setVehicleManagerData((prev) => ({
       ...prev,
-      [field]: date.toISOString().split("T")[0], // Store date in YYYY-MM-DD format
+      [field]: formattedDate,
     }));
     setShowCalendar((prev) => ({
       ...prev,
-      [field]: false, // Close the calendar after selecting the date
+      [field]: false,
     }));
   };
 
-  // Handle form submission for adding a new vehicle manager
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(vehicleManagerData); // Check if the form data is correct before submission
+    console.log(vehicleManagerData);
+  // Ensure numbers are passed correctly
+  const updatedVehicleManagerData = {
+    ...vehicleManagerData,
+    vehicle_no: parseInt(vehicleManagerData.vehicle_no, 10),
+    company_id: parseInt(vehicleManagerData.company_id, 10),
+    employee_no: parseInt(vehicleManagerData.employee_no, 10),
+  };
     try {
-      // Update the local state with new vehicle manager
-      setVehicleManagers([...vehicleManagers, vehicleManagerData]);
+      const response = await fetch(
+        "http://localhost:8000/api/load_vehicle_manager/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(vehicleManagerData),
+        }
+      );
 
-      alert("Vehicle manager added successfully!");
-      setVehicleManagerData({
-        manager_id: "",
-        vehicle_no: "",
-        company_id: "",
-        company_name: "",
-        employee_no: "",
-        start_date: "",
-        end_date: "",
-      });
+      if (response.ok) {
+        alert("Vehicle manager added successfully!");
+        setVehicleManagerData({
+          vehicle_no: "",
+          company_id: "",
+          company_name: "",
+          employee_no: "",
+          employee_name: "",
+          vehicle_number_plate: "",
+          start_date: "",
+          end_date: "",
+        });
+      } else {
+        const errorData = await response.json();
+        console.error("Error adding vehicle manager:", errorData);
+        alert("Failed to add vehicle manager.");
+      }
     } catch (error) {
       console.error("Error adding vehicle manager:", error);
       alert("Failed to add vehicle manager.");
@@ -100,27 +129,27 @@ const AddVehicleManager = () => {
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Vehicle Number Dropdown */}
         <div>
-            <label htmlFor="vehicle_no" className="block text-sm font-medium">
-              Vehicle No
-            </label>
-            <select
-              id="vehicle_no"
-              name="vehicle_no"
-              value={vehicleManagerData.vehicle_no}
-              onChange={handleInputChange}
-              required
-              className="border border-gray-300 rounded-lg p-2 w-full"
-            >
-              <option value="" disabled>
-                ---Select Vehicle---
+          <label htmlFor="vehicle_no" className="block text-sm font-medium">
+            Vehicle No
+          </label>
+          <select
+            id="vehicle_no"
+            name="vehicle_no"
+            value={vehicleManagerData.vehicle_no}
+            onChange={handleInputChange}
+            required
+            className="border border-gray-300 rounded-lg p-2 w-full"
+          >
+            <option value="" disabled>
+              ---Select Vehicle---
+            </option>
+            {vehicles.map((vehicle) => (
+              <option key={vehicle.vehicle_no} value={vehicle.vehicle_no}>
+                {vehicle.vehicle_no}
               </option>
-              {vehicles.map((vehicle) => (
-                <option key={vehicle.vehicle_no} value={vehicle.vehicle_no}>
-                  {vehicle.vehicle_no}
-                </option>
-              ))}
-            </select>
-          </div>
+            ))}
+          </select>
+        </div>
 
         {/* Company ID with Spin Button */}
         <div>
@@ -178,6 +207,39 @@ const AddVehicleManager = () => {
             id="employee_no"
             name="employee_no"
             value={vehicleManagerData.employee_no}
+            onChange={handleInputChange}
+            required
+            className="border border-gray-300 rounded-lg p-2 w-full"
+          />
+        </div>
+        {/* Employee Name */}
+        <div>
+          <label htmlFor="employee_name" className="block text-sm font-medium">
+            Employee Name
+          </label>
+          <input
+            type="text"
+            id="employee_name"
+            name="employee_name"
+            value={vehicleManagerData.employee_name}
+            onChange={handleInputChange}
+            required
+            className="border border-gray-300 rounded-lg p-2 w-full"
+          />
+        </div>
+        {/* vehicle_number_plate */}
+        <div>
+          <label
+            htmlFor="vehicle_number_plate"
+            className="block text-sm font-medium"
+          >
+            Vehicle Number Plate
+          </label>
+          <input
+            type="text"
+            id="vehicle_number_plate"
+            name="vehicle_number_plate"
+            value={vehicleManagerData.vehicle_number_plate}
             onChange={handleInputChange}
             required
             className="border border-gray-300 rounded-lg p-2 w-full"

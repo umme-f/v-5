@@ -37,6 +37,8 @@ class VehicleManager(BaseModel):
     company_id: int
     company_name: str
     employee_no: int
+    employee_name:str
+    vehicle_number_plate:str
     start_date: str
     end_date: Optional[str]  # Optional if it can be null
 

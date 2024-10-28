@@ -66,12 +66,6 @@
     ],
     "suppliers": [
         {
-            "supplier_no": 123,
-            "supplier_name": "Toyota",
-            "receptionist_name": "Taro",
-            "telephone_number": "123-456-7890"
-        },
-        {
             "supplier_no": 124,
             "supplier_name": "Mazda",
             "receptionist_name": "Mira",

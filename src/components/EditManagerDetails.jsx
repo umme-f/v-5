@@ -56,23 +56,24 @@ const EditManagerDetails = () => {
     navigate("/vehicle-manager-details");
   };
 
+  // Save button function
   const handleConfirmSave = async () => {
-    // API call to update manager data
+    console.log("Sending Data:", vehicleManagerData);  // Log the data being sent
     try {
       const response = await fetch(
-        `http://localhost:8000/api/vehicle_manager/${vehicleManagerData.manager_id}`, // API endpoint for updating the vehicle manager
+        `http://localhost:8000/api/vehicle_manager/${vehicleManagerData.manager_id}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(vehicleManagerData), // Send the updated data
+          body: JSON.stringify(vehicleManagerData),
         }
       );
-
+  
       if (response.ok) {
         alert("Vehicle manager updated successfully!");
-        navigate("/vehicle-managers"); // Navigate back after successful update
+        navigate("/vehicle-managers");
       } else {
         const errorData = await response.json();
         alert(`Failed to update vehicle manager: ${errorData.detail}`);
@@ -82,6 +83,7 @@ const EditManagerDetails = () => {
       console.error("Error updating vehicle manager:", error);
     }
   };
+  
 
   // Fetch vehicles using the API
   useEffect(() => {

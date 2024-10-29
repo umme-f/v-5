@@ -267,3 +267,15 @@ async def get_all_employees():
         return {"employees": data["employees"]}
     else:
         raise HTTPException(status_code=404, detail="Employee data not found")
+    
+# 5. Endpoint to update an employee by employee_no
+@app.put("/api/employees/{employee_no}")
+async def update_employee(employee_no: int, updated_employee: Employee):
+    data = read_database()
+    for index, employee in enumerate(data["employees"]):
+        if employee["employee_no"] == employee_no:
+            data["employees"][index] = updated_employee.dict()  # Update the employee
+            write_database(data)  # Save the updated data back to the JSON file
+            return updated_employee
+    raise HTTPException(status_code=404, detail="Employee not found")
+

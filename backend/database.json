@@ -127,9 +127,16 @@
         {
             "employee_no": 2,
             "firstname": "Mary",
-            "lastname": "Jane",
+            "lastname": "Janet",
             "department": "KSC",
             "license": "3"
+        },
+        {
+            "employee_no": 1,
+            "firstname": "Taro",
+            "lastname": "Yamada",
+            "department": "Pochi",
+            "license": "2"
         }
     ]
 }

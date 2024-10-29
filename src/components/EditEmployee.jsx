@@ -2,7 +2,7 @@ import React, { useState, useEffect }from "react";
 import  { toast, ToastContainer} from "react-toastify";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft, faFloppyDisk } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faFloppyDisk} from "@fortawesome/free-solid-svg-icons";
 import EditOrChangeModal from "./EditOrChangeModal";
 const EditEmployee = () => {
     const navigate = useNavigate();
@@ -13,8 +13,8 @@ const EditEmployee = () => {
     // Initialize state
   const [employeeData, setEmployeeData] = useState({
     employee_no: employee?.employee_no || "",
-    first_name: employee?.first_name || "",
-    last_name: employee?.last_name || "",
+    firstname: employee?.firstname || "",
+    lastname: employee?.lastname || "",
     department: employee?.department || "",
     license: employee?.license || "",
   });
@@ -88,7 +88,6 @@ useEffect(() => {
         const errorData = await response.json();
         
         toast.error(`Failed to update employee data: ${errorData.detail}`);
-        // alert(`Failed to update supplier data: ${errorData.detail}`);
       }
     } catch (error) {
       console.error("Error updating employee:", error);
@@ -110,7 +109,7 @@ useEffect(() => {
              Employee No
               <input
                 type="number"
-                name="supplier_no"
+                name="employee_no"
                 value={employeeData.employee_no}
                 onChange={handleInputChange}
                 required
@@ -123,8 +122,8 @@ useEffect(() => {
              First Name
               <input
                 type="text"
-                name="first_name"
-                value={employeeData.first_name}
+                name="firstname"
+                value={employeeData.firstname}
                 onChange={handleInputChange}
                 required
                 className="border border-gray-300 rounded-lg p-2 w-full"
@@ -135,8 +134,8 @@ useEffect(() => {
               Last Name
               <input
                 type="text"
-                name="last_name"
-                value={employeeData.last_name}
+                name="lastname"
+                value={employeeData.lastname}
                 onChange={handleInputChange}
                 required
                 className="border border-gray-300 rounded-lg p-2 w-full"
@@ -194,7 +193,7 @@ useEffect(() => {
           />
         </>
       ) : (
-        <p>Loading supplier data...</p>
+        <p>Loading employee data...</p>
       )}
     </div>
   );

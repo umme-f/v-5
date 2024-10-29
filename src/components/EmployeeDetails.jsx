@@ -68,16 +68,6 @@ const EmployeeDetails = () => {
     setSelectedEmployee(employee);
   };
 
-  // Handle edit click (navigate to edit page)
-  const handleEditClick = () => {
-    if (selectedEmployee) {
-      navigate(`/edit-employee/${selectedEmployee.employee_no}`, {
-        state: { employee: selectedEmployee },
-      });
-    } else {
-      alert("Please select an employee to edit.");
-    }
-  };
   // Confirm delete action
   const confirmDelete = () => {
     // Close the delete modal
@@ -124,6 +114,18 @@ const EmployeeDetails = () => {
     setIsSelectRowWarningOpen(false);
   };
 
+  // Handle Edit Supplier button click
+const handleEditEmployeeClick = () => {
+  if (selectedEmployee) {
+
+    //  The next line means the selected supplier data is stored in the router's location state. This state is accessible in the destination component (EditSupplier)
+    navigate("/edit-employee", { state: { employee: selectedEmployee } });
+
+  } else {
+    alert("Please select a employee to edit.");
+  }
+};
+
   return (
     <div className="container mx-auto p-6">
       <div className="flex justify-between">
@@ -162,7 +164,7 @@ const EmployeeDetails = () => {
 
           {/* Edit Button */}
           <button
-            onClick={handleEditClick}
+            onClick={handleEditEmployeeClick}
             className="rounded p-2 bg-orange-500 text-white"
           >
             <FontAwesomeIcon icon={faPenToSquare} className="pr-2" />

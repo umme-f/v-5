@@ -19,8 +19,8 @@ const AddEmployee = () => {
     // Handle input change
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setSupplierData({
-            ...supplierData,
+        setEmployeeData({
+            ...employeeData,
             [name]: value
         });
     };
@@ -52,9 +52,10 @@ const AddEmployee = () => {
     // When clear button is pressed
     const handleClearData = (e) => {
         e.preventDefault(); // Prevent form default submission behavior
-        setSupplierData({
+        setEmployeeData({
             employee_no: '',
-            employee_name: '',
+            firstname: '',
+            lastname: '',
             department: '',
             license: ''
         });
@@ -83,16 +84,31 @@ const AddEmployee = () => {
                     />
                 </div>
 
-                {/* Employee Name */}
+                {/* Employee 1st Name */}
                 <div>
                     <label htmlFor="employee_name" className="block text-sm font-medium">
-                        Employee Name
+                        Employee First Name
                     </label>
                     <input
                         type="text"
-                        id="employee_name"
-                        name="employee_name"
-                        value={employeeData.employee_name}
+                        id="firstname"
+                        name="firstname"
+                        value={employeeData.firstname}
+                        onChange={handleInputChange}
+                        required
+                        className="border border-gray-300 rounded-lg p-2 w-full"
+                    />
+                </div>
+                {/* Employee Last Name */}
+                <div>
+                    <label htmlFor="employee_name" className="block text-sm font-medium">
+                        Employee Last Name
+                    </label>
+                    <input
+                        type="text"
+                        id="lastname"
+                        name="lastname"
+                        value={employeeData.lastname}
                         onChange={handleInputChange}
                         required
                         className="border border-gray-300 rounded-lg p-2 w-full"

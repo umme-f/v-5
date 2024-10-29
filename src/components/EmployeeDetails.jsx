@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faAdd,
@@ -7,44 +8,33 @@ import {
   faMagnifyingGlass,
 } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
+import DeleteRowModal from "./DeleteRowModal"; // Importing the DeleteRow modal component
+
 
 const EmployeeDetails = () => {
   const navigate = useNavigate(); // Hook to navigate between routes
   const [employees, setEmployees] = useState([]);
-  const [filteredEmployees, setFilteredEmployees] = useState([]);
-
   const [searchTerm, setSearchTerm] = useState("");
-
+  const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null); //
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false); // State to control delete modal
+  const [isSelectRowWarningOpen, setIsSelectRowWarningOpen] = useState(false); // State to control no row selected modal
 
   // Fetch employee data from the API
+  // Fetch supplier data from FastAPI backend
   useEffect(() => {
-    const fetchEmployees = async () => {
-      try {
-        const response = await fetch(
-          "http://localhost:8000/api/load_employees",{
-            method: "GET",
-          }
-        ); // Ensure FastAPI is running and this URL is correct
-        if (response.ok) {
-          const data = await response.json();
-          if (data.employees) {
-            setEmployees(data.employee);
-            setFilteredEmployees(data.employees); // Initialize filtered data
-
-          } else {
-            console.error("Employee data not found.");
-          }
-        } else {
-          console.error("Failed to fetch employees");
-        }
-      } catch (error) {
-        console.error("Error fetching employees:", error);
-      }
-    };
-
-    fetchEmployees();
+    axios
+      .get("http://localhost:8000/api/employees") // Adjust to your API endpoint
+      .then((response) => {
+        setEmployees(response.data.employees);
+        setFilteredEmployees(response.data.employees); // Initialize filtered employees
+      })
+      .catch((error) => {
+        console.error("There was an error fetching the employees!", error);
+      });
   }, []);
+
+
 
   // Handle search input changes
   const handleSearchChange = (e) => {
@@ -87,6 +77,51 @@ const EmployeeDetails = () => {
     } else {
       alert("Please select an employee to edit.");
     }
+  };
+  // Confirm delete action
+  const confirmDelete = () => {
+    // Close the delete modal
+    setIsDeleteDialogOpen(false);
+
+    // Proceed with deletion
+    axios
+      .delete(
+        `http://localhost:8000/api/employees/${selectedEmployee.employee_no}`
+      )
+      .then(() => {
+        // Remove the supplier from the table locally
+        const updatedEmployees = employees.filter(
+          (employee) => employee.employee_no !== selectedEmployee.employee_no
+        );
+        setEmployees(updatedEmployees);
+        setFilteredEmployees(updatedEmployees); // Update the filtered suppliers as well
+        setSelectedEmployee(null); // Clear the selection
+
+        // Display a success message within the app (instead of an alert)
+        console.log("Supplier deleted successfully.");
+      })
+      .catch((error) => {
+        console.error("Error deleting supplier:", error);
+      });
+  };
+
+  // Cancel delete action
+  const cancelDelete = () => {
+    setIsDeleteDialogOpen(false); // Close the delete confirmation modal
+  };
+
+  // When clicking the delete button, open the confirmation modal or show warning if no row is selected
+  const handleDeleteEmployeeClick = () => {
+    if (selectedEmployee) {
+      setIsDeleteDialogOpen(true); // Open DeleteRow modal
+    } else {
+      setIsSelectRowWarningOpen(true); // Show a warning modal if no row is selected
+    }
+  };
+
+  // Close the warning modal for no row selected
+  const closeSelectRowWarning = () => {
+    setIsSelectRowWarningOpen(false);
   };
 
   return (
@@ -136,7 +171,7 @@ const EmployeeDetails = () => {
 
           {/* Delete Button */}
           <button
-            // delete logic here
+            onClick={handleDeleteEmployeeClick}
             className="rounded p-2 bg-red-500 text-white"
           >
             <FontAwesomeIcon icon={faTrash} className="pr-2" />
@@ -179,6 +214,30 @@ const EmployeeDetails = () => {
           </tbody>
         </table>
       </div>
+      {/* Delete Confirmation Modal */}
+      <DeleteRowModal
+        isDeleteDialogOpen={isDeleteDialogOpen}
+        confirmDelete={confirmDelete}
+        cancelDelete={cancelDelete}
+      />
+
+      {/* No Row Selected Warning Modal */}
+      {isSelectRowWarningOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+          <div className="bg-white p-6 rounded shadow-md">
+            <h2 className="text-xl mb-4">No Row Selected</h2>
+            <p className="mb-4">Please select a row before deleting.</p>
+            <div className="flex justify-end">
+              <button
+                onClick={closeSelectRowWarning}
+                className="px-4 py-2 bg-gray-500 text-white rounded"
+              >
+                Okay
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

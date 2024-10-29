@@ -30,7 +30,7 @@ useEffect(() => {
       const fetchEmployeeData = async () => {
         try {
           const response = await fetch(
-            `http://localhost:8000/api/employees/${employee.employee_no}`
+            `http://localhost:8000/api/get_employee/${employee.employee_no}`
           );
           if (response.ok) {
             const data = await response.json();

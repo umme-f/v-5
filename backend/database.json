@@ -125,13 +125,6 @@
     ],
     "employees": [
         {
-            "employee_no": 1,
-            "firstname": "John",
-            "lastname": "Doe",
-            "department": "Survey",
-            "license": "2"
-        },
-        {
             "employee_no": 2,
             "firstname": "Mary",
             "lastname": "Jane",

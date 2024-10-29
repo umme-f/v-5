@@ -65,7 +65,7 @@ const AddEmployee = () => {
             {/* ToastContainer for displaying toast messages */}
             <ToastContainer />
 
-            <h2 className="text-2xl font-bold mb-4">Add Supplier</h2>
+            <h2 className="text-2xl font-bold mb-4">Add Employee</h2>
             <form className="space-y-4">
                 {/* Employee Number */}
                 <div>

@@ -66,11 +66,24 @@ const SupplierDetails = () => {
     setFilteredSuppliers(filtered);
   };
 
-  // Handle row selection
-  const handleRowClick = (supplier) => {
-    console.log("Clicked supplier:", supplier);
-    setSelectedSupplier(supplier); // Store the selected supplier in the state
-  };
+ // Handle row selection
+const handleRowClick = (supplier) => {
+  console.log("Clicked supplier:", supplier);
+  setSelectedSupplier(supplier); // Set the selected supplier properly
+};
+
+// Handle Edit Supplier button click
+const handleEditSupplierClick = () => {
+  if (selectedSupplier) {
+
+    //  The next line means the selected supplier data is stored in the router's location state. This state is accessible in the destination component (EditSupplier)
+    navigate("/edit-supplier", { state: { supplier: selectedSupplier } });
+
+  } else {
+    alert("Please select a supplier to edit.");
+  }
+};
+
 
   // Confirm delete action
   const confirmDelete = () => {
@@ -154,7 +167,7 @@ const SupplierDetails = () => {
             Add Supplier
           </button>
           <button
-            onClick={() => navigate("/edit-supplier")}
+            onClick={handleEditSupplierClick}
             className="rounded p-2 bg-orange-500 text-white"
           >
             <FontAwesomeIcon icon={faPenToSquare} className="pr-2" />

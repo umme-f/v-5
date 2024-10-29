@@ -67,17 +67,10 @@ def write_database(data):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to write data: {e}")
 
-# Endpoint to get all employees
-@app.get("/api/employees")
-async def get_all_employees():
-    data = read_database()  # Assuming you are reading from 'database.json'
-    if "employees" in data:
-        return {"employees": data["employees"]}
-    else:
-        raise HTTPException(status_code=404, detail="Employees data not found")
 
 
 
+# --- Supplier endpoints ---
 # Endpoint to load supplier data
 @app.post("/api/load_supplier/")
 async def add_supplier(supplier: Supplier):
@@ -153,51 +146,6 @@ async def add_vehicle(vehicle: Vehicle):
 
     return vehicle
 
-# Endpoint to get all employees
-@app.get("/api/employees")
-async def get_all_employees():
-    data = read_database()
-    if "employees" in data:
-        return {"employees": data["employees"]}
-    else:
-        raise HTTPException(status_code=404, detail="Employee data not found")
-
-# Endpoint to load employee
-@app.post("/api/load_employees")
-async def add_employee(employee: Employee):
-    data = read_database()
-
-    # Check if employee_no already exists
-    for existing_employee in data["employees"]:
-        if existing_employee["employee_no"] == employee.employee_no:
-            raise HTTPException(status_code=400, detail="Employee ID already exists.")
-
-    # Add the new employee to the list
-    data["employees"].append(employee.dict())
-
-    # Write the updated data back to the JSON file
-    write_database(data)
-
-    return employee
-
-
-# Endpoint to get a single employee by employee_no
-@app.get("/api/get_employee/{employee_no}")
-async def get_employee(employee_no: int):
-    data = read_database()
-
-    # Check if the 'employees' key exists
-    if "employees" not in data:
-        raise HTTPException(status_code=404, detail="Employee data not found")
-
-    # Find the employee by employee_no
-    for employee in data["employees"]:
-        if employee["employee_no"] == employee_no:
-            return employee
-
-    # If no matching employee is found
-    raise HTTPException(status_code=404, detail="Employee not found")
-
 # --- Other Endpoints for Vehicle and Vehicle Manager ---
 
 # Endpoint to add a new vehicle manager
@@ -265,3 +213,44 @@ async def delete_vehicle_manager(vehicle_id: int):
     write_database(data)
 
     return {"message": "Vehicle Manager deleted successfully"}
+
+
+# --- Employee Endpoints ---
+# Endpoint to get all employees
+# @app.get("/api/employees")
+# async def get_all_employees():
+#     data = read_database()  # Assuming you are reading from 'database.json'
+#     if "employees" in data:
+#         return {"employees": data["employees"]}
+#     else:
+#         raise HTTPException(status_code=404, detail="Employees data not found")
+# Endpoint to get all employees
+@app.get("/api/load_employees")
+async def get_all_employees():
+    data = read_database()
+    if "employees" in data:
+        return {"employees": data["employees"]}
+    else:
+        raise HTTPException(status_code=404, detail="Employee data not found")
+
+
+
+# Endpoint to load employee
+# @app.post("/api/load_employees")
+# async def add_employee(employee: Employee):
+#     data = read_database()
+
+#     # Check if employee_no already exists
+#     for existing_employee in data["employees"]:
+#         if existing_employee["employee_no"] == employee.employee_no:
+#             raise HTTPException(status_code=400, detail="Employee ID already exists.")
+
+#     # Add the new employee to the list
+#     data["employees"].append(employee.dict())  # Use "employees" here
+
+#     # Write the updated data back to the JSON file
+#     write_database(data)
+
+#     return employee
+
+

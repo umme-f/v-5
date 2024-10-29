@@ -68,7 +68,7 @@
         {
             "supplier_no": 124,
             "supplier_name": "Mazda",
-            "receptionist_name": "Mira",
+            "receptionist_name": "Pochi12",
             "telephone_number": "234-567-8901"
         },
         {
@@ -78,16 +78,22 @@
             "telephone_number": "567-890-1234"
         },
         {
-            "supplier_no": 506,
-            "supplier_name": "Daihatsu",
-            "receptionist_name": "Sakura",
-            "telephone_number": "123-456-7899"
+            "supplier_no": 125,
+            "supplier_name": "abc333",
+            "receptionist_name": "Pochi",
+            "telephone_number": "123-456-7890"
         },
         {
-            "supplier_no": 509,
-            "supplier_name": "Tokyo",
-            "receptionist_name": "Tori",
-            "telephone_number": "234-567-8911"
+            "supplier_no": 127,
+            "supplier_name": "abc1",
+            "receptionist_name": "Pochi1",
+            "telephone_number": "123-456-7891"
+        },
+        {
+            "supplier_no": 500,
+            "supplier_name": "Daihatsu",
+            "receptionist_name": "Boku1",
+            "telephone_number": "123-456-7899"
         }
     ],
     "inspections": [
@@ -117,7 +123,7 @@
             "receipt": "receipt_002"
         }
     ],
-    "employee": [
+    "employees": [
         {
             "employee_no": 1,
             "firstname": "John",

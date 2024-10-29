@@ -24,9 +24,11 @@ import EditSupplier from './components/EditSupplier';
 import VehicleManagerDetails from './components/VehicleManagerDetails';
 import AddVehicleManager from './components/AddVehicleManager';
 import EditManagerDetails from './components/EditManagerDetails';
-import EmployeeList from './components/EmployeeList';
 import AddEmployee from './components/AddEmployee';
 import EditEmployee from './components/EditEmployee';
+import EditOrChangeModal from './components/EditOrChangeModal';
+import EmployeeDetails from './components/EmployeeDetails';
+
 
 const router = createBrowserRouter([
   {
@@ -109,8 +111,8 @@ const router = createBrowserRouter([
     element: <EditManagerDetails />,
   },
   {
-    path: "/employeelist",
-    element: <EmployeeList />,
+    path: "/employee-details",
+    element: <EmployeeDetails />,
   },
   {
     path: "/add-employee",
@@ -119,6 +121,10 @@ const router = createBrowserRouter([
   {
     path: "/edit-employee",
     element: <EditEmployee />,
+  },
+  {
+    path: "/editOrChangeModal",
+    element: <EditOrChangeModal />,
   },
   {
     path: "*",

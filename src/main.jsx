@@ -16,7 +16,7 @@ import EditButton from './components/EditButton';
 import CarNotification from './components/CarNotification';
 import CarDetails from './components/CarDetails';
 import UserMenuDropdown from './components/UserMenuDropdown';
-import MoreInformation from './components/moreInformation';
+import MoreInformation from './components/MoreInformation';
 import VehicleDetails from './components/VehicleDetails';
 import SupplierDetails from './components/SupplierDetails';
 import AddSupplier from './components/AddSupplier';

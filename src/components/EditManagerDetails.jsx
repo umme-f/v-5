@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
+import  { toast, ToastContainer} from "react-toastify";
+import EditOrChangeModal from "./EditOrChangeModal";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronUp, faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import {
   faCalendarDays,
   faArrowLeft,
@@ -12,6 +16,7 @@ const EditManagerDetails = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { manager } = location.state; // Get passed manager data
+  const [isChangeDialogOpen, setIsChangeDialogOpen] = useState(false);
 
   const [vehicleManagerData, setVehicleManagerData] = useState(manager); // Pre-fill data
   const [vehicles, setVehicles] = useState([]); // Keep vehicle data for the dropdown
@@ -46,10 +51,15 @@ const EditManagerDetails = () => {
   };
 
   const handleSaveClick = () => {
-    // Show warning modal before saving
-    if (window.confirm("Are you sure you want to save changes?")) {
-      handleConfirmSave();
-    }
+    setIsChangeDialogOpen(true); // open the modal when the user tries to save
+  };
+  const confirmChange = () => {
+    setIsChangeDialogOpen(false); // close the modal
+    handleConfirmSave(); // proceed with saving data
+  };
+
+  const cancelChange = () => {
+    setIsChangeDialogOpen(false); // close the modal without saving
   };
 
   const handleBackClick = () => {
@@ -58,10 +68,10 @@ const EditManagerDetails = () => {
 
   // Save button function
   const handleConfirmSave = async () => {
-    console.log("Sending Data:", vehicleManagerData);  // Log the data being sent
+    console.log("Sending Data:", vehicleManagerData); // Log the data being sent
     try {
       const response = await fetch(
-        `http://localhost:8000/api/vehicle_manager/${vehicleManagerData.manager_id}`,
+        `http://localhost:8000/api/vehicle_manager/${vehicleManagerData.employee_no}`,
         {
           method: "PUT",
           headers: {
@@ -70,10 +80,14 @@ const EditManagerDetails = () => {
           body: JSON.stringify(vehicleManagerData),
         }
       );
-  
+
       if (response.ok) {
-        alert("Vehicle manager updated successfully!");
-        navigate("/vehicle-managers");
+        
+        toast.success("Vehicle Manager saved successfully!", {
+          position: "top-right",
+          autoClose: 3000, // Auto close after 3seconds
+          onClose: () => navigate("/vehicle-manager-details"), // Navigate back to the previous page after toast closes
+      });
       } else {
         const errorData = await response.json();
         alert(`Failed to update vehicle manager: ${errorData.detail}`);
@@ -83,7 +97,6 @@ const EditManagerDetails = () => {
       console.error("Error updating vehicle manager:", error);
     }
   };
-  
 
   // Fetch vehicles using the API
   useEffect(() => {
@@ -103,116 +116,152 @@ const EditManagerDetails = () => {
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        const response = await fetch('./backend/database.json');
+        const response = await fetch("./backend/database.json");
         if (!response.ok) {
-          throw new Error('Failed to fetch employee data');
+          throw new Error("Failed to fetch employee data");
         }
-  
+
         const data = await response.json();
-        console.log('Employee Data:', data);
-  
+        console.log("Employee Data:", data);
+
         // Check if the data is an array
         if (Array.isArray(data.employee)) {
-          setEmployees(data.employee);  // Set employees as the array
-        } 
+          setEmployees(data.employee); // Set employees as the array
+        }
         // Check if the data is an object (single employee)
-        else if (typeof data.employee === 'object' && data.employee !== null) {
-          setEmployees([data.employee]);  // Convert the object to an array
-        } 
+        else if (typeof data.employee === "object" && data.employee !== null) {
+          setEmployees([data.employee]); // Convert the object to an array
+        }
         // Handle unexpected format
         else {
-          console.error('Unexpected employee data format');
-          setEmployees([]);  // Fallback to an empty array
+          console.error("Unexpected employee data format");
+          setEmployees([]); // Fallback to an empty array
         }
       } catch (error) {
-        console.error('Error fetching employees:', error);
+        console.error("Error fetching employees:", error);
       }
     };
-  
+
     fetchEmployees();
   }, []);
-  
-  
-  
 
   return (
     <div>
       <div className="p-8 ">
         <h2 className="text-2xl font-bold mb-4">Edit Vehicle Manager</h2>
-        <form className="space-y-4">
-          {/* Manager ID */}
+        <ToastContainer/>
+        {
+          vehicleManagerData ? (<>
+          <form className="space-y-4">
+          {/* Vehicle no*/}
           <div className="block text-sm font-medium">
-            Manager ID
+             Vehicle Manager No
+              <input
+                type="number"
+                name="employee_no"
+                value={vehicleManagerData.employee_no}
+                onChange={handleInputChange}
+                required
+                className="border border-gray-300 rounded-lg p-2 w-full"
+                readOnly
+              />
+            </div>
+          {/* Company ID with Spin Button */}
+          <div>
+            <label htmlFor="company_id" className="block text-sm font-medium">
+              Company ID
+            </label>
+            <div className="flex justify-between">
+              <input
+                type="number"
+                id="company_id"
+                name="company_id"
+                value={vehicleManagerData.company_id}
+                onChange={handleInputChange}
+                required
+                className="border border-gray-300 rounded-lg p-2 w-full"
+                min="1"
+                step="1"
+              />
+              <div className="pl-2">
+                <FontAwesomeIcon
+                  icon={faChevronUp}
+                  className="bg-gray-300 p-1 rounded"
+                />
+                <FontAwesomeIcon
+                  icon={faChevronDown}
+                  className="bg-gray-300 p-1 rounded"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Company Name */}
+          <div>
+            <label htmlFor="company_name" className="block text-sm font-medium">
+              Company Name
+            </label>
             <input
-              type="number"
-              id="manager_id"
-              name="manager_id"
-              value={vehicleManagerData.manager_id}
+              type="text"
+              id="company_name"
+              name="company_name"
+              value={vehicleManagerData.company_name}
               onChange={handleInputChange}
               required
               className="border border-gray-300 rounded-lg p-2 w-full"
-              min="1"
-              step="1"
-              readOnly
             />
           </div>
 
-          {/* Vehicle Number Dropdown */}
-          <div>
-            <label htmlFor="vehicle_no" className="block text-sm font-medium">
-              Vehicle No
-            </label>
-            <select
-              id="vehicle_no"
-              name="vehicle_no"
-              value={vehicleManagerData.vehicle_no} // Set the default to the selected vehicle
-              onChange={handleInputChange}
-              required
-              className="border border-gray-300 rounded-lg p-2 w-full"
-            >
-              <option value="" disabled>
-                ---Select Vehicle---
-              </option>
-              {vehicles.map((vehicle) => (
-                <option key={vehicle.vehicle_no} value={vehicle.vehicle_no}>
-                  {vehicle.vehicle_no}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Employee Number Dropdown */}
+          {/* Employee Number */}
           <div>
             <label htmlFor="employee_no" className="block text-sm font-medium">
               Employee Number
             </label>
-            <select
+            <input
+              type="number"
               id="employee_no"
               name="employee_no"
               value={vehicleManagerData.employee_no}
               onChange={handleInputChange}
               required
               className="border border-gray-300 rounded-lg p-2 w-full"
+            />
+          </div>
+          {/* Employee Name */}
+          <div>
+            <label
+              htmlFor="employee_name"
+              className="block text-sm font-medium"
             >
-              <option value="" disabled>
-                ---Select Employee---
-              </option>
-              {employees
-                .filter(
-                  (employee) =>
-                    employee.employee_no &&
-                    employee.firstname &&
-                    employee.lastname
-                )
-                .map((employee) => (
-                  <option
-                    key={employee.employee_no}
-                    value={employee.employee_no}
-                  >
-                    {employee.employee_no} 
-                  </option>
-                ))}
-            </select>
+              Employee Name
+            </label>
+            <input
+              type="text"
+              id="employee_name"
+              name="employee_name"
+              value={vehicleManagerData.employee_name}
+              onChange={handleInputChange}
+              required
+              className="border border-gray-300 rounded-lg p-2 w-full"
+            />
+          </div>
+          {/* vehicle_number_plate */}
+          <div>
+            <label
+              htmlFor="vehicle_number_plate"
+              className="block text-sm font-medium"
+            >
+              Vehicle Number Plate
+            </label>
+            <input
+              type="text"
+              id="vehicle_number_plate"
+              name="vehicle_number_plate"
+              value={vehicleManagerData.vehicle_number_plate}
+              onChange={handleInputChange}
+              required
+              className="border border-gray-300 rounded-lg p-2 w-full"
+            />
           </div>
 
           {/* Lease Start Date */}
@@ -312,7 +361,7 @@ const EditManagerDetails = () => {
               className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
             >
               <FontAwesomeIcon icon={faFloppyDisk} className="pr-2" />
-              Save Vehicle Manager
+              Save Edit Data
             </button>
             <button
               type="button"
@@ -324,6 +373,15 @@ const EditManagerDetails = () => {
             </button>
           </div>
         </form>
+        <EditOrChangeModal
+            isOpen={isChangeDialogOpen}
+            confirmChange={confirmChange}
+            cancelChange={cancelChange}
+          />
+          </>):(
+            <p>LLoading data</p>
+          )
+        }
       </div>
     </div>
   );

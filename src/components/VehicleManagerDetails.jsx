@@ -10,7 +10,7 @@ const VehicleManagerDetails = () => {
 
   // Fetch vehicles and managers from the backend API
   useEffect(() => {
-    fetch("http://localhost:8000/api/vehicle_managers/")
+    fetch("http://localhost:8000/api/vehicle_manager/")
       .then((res) => {
         if (!res.ok) {
           throw new Error(`HTTP error! Status: ${res.status}`);
@@ -82,11 +82,12 @@ const VehicleManagerDetails = () => {
         <table className="min-w-full bg-white border border-gray-300">
           <thead>
             <tr className="bg-gray-100">
-              <th className="px-4 py-2 border">Manager ID</th>
               <th className="px-4 py-2 border">Vehicle No</th>
               <th className="px-4 py-2 border">Company ID</th>
               <th className="px-4 py-2 border">Company Name</th>
               <th className="px-4 py-2 border">Employee No</th>
+              <th className="px-4 py-2 border">Employee Name</th>
+              <th className="px-4 py-2 border">vehicle_number_plate</th>
               <th className="px-4 py-2 border">Start Date</th>
               <th className="px-4 py-2 border">End Date</th>
             </tr>
@@ -99,11 +100,12 @@ const VehicleManagerDetails = () => {
                   className={`text-center ${selectedManager === manager ? "bg-blue-200 border" : ""}`}
                   onClick={() => handleRowClick(manager)} // Select manager on row click
                 >
-                  <td className="border px-4 py-2">{manager.manager_id}</td>
                   <td className="border px-4 py-2">{manager.vehicle_no}</td>
                   <td className="border px-4 py-2">{manager.company_id}</td>
                   <td className="border px-4 py-2">{manager.company_name}</td>
-                  <td className="border px-4 py-2">{manager.employee_id}</td>
+                  <td className="border px-4 py-2">{manager.employee_no}</td>
+                  <td className="border px-4 py-2">{manager.employee_name}</td>
+                  <td className="border px-4 py-2">{manager.vehicle_number_plate}</td>
                   <td className="border px-4 py-2">{manager.start_date}</td>
                   <td className="border px-4 py-2">{manager.end_date || "N/A"}</td>
                 </tr>

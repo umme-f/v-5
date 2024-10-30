@@ -62,25 +62,23 @@ const AddVehicleManager = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log(vehicleManagerData);
-  // Ensure numbers are passed correctly
-  const updatedVehicleManagerData = {
-    ...vehicleManagerData,
-    vehicle_no: parseInt(vehicleManagerData.vehicle_no, 10),
-    company_id: parseInt(vehicleManagerData.company_id, 10),
-    employee_no: parseInt(vehicleManagerData.employee_no, 10),
-  };
+  
+    const updatedVehicleManagerData = {
+      ...vehicleManagerData,
+      vehicle_no: parseInt(vehicleManagerData.vehicle_no, 10),
+      company_id: parseInt(vehicleManagerData.company_id, 10),
+      employee_no: parseInt(vehicleManagerData.employee_no, 10),
+    };
+  
     try {
-      const response = await fetch(
-        "http://localhost:8000/api/load_vehicle_manager/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(vehicleManagerData),
-        }
-      );
-
+      const response = await fetch("http://127.0.0.1:8000/api/load_vehicle_manager/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedVehicleManagerData),
+      });
+  
       if (response.ok) {
         alert("Vehicle manager added successfully!");
         setVehicleManagerData({
@@ -103,6 +101,7 @@ const AddVehicleManager = () => {
       alert("Failed to add vehicle manager.");
     }
   };
+  
 
   const handleBackClick = () => {
     navigate("/vehicle-manager-details");

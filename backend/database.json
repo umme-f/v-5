@@ -55,13 +55,24 @@
     ],
     "vehicle_managers": [
         {
-            "manager_id": 1,
             "vehicle_no": 1,
             "company_id": 301,
             "company_name": "ar",
-            "employee_id": 501,
+            "employee_no": 501,
+            "employee_name": "Pochi",
+            "vehicle_number_plate": "ABC123",
             "start_date": "2023-01-01",
             "end_date": "2024-10-10"
+        },
+        {
+            "vehicle_no": 123,
+            "company_id": 27,
+            "company_name": "ark",
+            "employee_no": 321,
+            "employee_name": "Boku",
+            "vehicle_number_plate": "abc123423",
+            "start_date": "2024-11-16",
+            "end_date": "2024-11-30"
         }
     ],
     "suppliers": [

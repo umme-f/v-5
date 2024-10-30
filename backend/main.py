@@ -33,14 +33,15 @@ class Vehicle(BaseModel):
 
 # Pydantic model for Vehicle Manager
 class VehicleManager(BaseModel):
-    vehicle_id: int
+    vehicle_no: int
     company_id: int
-    company_name: str
-    employee_no: int
-    employee_name:str
-    vehicle_number_plate:str
-    start_date: str
-    end_date: Optional[str]  # Optional if it can be null
+    company_name: Optional[str] = None
+    employee_no: Optional[int] = None
+    employee_name: Optional[str] = None
+    vehicle_number_plate: Optional[str] = None
+    start_date: Optional[str] = None
+    end_date: Optional[str] = None
+
 
 # Pydantic model for Employee
 class Employee(BaseModel):
@@ -155,7 +156,7 @@ async def add_vehicle_manager(manager: VehicleManager):
 
     # Check if vehicle_id already exists in the vehicle managers list
     for existing_manager in data["vehicle_managers"]:
-        if existing_manager["vehicle_id"] == manager.vehicle_id:
+        if existing_manager["vehicle_no"] == manager.vehicle_no:
             raise HTTPException(status_code=400, detail="Vehicle Manager for this vehicle ID already exists.")
 
     # Add the new vehicle manager to the list
@@ -176,43 +177,44 @@ async def get_vehicles():
 
 
 # Endpoint to fetch all vehicle managers
-@app.get("/api/vehicle_managers/")
+@app.get("/api/vehicle_manager/")
 async def get_all_vehicle_managers():
     data = read_database()
     return {"vehicle_managers": data["vehicle_managers"]}
 
 # Endpoint to get a vehicle manager by vehicle ID
-@app.get("/api/vehicle_managers/{vehicle_id}")
-async def get_vehicle_manager(vehicle_id: int):
+@app.get("/api/get_vehicle_manager/{employee_no}")
+async def get_vehicle_manager(employee_no: int):
     data = read_database()
     for manager in data["vehicle_managers"]:
-        if manager["vehicle_id"] == vehicle_id:
+        if manager["employee_no"] == employee_no:
             return manager
     raise HTTPException(status_code=404, detail="Vehicle Manager not found")
 
 # Endpoint to update a vehicle manager
-@app.put("/api/vehicle_managers/{vehicle_id}")
-async def update_vehicle_manager(vehicle_id: int, updated_manager: VehicleManager):
+@app.put("/api/vehicle_manager/{employee_no}")
+async def update_vehicle_manager(employee_no: int, updated_manager: VehicleManager):
     data = read_database()
     for index, manager in enumerate(data["vehicle_managers"]):
-        if manager["vehicle_id"] == vehicle_id:
-            data["vehicle_managers"][index] = updated_manager.dict()  # Update the vehicle manager
-            write_database(data)  # Save the updated data back to the JSON file
+        if manager["employee_no"] == employee_no:
+            data["vehicle_managers"][index] = updated_manager.dict()  # Update data
+            write_database(data)  # Save changes
             return updated_manager
     raise HTTPException(status_code=404, detail="Vehicle Manager not found")
 
+
+
+
 # Endpoint to delete a vehicle manager by vehicle ID
-@app.delete("/api/vehicle_managers/{vehicle_id}")
-async def delete_vehicle_manager(vehicle_id: int):
+@app.delete("/api/vehicle_managers/{vehicle_no}")
+async def delete_vehicle_manager(vehicle_no: int):
     data = read_database()
-
-    # Find the vehicle manager by vehicle_id and remove it
-    data["vehicle_managers"] = [manager for manager in data["vehicle_managers"] if manager["vehicle_id"] != vehicle_id]
-
-    # Write the updated data back to the JSON file
+    data["vehicle_managers"] = [
+        manager for manager in data["vehicle_managers"] if manager["vehicle_no"] != vehicle_no
+    ]
     write_database(data)
-
     return {"message": "Vehicle Manager deleted successfully"}
+
 
 
 # --- Employee Endpoints ---
